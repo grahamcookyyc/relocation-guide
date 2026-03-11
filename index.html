@@ -1082,6 +1082,9 @@ function scoreToColor(score) {
 // ============================================================
 // NEIGHBOURHOOD DATA
 // ============================================================
+// TODO: Replace with remote fetch from heat-maps repo once
+//       neighbourhood-descriptions.json is published there.
+//       See fetchRemoteData() stub in the REMOTE DATA FETCH section.
 const NEIGHBOURHOOD_DESCRIPTIONS = {
   "ABBEYDALE": `Located in Calgary's northeast quadrant, Abbeydale is a quiet, family-oriented neighbourhood with most homes built in the late 1970s and 1980s. The community has a large child and youth population, with predominantly single-family homes. Abbeydale School (public, K-6) and Blessed Kateri Tekakwitha Elementary School (Catholic) serve the area. Community parks feature playgrounds, sports fields, and picnic areas.`,
   "ACADIA": `This established neighbourhood in southeast Calgary was created in 1960, with a mix of seniors and young families. The Heritage C-Train Station serves the neighbourhood. Lord Beaverbrook High School, the city's largest, is located here. The Acadia Aquatic & Fitness Centre and Sue Higgins Park (largest fenced off-leash dog area in the city) are major draws.`,
@@ -1183,55 +1186,9 @@ const NEIGHBOURHOOD_DESCRIPTIONS = {
   "YORKVILLE": `South Calgary newer community with developing amenities. Affordable entry-level housing.`,
 };
 
-const SCHOOLS_BY_NEIGHBOURHOOD = {
-  "HUNTINGTON HILLS": ["Alex Munro School (public, K–6)","Sir John A. Macdonald School (public, 7–9)","St. Henry Elementary School (Catholic, K–6)","John G. Diefenbaker High School (public, 10–12)"],
-  "MOUNT PLEASANT": ["St. Joseph Elementary Junior High School (Catholic, K–9)","King George School (public, K–6)"],
-  "NEW BRIGHTON": ["St. Marguerite School (Catholic, K–6)","Dr. Martha Cohen School (public, K–9)","New Brighton School (public, K–6)"],
-  "TUSCANY": ["Twelve Mile Coulee School (public, K–9)","Eric Harvie School (public, K–6)","St. Basil Elementary/Junior High School (Catholic, K–9)","Tuscany School (public, K–6)"],
-  "SOUTHWOOD": ["Harold Panabaker School (public, K–9)","St. Stephen School (Catholic, K–9)","Ethel M. Johnson School (public, K–6)"],
-  "MARTINDALE": ["Nelson Mandela High School (public, 10–12)","Crossing Park School (public, K–9)"],
-  "CAPITOL HILL": ["Ecole St. Pius X School (Catholic, K–6)","Capitol Hill School (public, K–6)"],
-  "HAWKWOOD": ["Hawkwood School (public, K–6)","St. Maria Goretti Elementary School (Catholic, K–6)"],
-  "GLENBROOK": ["Glenbrook School (public, K–6)","Calgary Christian School (private, K–6)","A. E. Cross School (public, 7–9)","Calgary Christian High School (private, 7–12)"],
-  "MIDNAPORE": ["Trinity Christian School (private, K–9)","St. Teresa of Calcutta School (Catholic, K–6)","Midnapore School (public, K–6)"],
-  "MONTGOMERY": ["FFCA High School Campus (private, 7–12)","Terrace Road School (public, K–6)"],
-  "FOREST LAWN": ["Ernest Morrow School (public, 7–9)","Holy Trinity School (Catholic, K–6)","Patrick Airlie School (public, K–6)","Forest Lawn High School (public, 10–12)"],
-  "GLAMORGAN": ["St. Andrew School (Catholic, K–6)","Glamorgan School (public, K–9)"],
-  "ALTADORE": ["Altadore School (public, K–6)","Dr. Oakley School (public, K–12)"],
-  "CAMBRIAN HEIGHTS": ["Cambrian Heights School (public, K–6)"],
-  "ACADIA": ["Acadia School (public, K–6)","St. Matthew School (Catholic, K–9)","Lord Beaverbrook High School (public, 10–12)"],
-  "ABBEYDALE": ["Abbeydale School (public, K–6)","Blessed Kateri Tekakwitha Elementary (Catholic, K–6)"],
-  "AUBURN BAY": ["Auburn Bay School (public, K–4)","Prince of Peace School (Catholic, K–9)","St. Gianna Catholic School (Catholic, K–6)","Bayside School (public, K–5)","Lakeshore School (public, 5–9)"],
-  "BANFF TRAIL": ["Branton Bilingual Junior High (public, 7–9)","William Aberhart Bilingual Senior High (public, 10–12)"],
-  "BRENTWOOD": ["Brentwood Elementary School (public, K–6)","Simon Fraser Junior High (public, 7–9)","Sir Winston Churchill Senior High (public, 10–12)","St. Luke Elementary (Catholic, K–6)"],
-  "ARBOUR LAKE": ["Arbour Lake Middle School (public, 5–9)","Robert Thirsk High School (public, 10–12)","St. Ambrose Elementary/Jr. High (Catholic, K–9)"],
-  "CHAPARRAL": ["Lake Chaparral School (public, K–9)","St. Sebastian School (Catholic, K–6)"],
-  "COPPERFIELD": ["Copperfield School (public, K–5)","St. Isabella School (Catholic, K–6)","Lakeview Village School (public, K–9)"],
-  "CRANSTON": ["Cranston School (public, K–6)","Joane Cardinal-Schubert High School (public, 10–12)"],
-  "DALHOUSIE": ["John G. Diefenbaker High School (public, 10–12)","St. Marguerite School (Catholic, K–6)","Captain Nichols School (public, K–6)"],
-  "EDGEMONT": ["Edgemont School (public, K–6)","Our Lady of Grace School (Catholic, K–6)","Tom Baines Junior High (public, 7–9)"],
-  "EVANSTON": ["Ambleton School (public, K–6)","St. Jerome School (Catholic, K–6)"],
-  "EVERGREEN": ["John Ware Junior High (public, 7–9)","Glenmore Christian Academy (private, K–12)"],
-  "HAMPTONS": ["Hampton School (public, K–6)","St. Gregory School (Catholic, K–6)"],
-  "KINCORA": ["Kincora School (public, K–6)"],
-  "LAKE BONAVISTA": ["Andrew Sibbald School (public, K–9)","St. Boniface School (Catholic, K–6)","Bonavista School (public, K–6)"],
-  "LEGACY": ["Legacy School (public, K–9)"],
-  "MAHOGANY": ["Mahogany School (public, K–6)","St. Gianna School (Catholic, K–6)"],
-  "MCKENZIE TOWNE": ["McKenzie Towne School (public, K–6)","St. Albert the Great School (Catholic, K–6)"],
-  "NEW BRIGHTON": ["New Brighton School (public, K–6)","Dr. Martha Cohen School (public, K–9)","St. Marguerite School (Catholic, K–6)"],
-  "PANORAMA HILLS": ["Panorama Hills School (public, K–6)","Our Lady of Grace School (Catholic, K–6)"],
-  "ROCKY RIDGE": ["Rocky Ridge School (public, K–6)"],
-  "ROYAL OAK": ["Royal Oak School (public, K–6)","St. Ambrose School (Catholic, K–9)"],
-  "SADDLE RIDGE": ["Saddle Ridge School (public, K–6)","St. Josephine Bakhita School (Catholic, K–6)"],
-  "SAGE HILL": ["Sage Hill School (public, K–6)"],
-  "SETON": ["Seton School (public, K–6)","Father Doucet School (Catholic, K–6)"],
-  "SHAWNESSY": ["Shawnessy School (public, K–6)","Our Lady of Perpetual Help (Catholic, K–6)"],
-  "SILVER SPRINGS": ["Silver Springs School (public, K–6)","St. Vincent de Paul School (Catholic, K–6)"],
-  "SOMERSET": ["Somerset School (public, K–6)","Holy Spirit School (Catholic, K–6)"],
-  "VARSITY": ["Varsity Acres School (public, K–6)","St. Vincent de Paul School (Catholic, K–6)"],
-  "WEST SPRINGS": ["West Springs School (public, K–6)","St. Joan of Arc School (Catholic, K–6)"],
-  "WOODBINE": ["Woodbine School (public, K–6)","St. Catherine of Siena School (Catholic, K–6)"],
-};
+// SCHOOLS_BY_NEIGHBOURHOOD is loaded asynchronously from the heat-maps repo.
+// See fetchRemoteData() below.
+let SCHOOLS_BY_NEIGHBOURHOOD = {};
 
 // ============================================================
 // STATE & UI
@@ -1607,6 +1564,28 @@ function toggleOverlay(key, show) {
 }
 
 // ============================================================
+// REMOTE DATA FETCH
+// ============================================================
+const HEAT_MAPS_BASE = 'https://raw.githubusercontent.com/grahamcookyyc/heat-maps/main';
+
+async function fetchRemoteData() {
+  // --- Schools ---
+  try {
+    const res = await fetch(`${HEAT_MAPS_BASE}/schools-by-neighbourhood.json`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    SCHOOLS_BY_NEIGHBOURHOOD = await res.json();
+    console.log('Schools data loaded:', Object.keys(SCHOOLS_BY_NEIGHBOURHOOD).length, 'neighbourhoods');
+  } catch (err) {
+    console.warn('Could not load schools data from heat-maps repo:', err);
+    // SCHOOLS_BY_NEIGHBOURHOOD stays as {} — panels will show no schools gracefully
+  }
+
+  // --- Neighbourhood descriptions (stub — wire up when data is ready) ---
+  // TODO: fetch(`${HEAT_MAPS_BASE}/neighbourhood-descriptions.json`)
+  //       then merge into NEIGHBOURHOOD_DESCRIPTIONS
+}
+
+// ============================================================
 // MAP LOAD
 // ============================================================
 map.on('load', () => {
@@ -1666,6 +1645,9 @@ map.on('load', () => {
   // We simulate these as legend/info overlays since we don't have the GeoJSON files
   // They display as info when clicked/toggled
   // (In production you'd add actual GeoJSON source layers here)
+
+  // Fetch remote data (fire-and-forget; map renders immediately with cached scores)
+  fetchRemoteData();
 
   // Initial paint
   map.once('idle', () => {
