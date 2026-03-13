@@ -848,6 +848,10 @@
 
 <script src="config.js"></script>
 <script>
+// Fallbacks so the script doesn't crash if config.js didn't load (e.g. on Netlify)
+if (typeof MAPBOX_TOKEN === 'undefined')      { var MAPBOX_TOKEN = ''; }
+if (typeof ANTHROPIC_API_KEY === 'undefined') { var ANTHROPIC_API_KEY = ''; }
+
 // ============================================================
 // NEIGHBOURHOOD SCORING DATA
 // ============================================================
@@ -1211,9 +1215,13 @@ const aiCache = {};
   if (sessionStorage.getItem('reloc_onboarding_seen')) {
     overlay.style.display = 'none'; return;
   }
-  document.getElementById('onboarding-dismiss').addEventListener('click', () => {
+  function dismissOnboarding() {
     overlay.style.display = 'none';
     sessionStorage.setItem('reloc_onboarding_seen', '1');
+  }
+  document.getElementById('onboarding-dismiss').addEventListener('click', dismissOnboarding);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) dismissOnboarding();
   });
 })();
 
