@@ -814,15 +814,7 @@
   <div class="panel-section">
     <div class="section-label">Context Overlays</div>
     <div class="overlay-grid">
-      <button class="overlay-btn" data-overlay="hail" type="button">
-        <div class="dot" style="background:#6366f1;"></div>⛈️ Hail Risk
-      </button>
-      <button class="overlay-btn" data-overlay="flood" type="button">
-        <div class="dot" style="background:#3b82f6;"></div>🌊 Flood Zone
-      </button>
-      <button class="overlay-btn" data-overlay="chinook" type="button">
-        <div class="dot" style="background:#f59e0b;"></div>🌬️ Chinook
-      </button>
+
       <button class="overlay-btn" data-overlay="ctrain" type="button">
         <div class="dot" style="background:#ef4444;"></div>🚇 C-Train
       </button>
@@ -1111,30 +1103,6 @@ const PERSONAS = {
 
 // Calgary-specific overlay data
 const OVERLAY_DATA = {
-  hail: {
-    title: "⛈️ Hail Risk Zones",
-    description: "Calgary's SW quadrant and southern suburbs experience higher frequency hail events. The 'hailstorm alley' runs roughly through communities west of Macleod Trail and south of Glenmore.",
-    zones: {
-      "HIGH":   ["SPRINGBANK HILL","WEST SPRINGS","COUGAR RIDGE","SIGNAL HILL","COACH HILL","DISCOVERY RIDGE","VALLEY RIDGE","ASPEN WOODS","STRATHCONA PARK","PATTERSON","GLENBROOK","GLAMORGAN","LAKEVIEW","GARRISON GREEN","RUTLAND PARK","ROSSCARROCK","WESTGATE","WILDWOOD"],
-      "MEDIUM": ["OAKRIDGE","PALLISER","PUMP HILL","HAYSBORO","KINGSLAND","MAPLE RIDGE","WILLOW PARK","LAKE BONAVISTA","BONAVISTA DOWNS","MIDNAPORE","DIAMOND COVE","WOODBINE","WOODLANDS","EVERGREEN","SHAWNESSY","SOMERSET","MILLRISE","LEGACY","CHAPARRAL","DEER RIDGE","DEER RUN"],
-    }
-  },
-  flood: {
-    title: "🌊 Flood Risk Zones",
-    description: "Areas near the Bow River and Elbow River carry higher flood risk, especially following the 2013 floods. The City of Calgary has flood mitigation projects underway but risk remains in some areas.",
-    zones: {
-      "HIGH":   ["BOWNESS","MONTGOMERY","RIVERSIDE","BRIDGELAND/RIVERSIDE","RENFREW","INGLEWOOD","RAMSAY","ERLTON","MISSION","ELBOW PARK","ELBOYA","ROXBORO","RIDEAU PARK"],
-      "MEDIUM": ["SUNNYSIDE","HILLHURST","WEST HILLHURST","PARKDALE","POINT MCKAY","SUNALTA","SCARBORO","RICHMOND","SOUTH CALGARY","ROSEDALE","ST. ANDREWS HEIGHTS","WINDSOR PARK"],
-    }
-  },
-  chinook: {
-    title: "🌬️ Chinook Frequency",
-    description: "Chinook winds bring warm, dry conditions in winter, dramatically raising temperatures. SW Calgary communities closer to the foothills experience chinooks more intensely and frequently — a significant quality-of-life factor.",
-    zones: {
-      "STRONG": ["SPRINGBANK HILL","WEST SPRINGS","DISCOVERY RIDGE","VALLEY RIDGE","COACH HILL","COUGAR RIDGE","SIGNAL HILL","ASPEN WOODS","STRATHCONA PARK","PATTERSON","CRESTMONT","ROCKY RIDGE","TUSCANY"],
-      "MODERATE": ["SCENIC ACRES","ROYAL OAK","HAMPTONS","EDGEMONT","CITADEL","RANCHLANDS","BOWNESS","MONTGOMERY","GLENBROOK","GLAMORGAN","LAKEVIEW","WILDWOOD","ROSSCARROCK","RUTLAND PARK"],
-    }
-  },
   ctrain: {
     title: "🚇 C-Train Proximity",
     description: "Calgary's C-Train runs on two lines: Red Line (NE/SW) and Blue Line (NW/downtown). Communities within ~1km of a station have significantly better transit scores.",
