@@ -1456,14 +1456,23 @@ const RELOC_SELECTED_ID = 'gc-reloc-selected';
 function paintMap() {
   if (!map.getLayer(RELOC_LAYER_ID)) return;
 
-  // Coalesce name + comm_name so both property conventions are covered.
-  const nameExpr  = ['coalesce', ['upcase', ['get', 'name']], ['upcase', ['get', 'comm_name']]];
-  const colorExpr = ['match', nameExpr];
-
+  // Build the residential score match expression.
+  const nameExpr = ['coalesce', ['upcase', ['get', 'name']], ['upcase', ['get', 'comm_name']]];
+  const matchExpr = ['match', nameExpr];
   Object.entries(currentScores).forEach(([name, score]) => {
-    colorExpr.push(name, scoreToColor(score));
+    matchExpr.push(name, scoreToColor(score));
   });
-  colorExpr.push('rgba(180,180,180,0.3)'); // neutral grey for communities with no score data
+  matchExpr.push('rgba(180,180,180,0.25)'); // unscored residential fallback
+
+  // Branch by Class property so non-residential areas get fixed colours
+  // rather than being run through the scoring heatmap.
+  const colorExpr = [
+    'case',
+    ['==', ['get', 'Class'], 'Major Parks'],  'rgba(34,197,94,0.35)',
+    ['==', ['get', 'Class'], 'Commercial'],   'rgba(148,163,184,0.2)',
+    ['==', ['get', 'Class'], 'Industrial'],   'rgba(234,88,12,0.2)',
+    matchExpr  // Residential (and anything else) gets the score heatmap
+  ];
 
   map.setPaintProperty(RELOC_LAYER_ID, 'fill-color', colorExpr);
   map.setPaintProperty(RELOC_LAYER_ID, 'fill-opacity', 0.82);
