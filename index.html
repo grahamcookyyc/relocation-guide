@@ -187,19 +187,31 @@
       align-items: center;
       gap: 8px;
       margin-bottom: 8px;
+      transition: opacity 0.15s;
     }
     .priority-row:last-child { margin-bottom: 0; }
+    .priority-row.disabled .priority-slider,
+    .priority-row.disabled .priority-val { opacity: 0.3; pointer-events: none; }
+    .priority-row.disabled .priority-label { color: #9ca3af; }
     .priority-label {
       font-size: 11px;
       font-weight: 600;
       color: #374151;
-      width: 108px;
+      width: 116px;
       flex-shrink: 0;
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 5px;
     }
     .priority-label .icon { font-size: 13px; }
+    .priority-check {
+      width: 13px;
+      height: 13px;
+      flex-shrink: 0;
+      accent-color: var(--gc-green);
+      cursor: pointer;
+      margin: 0;
+    }
     .priority-slider {
       flex: 1;
       -webkit-appearance: none;
@@ -746,47 +758,47 @@
     <div class="section-label">What matters most?</div>
 
     <div class="priority-row">
-      <div class="priority-label"><span class="icon">🏫</span> Schools</div>
+      <div class="priority-label"><input type="checkbox" class="priority-check" id="chk-schools" checked><span class="icon">🏫</span> Schools</div>
       <input type="range" class="priority-slider" id="sl-schools" min="0" max="10" value="5">
       <div class="priority-val" id="v-schools">5</div>
     </div>
     <div class="priority-row">
-      <div class="priority-label"><span class="icon">🌿</span> Green Space</div>
+      <div class="priority-label"><input type="checkbox" class="priority-check" id="chk-green" checked><span class="icon">🌿</span> Green Space</div>
       <input type="range" class="priority-slider" id="sl-green" min="0" max="10" value="5">
       <div class="priority-val" id="v-green">5</div>
     </div>
     <div class="priority-row">
-      <div class="priority-label"><span class="icon">🚇</span> Transit</div>
+      <div class="priority-label"><input type="checkbox" class="priority-check" id="chk-transit" checked><span class="icon">🚇</span> Transit</div>
       <input type="range" class="priority-slider" id="sl-transit" min="0" max="10" value="5">
       <div class="priority-val" id="v-transit">5</div>
     </div>
     <div class="priority-row">
-      <div class="priority-label"><span class="icon">🚗</span> Commute</div>
+      <div class="priority-label"><input type="checkbox" class="priority-check" id="chk-commute" checked><span class="icon">🚗</span> Commute</div>
       <input type="range" class="priority-slider" id="sl-commute" min="0" max="10" value="5">
       <div class="priority-val" id="v-commute">5</div>
     </div>
     <div class="priority-row">
-      <div class="priority-label"><span class="icon">🔒</span> Safety</div>
+      <div class="priority-label"><input type="checkbox" class="priority-check" id="chk-safety" checked><span class="icon">🔒</span> Safety</div>
       <input type="range" class="priority-slider" id="sl-safety" min="0" max="10" value="5">
       <div class="priority-val" id="v-safety">5</div>
     </div>
     <div class="priority-row">
-      <div class="priority-label"><span class="icon">🛒</span> Amenities</div>
+      <div class="priority-label"><input type="checkbox" class="priority-check" id="chk-amenities" checked><span class="icon">🛒</span> Amenities</div>
       <input type="range" class="priority-slider" id="sl-amenities" min="0" max="10" value="5">
       <div class="priority-val" id="v-amenities">5</div>
     </div>
     <div class="priority-row">
-      <div class="priority-label"><span class="icon">🏔️</span> Mountains</div>
+      <div class="priority-label"><input type="checkbox" class="priority-check" id="chk-mountains" checked><span class="icon">🏔️</span> Mountains</div>
       <input type="range" class="priority-slider" id="sl-mountains" min="0" max="10" value="3">
       <div class="priority-val" id="v-mountains">3</div>
     </div>
     <div class="priority-row">
-      <div class="priority-label"><span class="icon">💰</span> Affordability</div>
+      <div class="priority-label"><input type="checkbox" class="priority-check" id="chk-afford" checked><span class="icon">💰</span> Affordability</div>
       <input type="range" class="priority-slider" id="sl-afford" min="0" max="10" value="5">
       <div class="priority-val" id="v-afford">5</div>
     </div>
     <div class="priority-row">
-      <div class="priority-label"><span class="icon">🏙️</span> Urban Vibe</div>
+      <div class="priority-label"><input type="checkbox" class="priority-check" id="chk-urban" checked><span class="icon">🏙️</span> Urban Vibe</div>
       <input type="range" class="priority-slider" id="sl-urban" min="0" max="10" value="4">
       <div class="priority-val" id="v-urban">4</div>
     </div>
@@ -1048,16 +1060,20 @@ const map = new mapboxgl.Map({
 // SCORING ENGINE
 // ============================================================
 function getWeights() {
+  function w(id) {
+    const chk = document.getElementById('chk-' + id);
+    return chk && !chk.checked ? 0 : parseInt(document.getElementById('sl-' + id).value);
+  }
   return {
-    schools:   parseInt(document.getElementById('sl-schools').value),
-    green:     parseInt(document.getElementById('sl-green').value),
-    transit:   parseInt(document.getElementById('sl-transit').value),
-    commute:   parseInt(document.getElementById('sl-commute').value),
-    safety:    parseInt(document.getElementById('sl-safety').value),
-    amenities: parseInt(document.getElementById('sl-amenities').value),
-    mountains: parseInt(document.getElementById('sl-mountains').value),
-    afford:    parseInt(document.getElementById('sl-afford').value),
-    urban:     parseInt(document.getElementById('sl-urban').value),
+    schools:   w('schools'),
+    green:     w('green'),
+    transit:   w('transit'),
+    commute:   w('commute'),
+    safety:    w('safety'),
+    amenities: w('amenities'),
+    mountains: w('mountains'),
+    afford:    w('afford'),
+    urban:     w('urban'),
   };
 }
 
@@ -1256,7 +1272,17 @@ sliderIds.forEach(id => {
   const val    = document.getElementById('v-' + id);
   slider.addEventListener('input', () => {
     val.textContent = slider.value;
-    // clear persona active state when manually adjusted
+    document.querySelectorAll('.persona-btn').forEach(b => b.classList.remove('active'));
+    debouncedRefresh();
+  });
+});
+
+sliderIds.forEach(id => {
+  const chk = document.getElementById('chk-' + id);
+  if (!chk) return;
+  chk.addEventListener('change', () => {
+    const row = chk.closest('.priority-row');
+    row.classList.toggle('disabled', !chk.checked);
     document.querySelectorAll('.persona-btn').forEach(b => b.classList.remove('active'));
     debouncedRefresh();
   });
@@ -1287,6 +1313,8 @@ document.getElementById('reset-btn').addEventListener('click', () => {
     const defaults = {schools:5,green:5,transit:5,commute:5,safety:5,amenities:5,mountains:3,afford:5,urban:4};
     document.getElementById('sl-' + id).value = defaults[id];
     document.getElementById('v-' + id).textContent = defaults[id];
+    const chk = document.getElementById('chk-' + id);
+    if (chk) { chk.checked = true; chk.closest('.priority-row').classList.remove('disabled'); }
   });
   document.querySelectorAll('.persona-btn').forEach(b => b.classList.remove('active'));
   // clear overlays
