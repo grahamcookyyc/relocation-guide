@@ -1667,19 +1667,16 @@ map.on('load', () => {
   ].forEach(({ styleLayerId, overlayKey, fill, opacity }) => {
     const baseLayer = style.layers.find(l => l.id === styleLayerId);
     if (!baseLayer) { console.warn('Overlay tileset not found:', styleLayerId); return; }
-    map.addLayer({
-      id: 'overlay-' + overlayKey,
-      type: 'fill',
+    const overlayBase = {
       source: baseLayer.source,
       'source-layer': baseLayer['source-layer'],
+      ...(baseLayer.filter ? { filter: baseLayer.filter } : {})
+    };
+    map.addLayer({ ...overlayBase, id: 'overlay-' + overlayKey, type: 'fill',
       layout: { visibility: 'none' },
       paint: { 'fill-color': fill, 'fill-opacity': opacity }
     });
-    map.addLayer({
-      id: 'overlay-' + overlayKey + '-outline',
-      type: 'line',
-      source: baseLayer.source,
-      'source-layer': baseLayer['source-layer'],
+    map.addLayer({ ...overlayBase, id: 'overlay-' + overlayKey + '-outline', type: 'line',
       layout: { visibility: 'none' },
       paint: { 'line-color': fill, 'line-width': 1, 'line-opacity': 0.7 }
     });
@@ -1688,9 +1685,37 @@ map.on('load', () => {
   // Fetch remote data (fire-and-forget; map renders immediately with cached scores)
   fetchRemoteData();
 
-  // Initial paint
+  // Initial paint + affordability scoring from benchmark prices
   map.once('idle', () => {
     buildSearchIndex();
+
+    // Pull tr-benchmark values from the neighbourhood source and normalise to 0–10 affordability scores.
+    // Lower benchmark price → higher affordability score (inverted scale).
+    try {
+      const features = map.querySourceFeatures(sourceId, { sourceLayer });
+      const benchmarks = {};
+      features.forEach(f => {
+        const name = String((f.properties.name || f.properties.comm_name || '')).toUpperCase();
+        const val  = parseFloat(f.properties['tr-benchmark']);
+        if (name && !isNaN(val) && val > 0) benchmarks[name] = val;
+      });
+      const prices = Object.values(benchmarks);
+      if (prices.length > 0) {
+        const minP = Math.min(...prices);
+        const maxP = Math.max(...prices);
+        const range = maxP - minP || 1;
+        Object.entries(benchmarks).forEach(([name, price]) => {
+          if (NEIGHBOURHOOD_SCORES[name]) {
+            // index 7 = affordability
+            NEIGHBOURHOOD_SCORES[name][7] = Math.round(10 * (1 - (price - minP) / range));
+          }
+        });
+        console.log(`Affordability scores updated from tr-benchmark (${prices.length} neighbourhoods)`);
+      }
+    } catch (err) {
+      console.warn('Could not compute affordability from tr-benchmark:', err);
+    }
+
     refreshScores();
   });
 
