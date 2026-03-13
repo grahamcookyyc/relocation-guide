@@ -1732,6 +1732,17 @@ function bringExtraLayersToTop() {
 }
 
 function toggleOverlay(key, show) {
+  // GeoJSON-backed layers use a 'geojson-{key}' layer prefix
+  const geojsonLayerIds = {
+    ctrain: ['ctrain-tracks', 'ctrain-stations']
+  };
+  if (geojsonLayerIds[key]) {
+    geojsonLayerIds[key].forEach(id => {
+      if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', show ? 'visible' : 'none');
+    });
+    return;
+  }
+  // Mapbox style layers (EXTRA_LAYERS) toggled directly by ID
   if (!map.getLayer(key)) return;
   map.setLayoutProperty(key, 'visibility', show ? 'visible' : 'none');
   if (show) bringExtraLayersToTop();
@@ -1817,6 +1828,36 @@ map.on('load', () => {
   EXTRA_LAYERS.forEach(id => {
     if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', 'none');
     else console.warn('Extra layer not found in style:', id);
+  });
+
+  // ── C-Train overlay (Calgary Open Data) ──
+  map.addSource('ctrain-tracks-src', {
+    type: 'geojson',
+    data: 'https://data.calgary.ca/resource/ic67-rkd7.geojson'
+  });
+  map.addSource('ctrain-stations-src', {
+    type: 'geojson',
+    data: 'https://data.calgary.ca/resource/2axz-xm4q.geojson'
+  });
+  map.addLayer({
+    id: 'ctrain-tracks',
+    type: 'line',
+    source: 'ctrain-tracks-src',
+    layout: { visibility: 'none', 'line-join': 'round', 'line-cap': 'round' },
+    paint: { 'line-color': '#ef4444', 'line-width': 3, 'line-opacity': 0.9 }
+  });
+  map.addLayer({
+    id: 'ctrain-stations',
+    type: 'circle',
+    source: 'ctrain-stations-src',
+    layout: { visibility: 'none' },
+    paint: {
+      'circle-radius': 6,
+      'circle-color': '#ef4444',
+      'circle-stroke-color': '#fff',
+      'circle-stroke-width': 2,
+      'circle-opacity': 0.95
+    }
   });
 
   // Fetch remote data (fire-and-forget; map renders immediately with cached scores)
@@ -1907,10 +1948,18 @@ map.on('load', () => {
     openInfoPanelForName(name, feat.properties);
   });
 
-  // Overlay toggle info popup (since we don't have actual GeoJSON overlay files)
-  document.querySelectorAll('.overlay-btn').forEach(btn => {
-    // Already handled toggle, just show info banner when active
+  // C-Train station click popup
+  map.on('click', 'ctrain-stations', (e) => {
+    const props = e.features[0].properties;
+    const name  = props.stationnam || 'C-Train Station';
+    const route = props.route ? ` · Route ${props.route}` : '';
+    new mapboxgl.Popup({ closeButton: false, closeOnClick: true, offset: 10 })
+      .setLngLat(e.lngLat)
+      .setHTML(`<strong>${name}</strong><br><span style="font-size:11px;color:#6b7280;">🚇 C-Train${route}</span>`)
+      .addTo(map);
   });
+  map.on('mouseenter', 'ctrain-stations', () => { map.getCanvas().style.cursor = 'pointer'; });
+  map.on('mouseleave', 'ctrain-stations', () => { map.getCanvas().style.cursor = ''; });
 });
 
 // ============================================================
