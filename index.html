@@ -814,6 +814,15 @@
       <button class="overlay-btn" data-overlay="ctrain" type="button">
         <div class="dot" style="background:#ef4444;"></div>🚇 C-Train
       </button>
+      <button class="overlay-btn" data-overlay="parks" type="button">
+        <div class="dot" style="background:#16a34a;"></div>🌲 Major Parks
+      </button>
+      <button class="overlay-btn" data-overlay="industrial" type="button">
+        <div class="dot" style="background:#ea580c;"></div>🏭 Industrial
+      </button>
+      <button class="overlay-btn" data-overlay="developing" type="button">
+        <div class="dot" style="background:#7c3aed;"></div>🏗️ Developing
+      </button>
     </div>
   </div>
 </div>
@@ -1568,15 +1577,44 @@ document.querySelectorAll('.overlay-btn').forEach(btn => {
 });
 
 function toggleOverlay(key, show) {
+  const v = show ? 'visible' : 'none';
   const layerId = 'overlay-' + key;
-  if (!map.getLayer(layerId)) return;
-  map.setLayoutProperty(layerId, 'visibility', show ? 'visible' : 'none');
+  if (map.getLayer(layerId))                map.setLayoutProperty(layerId,                'visibility', v);
+  if (map.getLayer(layerId + '-outline'))   map.setLayoutProperty(layerId + '-outline',   'visibility', v);
 }
 
 // ============================================================
 // REMOTE DATA FETCH
 // ============================================================
 const HEAT_MAPS_BASE = 'https://raw.githubusercontent.com/grahamcookyyc/heat-maps/main';
+
+function addGeoJSONOverlay(key, geojson, fillColor, fillOpacity) {
+  const sourceId = 'overlay-source-' + key;
+  const layerId  = 'overlay-' + key;
+  if (map.getSource(sourceId)) return; // already added
+  map.addSource(sourceId, { type: 'geojson', data: geojson });
+  map.addLayer({
+    id: layerId,
+    type: 'fill',
+    source: sourceId,
+    layout: { visibility: 'none' },
+    paint: {
+      'fill-color': fillColor,
+      'fill-opacity': fillOpacity
+    }
+  });
+  map.addLayer({
+    id: layerId + '-outline',
+    type: 'line',
+    source: sourceId,
+    layout: { visibility: 'none' },
+    paint: {
+      'line-color': fillColor,
+      'line-width': 1,
+      'line-opacity': 0.7
+    }
+  });
+}
 
 async function fetchRemoteData() {
   // --- Schools ---
@@ -1586,13 +1624,38 @@ async function fetchRemoteData() {
     SCHOOLS_BY_NEIGHBOURHOOD = await res.json();
     console.log('Schools data loaded:', Object.keys(SCHOOLS_BY_NEIGHBOURHOOD).length, 'neighbourhoods');
   } catch (err) {
-    console.warn('Could not load schools data from heat-maps repo:', err);
-    // SCHOOLS_BY_NEIGHBOURHOOD stays as {} — panels will show no schools gracefully
+    console.warn('Could not load schools data:', err);
+  }
+
+  // --- Major Parks (City of Calgary open data) ---
+  try {
+    const res = await fetch("https://data.calgary.ca/resource/kami-qbfh.geojson?$where=planning_category='REGIONAL PARK'&$limit=5000");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    addGeoJSONOverlay('parks', await res.json(), '#16a34a', 0.35);
+  } catch (err) {
+    console.warn('Could not load parks overlay:', err);
+  }
+
+  // --- Industrial Areas (City of Calgary land use zoning) ---
+  try {
+    const res = await fetch("https://data.calgary.ca/resource/qe6k-p9nh.geojson?$where=major='Industrial'&$limit=5000");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    addGeoJSONOverlay('industrial', await res.json(), '#ea580c', 0.35);
+  } catch (err) {
+    console.warn('Could not load industrial overlay:', err);
+  }
+
+  // --- Developing Areas (Suburban Residential Growth pipeline) ---
+  try {
+    const res = await fetch("https://data.calgary.ca/resource/2icx-iwek.geojson?$where=land_status='Not Yet Approved' OR land_status='Approved Not Yet Serviced'&$limit=5000");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    addGeoJSONOverlay('developing', await res.json(), '#7c3aed', 0.35);
+  } catch (err) {
+    console.warn('Could not load developing areas overlay:', err);
   }
 
   // --- Neighbourhood descriptions (stub — wire up when data is ready) ---
   // TODO: fetch(`${HEAT_MAPS_BASE}/neighbourhood-descriptions.json`)
-  //       then merge into NEIGHBOURHOOD_DESCRIPTIONS
 }
 
 // ============================================================
