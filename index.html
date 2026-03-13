@@ -826,13 +826,13 @@
       <button class="overlay-btn" data-overlay="ctrain" type="button">
         <div class="dot" style="background:#ef4444;"></div>🚇 C-Train
       </button>
-      <button class="overlay-btn" data-overlay="parks" type="button">
+      <button class="overlay-btn" data-overlay="map-major-parks-only-current" type="button">
         <div class="dot" style="background:#16a34a;"></div>🌲 Major Parks
       </button>
-      <button class="overlay-btn" data-overlay="industrial" type="button">
+      <button class="overlay-btn" data-overlay="map-industrial-only-current" type="button">
         <div class="dot" style="background:#ea580c;"></div>🏭 Industrial
       </button>
-      <button class="overlay-btn" data-overlay="developing" type="button">
+      <button class="overlay-btn" data-overlay="map-developing-only-current" type="button">
         <div class="dot" style="background:#7c3aed;"></div>🏗️ Developing
       </button>
     </div>
@@ -1718,11 +1718,23 @@ document.querySelectorAll('.overlay-btn').forEach(btn => {
   });
 });
 
+const EXTRA_LAYERS = [
+  'map-developing-only-current',
+  'map-major-parks-only-current',
+  'map-industrial-only-current'
+];
+
+function bringExtraLayersToTop() {
+  for (const id of EXTRA_LAYERS) {
+    if (!map.getLayer(id)) continue;
+    try { map.moveLayer(id); } catch(e) {}
+  }
+}
+
 function toggleOverlay(key, show) {
-  const v = show ? 'visible' : 'none';
-  const layerId = 'overlay-' + key;
-  if (map.getLayer(layerId))                map.setLayoutProperty(layerId,                'visibility', v);
-  if (map.getLayer(layerId + '-outline'))   map.setLayoutProperty(layerId + '-outline',   'visibility', v);
+  if (!map.getLayer(key)) return;
+  map.setLayoutProperty(key, 'visibility', show ? 'visible' : 'none');
+  if (show) bringExtraLayersToTop();
 }
 
 // ============================================================
@@ -1801,27 +1813,10 @@ map.on('load', () => {
     filter: ['==', ['get', 'name'], '']
   });
 
-  // ── Mapbox tileset overlays ──
-  [
-    { styleLayerId: 'map-major-parks-only-current',  overlayKey: 'parks',      fill: '#16a34a', opacity: 0.4 },
-    { styleLayerId: 'map-industrial-only-current',   overlayKey: 'industrial', fill: '#ea580c', opacity: 0.4 },
-    { styleLayerId: 'map-developing-only-current',   overlayKey: 'developing', fill: '#7c3aed', opacity: 0.4 },
-  ].forEach(({ styleLayerId, overlayKey, fill, opacity }) => {
-    const baseLayer = style.layers.find(l => l.id === styleLayerId);
-    if (!baseLayer) { console.warn('Overlay tileset not found:', styleLayerId); return; }
-    const overlayBase = {
-      source: baseLayer.source,
-      'source-layer': baseLayer['source-layer'],
-      ...(baseLayer.filter ? { filter: baseLayer.filter } : {})
-    };
-    map.addLayer({ ...overlayBase, id: 'overlay-' + overlayKey, type: 'fill',
-      layout: { visibility: 'none' },
-      paint: { 'fill-color': fill, 'fill-opacity': opacity }
-    });
-    map.addLayer({ ...overlayBase, id: 'overlay-' + overlayKey + '-outline', type: 'line',
-      layout: { visibility: 'none' },
-      paint: { 'line-color': fill, 'line-width': 1, 'line-opacity': 0.7 }
-    });
+  // ── Hide extra style layers initially ──
+  EXTRA_LAYERS.forEach(id => {
+    if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', 'none');
+    else console.warn('Extra layer not found in style:', id);
   });
 
   // Fetch remote data (fire-and-forget; map renders immediately with cached scores)
