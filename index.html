@@ -1734,7 +1734,7 @@ function bringExtraLayersToTop() {
 function toggleOverlay(key, show) {
   // GeoJSON-backed layers use a 'geojson-{key}' layer prefix
   const geojsonLayerIds = {
-    ctrain: ['ctrain-tracks', 'ctrain-stations']
+    ctrain: ['ctrain-stations']
   };
   if (geojsonLayerIds[key]) {
     geojsonLayerIds[key].forEach(id => {
@@ -1831,20 +1831,9 @@ map.on('load', () => {
   });
 
   // ── C-Train overlay (Calgary Open Data) ──
-  map.addSource('ctrain-tracks-src', {
-    type: 'geojson',
-    data: 'https://data.calgary.ca/resource/ic67-rkd7.geojson'
-  });
   map.addSource('ctrain-stations-src', {
     type: 'geojson',
     data: 'https://data.calgary.ca/resource/2axz-xm4q.geojson'
-  });
-  map.addLayer({
-    id: 'ctrain-tracks',
-    type: 'line',
-    source: 'ctrain-tracks-src',
-    layout: { visibility: 'none', 'line-join': 'round', 'line-cap': 'round' },
-    paint: { 'line-color': '#ef4444', 'line-width': 3, 'line-opacity': 0.9 }
   });
   map.addLayer({
     id: 'ctrain-stations',
