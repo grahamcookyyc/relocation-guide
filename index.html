@@ -787,11 +787,7 @@
       <input type="range" class="priority-slider" id="sl-amenities" min="0" max="10" value="5">
       <div class="priority-val" id="v-amenities">5</div>
     </div>
-    <div class="priority-row">
-      <div class="priority-label"><input type="checkbox" class="priority-check" id="chk-mountains" checked><span class="icon">🏔️</span> Mountains</div>
-      <input type="range" class="priority-slider" id="sl-mountains" min="0" max="10" value="3">
-      <div class="priority-val" id="v-mountains">3</div>
-    </div>
+
     <div class="priority-row">
       <div class="priority-label"><input type="checkbox" class="priority-check" id="chk-afford" checked><span class="icon">💰</span> Affordability</div>
       <input type="range" class="priority-slider" id="sl-afford" min="0" max="10" value="5">
@@ -1091,14 +1087,15 @@ const NEIGHBOURHOOD_SCORES = {
 };
 
 // Score index positions
-const IDX = { schools:0, green:1, transit:2, commute:3, safety:4, amenities:5, mountains:6, afford:7, urban:8 };
+const IDX = { schools:0, green:1, transit:2, commute:3, safety:4, amenities:5, afford:7, urban:8 };
 
-// Life stage presets [schools, green, transit, commute, safety, amenities, mountains, afford, urban]
+// Life stage presets [schools, green, transit, commute, safety, amenities, _, afford, urban]
+// index 6 (mountains) retained in data arrays but not used in scoring
 const PERSONAS = {
-  "family":       [9, 8, 5, 6, 9, 7, 4, 6, 3],
-  "young-pro":    [2, 5, 9, 9, 7, 8, 3, 6, 9],
-  "empty-nester": [3, 9, 7, 5, 8, 7, 6, 5, 6],
-  "new-to-canada":[8, 6, 8, 7, 7, 8, 2, 8, 6],
+  "family":       [9, 8, 5, 6, 9, 7, 0, 6, 3],
+  "young-pro":    [2, 5, 9, 9, 7, 8, 0, 6, 9],
+  "empty-nester": [3, 9, 7, 5, 8, 7, 0, 5, 6],
+  "new-to-canada":[8, 6, 8, 7, 7, 8, 0, 8, 6],
 };
 
 // Calgary-specific overlay data
@@ -1143,7 +1140,7 @@ function getWeights() {
     commute:   w('commute'),
     safety:    w('safety'),
     amenities: w('amenities'),
-    mountains: w('mountains'),
+
     afford:    w('afford'),
     urban:     w('urban'),
   };
@@ -1338,7 +1335,7 @@ showMenu.addEventListener('click', () => {
 // ============================================================
 // SLIDER SYNC
 // ============================================================
-const sliderIds = ['schools','green','transit','commute','safety','amenities','mountains','afford','urban'];
+const sliderIds = ['schools','green','transit','commute','safety','amenities','afford','urban'];
 sliderIds.forEach(id => {
   const slider = document.getElementById('sl-' + id);
   const val    = document.getElementById('v-' + id);
@@ -1382,7 +1379,7 @@ document.querySelectorAll('.persona-btn').forEach(btn => {
 // ============================================================
 document.getElementById('reset-btn').addEventListener('click', () => {
   sliderIds.forEach(id => {
-    const defaults = {schools:5,green:5,transit:5,commute:5,safety:5,amenities:5,mountains:3,afford:5,urban:4};
+    const defaults = {schools:5,green:5,transit:5,commute:5,safety:5,amenities:5,afford:5,urban:4};
     document.getElementById('sl-' + id).value = defaults[id];
     document.getElementById('v-' + id).textContent = defaults[id];
     const chk = document.getElementById('chk-' + id);
@@ -1548,7 +1545,7 @@ function openInfoPanelForName(name, props) {
       { key:'commute',   label:'Commute',     icon:'🚗' },
       { key:'safety',    label:'Safety',      icon:'🔒' },
       { key:'amenities', label:'Amenities',   icon:'🛒' },
-      { key:'mountains', label:'Mountains',   icon:'🏔️' },
+
       { key:'afford',    label:'Affordability',icon:'💰'},
       { key:'urban',     label:'Urban Vibe',  icon:'🏙️' },
     ];
@@ -1736,6 +1733,51 @@ async function fetchRemoteData() {
   // TODO: fetch(`${HEAT_MAPS_BASE}/neighbourhood-descriptions.json`)
 }
 
+// ── Spatial helpers ──
+
+function polygonCentroid(geom) {
+  let coords = [];
+  if (geom.type === 'Polygon') coords = geom.coordinates[0];
+  else if (geom.type === 'MultiPolygon') coords = geom.coordinates[0][0];
+  else return null;
+  if (!coords.length) return null;
+  const lng = coords.reduce((s, c) => s + c[0], 0) / coords.length;
+  const lat = coords.reduce((s, c) => s + c[1], 0) / coords.length;
+  return [lng, lat];
+}
+
+function polygonApproxAreaKm2(geom) {
+  let rings = [];
+  if (geom.type === 'Polygon') rings = [geom.coordinates[0]];
+  else if (geom.type === 'MultiPolygon') rings = geom.coordinates.map(p => p[0]);
+  let area = 0;
+  rings.forEach(ring => {
+    // Shoelace formula in degrees, convert to km² (rough: 1 deg ≈ 111 km at Calgary latitude)
+    let a = 0;
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+      a += (ring[j][0] + ring[i][0]) * (ring[j][1] - ring[i][1]);
+    }
+    area += Math.abs(a / 2) * 111 * 111 * Math.cos(51.05 * Math.PI / 180);
+  });
+  return area;
+}
+
+function pointInGeometry(pt, geom) {
+  if (geom.type === 'Polygon') return pointInPolygon(pt, geom.coordinates[0]);
+  if (geom.type === 'MultiPolygon') return geom.coordinates.some(p => pointInPolygon(pt, p[0]));
+  return false;
+}
+
+function pointInPolygon(pt, ring) {
+  const [x, y] = pt;
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [xi, yi] = ring[i], [xj, yj] = ring[j];
+    if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+}
+
 // ============================================================
 // MAP LOAD
 // ============================================================
@@ -1842,7 +1884,7 @@ map.on('load', () => {
         Object.entries(benchmarks).forEach(([name, price]) => {
           if (NEIGHBOURHOOD_SCORES[name]) {
             // index 7 = affordability
-            NEIGHBOURHOOD_SCORES[name][7] = Math.round(10 * (1 - (price - minP) / range));
+            NEIGHBOURHOOD_SCORES[name][7] = Math.round(1 + 9 * (1 - (price - minP) / range));
           }
         });
         console.log(`Affordability scores updated from tr-benchmark (${prices.length} neighbourhoods)`);
@@ -1850,6 +1892,59 @@ map.on('load', () => {
     } catch (err) {
       console.warn('Could not compute affordability from tr-benchmark:', err);
     }
+
+    // --- Parks green space scoring (Calgary Open Data) ---
+    // Runs async after idle; refreshScores() called again when complete
+    (async () => {
+      try {
+        const parksRes = await fetch(
+          'https://data.calgary.ca/resource/vd9i-m9ze.geojson?$where=life_cycle_status=%27ACTIVE%27&$limit=5000'
+        );
+        if (!parksRes.ok) throw new Error(`HTTP ${parksRes.status}`);
+        const parksGeoJSON = await parksRes.json();
+
+        // Build neighbourhood polygon lookup from the already-loaded source
+        const hoods = map.querySourceFeatures(sourceId, { sourceLayer });
+        const hoodPolygons = {};
+        hoods.forEach(f => {
+          const name = String(f.properties.name || f.properties.comm_name || '').toUpperCase();
+          if (name && !hoodPolygons[name] && f.geometry) hoodPolygons[name] = f.geometry;
+        });
+
+        // Assign each park centroid to a neighbourhood
+        const parkStats = {};
+        parksGeoJSON.features.forEach(park => {
+          const geom = park.geometry;
+          if (!geom) return;
+          const centroid = polygonCentroid(geom);
+          if (!centroid) return;
+          const area = polygonApproxAreaKm2(geom);
+          for (const [name, hoodGeom] of Object.entries(hoodPolygons)) {
+            if (pointInGeometry(centroid, hoodGeom)) {
+              if (!parkStats[name]) parkStats[name] = { count: 0, totalArea: 0 };
+              parkStats[name].count++;
+              parkStats[name].totalArea += area;
+              break;
+            }
+          }
+        });
+
+        // Normalise count + area to 1–10 green space score
+        const raws = Object.values(parkStats).map(s => s.count * 0.4 + s.totalArea * 0.6);
+        const minR = Math.min(...raws), maxR = Math.max(...raws);
+        const rangeR = maxR - minR || 1;
+        Object.entries(parkStats).forEach(([name, s]) => {
+          if (NEIGHBOURHOOD_SCORES[name]) {
+            const raw = s.count * 0.4 + s.totalArea * 0.6;
+            NEIGHBOURHOOD_SCORES[name][1] = Math.round(1 + 9 * (raw - minR) / rangeR);
+          }
+        });
+        console.log(`Green space scores updated from Calgary Open Data (${Object.keys(parkStats).length} neighbourhoods)`);
+        refreshScores();
+      } catch (err) {
+        console.warn('Could not load parks data:', err);
+      }
+    })();
 
     refreshScores();
   });
