@@ -849,8 +849,8 @@
 <script src="config.js"></script>
 <script>
 // Fallbacks so the script doesn't crash if config.js didn't load (e.g. on Netlify)
-if (typeof MAPBOX_TOKEN === 'undefined')      { var MAPBOX_TOKEN = ''; }
-if (typeof ANTHROPIC_API_KEY === 'undefined') { var ANTHROPIC_API_KEY = ''; }
+if (typeof MAPBOX_TOKEN === 'undefined')      window.MAPBOX_TOKEN = '';
+if (typeof ANTHROPIC_API_KEY === 'undefined') window.ANTHROPIC_API_KEY = '';
 
 // ============================================================
 // NEIGHBOURHOOD SCORING DATA
