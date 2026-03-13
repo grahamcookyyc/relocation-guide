@@ -1,0 +1,864 @@
+{
+  "HUNTINGTON HILLS": [
+    "Alex Munro School (public, K–6)",
+    "Sir John A. Macdonald School (public, 7–9)",
+    "St. Henry Elementary School (Catholic, K–6)",
+    "John G. Diefenbaker High School (public, 10–12)",
+    "The Chinese Academy (private, 10–12)",
+    "Dr. J. K. Mulloy School (public, K–6)",
+    "St. Hubert Elementary School (Catholic, K–6)",
+    "Catherine Nichols Gunn School (public, K–6)",
+    "Huntington Hills School (public, K–6)",
+    "St. Helena School (Catholic, 7–9)"
+  ],
+  "MOUNT PLEASANT": [
+    "Project Trust (public, Unknown)",
+    "Project Trust (public, Unknown)",
+    "St. Joseph Elementary Junior High School (Catholic, K–9)",
+    "King George School (public, K–6)",
+    "École de la Rose sauvage (private, 7–12)"
+  ],
+  "NEW BRIGHTON": [
+    "St. Marguerite School (Catholic, K–6)",
+    "Dr. Martha Cohen School (public, K–9)",
+    "New Brighton School (public, K–6)"
+  ],
+  "TUSCANY": [
+    "Twelve Mile Coulee School (public, K–9)",
+    "Eric Harvie School (public, K–6)",
+    "St. Basil Elementary/Junior High School (Catholic, K–9)",
+    "Tuscany School (public, K–6)"
+  ],
+  "SOUTHWOOD": [
+    "Southwest Elementary Campus (private, K–6)",
+    "Harold Panabaker School (public, K–9)",
+    "St. Stephen School (Catholic, K–9)",
+    "Ethel M. Johnson School (public, K–6)"
+  ],
+  "MARTINDALE": [
+    "CLS Alternative Site (public, Unknown)",
+    "Nelson Mandela High School (public, 10–12)",
+    "Manmeet Singh Bhullar School (public, K–6)",
+    "École La Mosaïque (private, K–6)",
+    "Crossing Park School (public, K–9)"
+  ],
+  "CAPITOL HILL": [
+    "Ecole St. Pius X School (Catholic, K–6)",
+    "Capitol Hill School (public, K–6)"
+  ],
+  "HAWKWOOD": [
+    "Hawkwood School (public, K–6)",
+    "St. Maria Goretti Elementary School (Catholic, K–6)"
+  ],
+  "MANCHESTER INDUSTRIAL": [
+    "Vista Virtual School South (private, Unknown)",
+    "Vista Virtual School (private, K–12)"
+  ],
+  "GLENBROOK": [
+    "Glenbrook School (public, K–6)",
+    "LYNX West (private, K–9)",
+    "Calgary Christian School (private, K–6)",
+    "A. E. Cross School (public, 7–9)",
+    "Calgary Christian High School (private, 7–12)"
+  ],
+  "MIDNAPORE": [
+    "ST. MARY'S UNIVERSITY - STUDENTS' ASSOCIATION (private, )",
+    "Trinity Christian School (private, K–9)",
+    "St. Teresa of Calcutta School (Catholic, K–6)",
+    "Midnapore School (public, K–6)",
+    "Neriah Christian School (private, K–9)"
+  ],
+  "MONTGOMERY": [
+    "FFCA High School Campus (private, 7–12)",
+    "Terrace Road School (public, K–6)"
+  ],
+  "FOREST LAWN": [
+    "CLS Forest Lawn Writing Centre (public, Unknown)",
+    "Ernest Morrow School (public, 7–9)",
+    "Holy Trinity School (Catholic, K–6)",
+    "Patrick Airlie School (public, K–6)",
+    "Jack James High School (public, 10–12)",
+    "Forest Lawn High School (public, 10–12)"
+  ],
+  "GLAMORGAN": [
+    "St. Andrew School (Catholic, K–6)",
+    "Glamorgan School (public, K–9)"
+  ],
+  "PUMP HILL": [
+    "St. Benedict School (Catholic, K–6)",
+    "John Ware School (public, 7–9)"
+  ],
+  "ALTADORE": [
+    "Altadore School (public, K–6)",
+    "Rundle College Academy (private, K–12)",
+    "Alternative High School (public, 10–12)",
+    "Dr. Oakley School (public, K–12)"
+  ],
+  "CAMBRIAN HEIGHTS": [
+    "Cambrian Heights School (public, K–6)"
+  ],
+  "ALBERT PARK/RADISSON HEIGHTS": [
+    "Radisson Park School (public, K–6)",
+    "Sir Wilfrid Laurier School (public, K–9)",
+    "Bishop Kidd School (Catholic, 7–9)",
+    "Holy Family School (Catholic, K–6)",
+    "Father Lacombe School (Catholic, 10–12)"
+  ],
+  "ABBEYDALE": [
+    "Abbeydale School (public, K–6)",
+    "St. Kateri Tekakwitha School (Catholic, K–6)",
+    "Eastside Christian Academy (private, K–12)"
+  ],
+  "UNIVERSITY OF CALGARY": [
+    "UNIVERSITY OF CALGARY - MAIN CAMPUS - MACEWAN STUDENT CENTRE (private, )"
+  ],
+  "AUBURN BAY": [
+    "St. Gianna School (Catholic, K–6)",
+    "Auburn Bay School (public, K–6)",
+    "Lakeshore School (public, K–9)",
+    "Bayside School (public, K–6)",
+    "Prince of Peace School (Catholic, K–9)"
+  ],
+  "DEER RUN": [
+    "Deer Run School (public, K–6)"
+  ],
+  "CHARLESWOOD": [
+    "Banff Trail School (public, K–6)",
+    "Senator Patrick Burns School (public, K–9)"
+  ],
+  "TEMPLE": [
+    "Father Scollen School (Catholic, K–9)",
+    "Guy Weadick School (public, K–6)",
+    "St. Thomas More School (Catholic, K–6)",
+    "Annie Foote School (public, K–6)"
+  ],
+  "MARLBOROUGH PARK": [
+    "St. Martha School (Catholic, K–9)",
+    "Dr. Gladys McKelvie Egbert School (public, 7–9)",
+    "Cappy Smart School (public, K–6)",
+    "Roland Michener School (public, K–6)"
+  ],
+  "PARKLAND": [
+    "Prince of Wales School (public, K–6)",
+    "St. Philip School (Catholic, K–6)"
+  ],
+  "WILLOW PARK": [
+    "Willow Park School (public, K–9)",
+    "St. William School (Catholic, K–6)",
+    "École Notre-Dame-de-la-Paix (private, K–6)"
+  ],
+  "BRIDGELAND/RIVERSIDE": [
+    "Delta West Academy (private, K–12)",
+    "Calgary Classical Academy (private, K–6)",
+    "Riverside School (public, K–9)"
+  ],
+  "MILLRISE": [
+    "Our Lady of Peace Elementary Junior High School (Catholic, K–9)"
+  ],
+  "EDGEMONT": [
+    "Mother Mary Greene School (Catholic, K–6)",
+    "Edgemont School (public, K–6)",
+    "Tom Baines School (public, K–9)"
+  ],
+  "02K": [
+    "Bearspaw Christian School & College (private, K–12)",
+    "BCS@Home Blended-Learning South Campus (private, Unknown)",
+    "BCS@Home Blended-Learning North Campus (private, Unknown)",
+    "BCS@Home (private, K–12)"
+  ],
+  "ROYAL VISTA": [
+    "Al-Amal Online Academy (private, 7–12)",
+    "Renert School (private, K–12)",
+    "Al-Amal Academy (private, K–9)"
+  ],
+  "COVENTRY HILLS": [
+    "Nose Creek School (public, K–9)",
+    "St. Clare (Catholic, K–6)",
+    "Northern Lights School (public, K–6)",
+    "North Trail High School (public, 10–12)",
+    "Coventry Hills School (public, K–6)"
+  ],
+  "DOVER": [
+    "Valley View School (public, K–6)",
+    "St. Damien School (Catholic, K–6)",
+    "Holy Cross Elementary Junior High School (Catholic, K–9)",
+    "Ian Bazalgette School (public, 7–9)",
+    "Niitsitapi Learning Centre (public, K–6)",
+    "West Dover School (public, K–6)"
+  ],
+  "SADDLE RIDGE": [
+    "Saddle Ridge School (public, K–6)",
+    "Peter Lougheed School (public, K–9)",
+    "Gobind Sarvar School Guru Nanak Gate Campus (private, K–12)",
+    "Calgary International Academy ECS (private, Unknown)",
+    "Green Dome Islamic School (private, K–6)",
+    "Light of Christ Catholic School (Catholic, K–9)",
+    "Hugh A. Bennett School (public, K–6)"
+  ],
+  "DALHOUSIE": [
+    "St. Dominic School (Catholic, K–6)",
+    "Dalhousie School (public, K–6)",
+    "H. D. Cartwright School (public, 7–9)",
+    "West Dalhousie School (public, K–6)"
+  ],
+  "HARVEST HILLS": [
+    "Ascension of Our Lord (Catholic, K–9)"
+  ],
+  "ACADIA": [
+    "Janus Academy Junior/Senior High School (private, K–12)",
+    "Lord Beaverbrook High School (public, 10–12)",
+    "FFCA South High School Campus (private, 7–12)",
+    "St. Matthew School (Catholic, K–9)",
+    "South Middle School Campus (private, K–9)",
+    "St. Cecilia (Bilingual) Elementary School (Catholic, K–6)",
+    "Acadia School (public, K–6)",
+    "CLS Lord Beaverbrook Writing Centre (public, Unknown)",
+    "Juno Beach Academy of Canadian Studies (public, Unknown)",
+    "David Thompson School (public, K–9)",
+    "École de la Source (private, K–9)",
+    "Southeast Elementary Campus (private, K–6)"
+  ],
+  "SPRINGBANK HILL": [
+    "Ernest Manning High School (public, 10–12)",
+    "Griffith Woods School (public, K–9)",
+    "AMBROSE UNIVERSITY (private, )",
+    "Rundle College Elementary School (private, K–6)",
+    "Menno Simons Christian School (private, K–9)",
+    "Rundle Studio (private, 7–12)",
+    "Rundle College Junior Senior High (private, 7–12)"
+  ],
+  "ELBOW PARK": [
+    "Elbow Park School (public, K–6)",
+    "William Reid School (public, K–6)"
+  ],
+  "CANYON MEADOWS": [
+    "Robert Warren School (public, K–9)",
+    "Dr. E. P. Scarlett High School (public, 10–12)",
+    "St. Catherine Elementary School (Catholic, K–6)",
+    "Canyon Meadows School (public, K–6)"
+  ],
+  "GLENDALE": [
+    "St. Gregory School (Catholic, 7–9)",
+    "St. Thomas Aquinas School (Catholic, K–6)",
+    "Glenmeadows School (public, K–6)",
+    "Glendale School (public, K–6)"
+  ],
+  "GARRISON WOODS": [
+    "Lycee Louis Pasteur (private, K–12)",
+    "Master's College (private, 7–12)",
+    "Master's Academy (private, K–6)"
+  ],
+  "PINERIDGE": [
+    "Asasa Academy (private, Unknown)",
+    "Pineridge School (public, K–6)",
+    "Lester B. Pearson High School (public, 10–12)",
+    "Douglas Harkness School (public, K–6)",
+    "St. Patrick School (Catholic, K–6)",
+    "Clarence Sansom School (public, K–9)"
+  ],
+  "MAPLE RIDGE": [
+    "Maple Ridge School (public, K–6)",
+    "R. T. Alderman School (public, K–9)"
+  ],
+  "SANDSTONE VALLEY": [
+    "Monsignor Neville Anderson School (Catholic, K–6)",
+    "Simons Valley School (public, K–6)"
+  ],
+  "OGDEN": [
+    "Almadina Language Charter Academy, Ogden Campus (private, K–9)",
+    "Banting and Best School (public, K–6)",
+    "Sherwood School (public, K–9)",
+    "St. Bernadette School (Catholic, K–6)"
+  ],
+  "CHINATOWN": [
+    "Calgary Chinese Private School (private, 10–12)",
+    "Alberta Chung Wah School (private, Unknown)"
+  ],
+  "BRENTWOOD": [
+    "Sir Winston Churchill High School (public, 10–12)",
+    "Captain John Palliser School (public, K–6)",
+    "St. Luke Bilingual Elementary School (Catholic, K–6)",
+    "St. Jean Brebeuf School (Catholic, 7–9)",
+    "Dr. E. W. Coffin School (public, K–6)",
+    "Brentwood School (public, K–6)",
+    "Simon Fraser School (public, K–9)"
+  ],
+  "SILVER SPRINGS": [
+    "St. Sylvester School (Catholic, K–6)",
+    "Silver Springs School (public, K–6)",
+    "W. O. Mitchell School (public, K–6)"
+  ],
+  "CURRIE BARRACKS": [
+    "Banbury Crossroads Academy (private, K–12)",
+    "Horizon Leadership Academy (private, K–9)",
+    "Access Academy (private, Unknown)",
+    "New Heights School and Learning Services (private, K–12)",
+    "Bishop Carroll High School (Catholic, 10–12)",
+    "Calgary Classical Academy Currie Campus (private, K–9)",
+    "Banbury Crossroads School (private, K–12)",
+    "Access Academy (private, Unknown)",
+    "Clear Water Academy (private, K–12)",
+    "Access Academy (private, 7–12)"
+  ],
+  "WEST SPRINGS": [
+    "West Ridge School (public, K–9)",
+    "West Springs School (public, K–6)",
+    "St. Joan of Arc Elementary/Junior High School (Catholic, K–9)"
+  ],
+  "RUNDLE": [
+    "St. Rose of Lima Junior High School (Catholic, K–9)",
+    "Dr. Gordon Higgins School (public, 7–9)",
+    "Cecil Swanson School (public, K–6)",
+    "Rundle School (public, K–6)",
+    "St. Rupert School (Catholic, K–6)"
+  ],
+  "ASPEN WOODS": [
+    "Guardian Angel School (Catholic, K–6)",
+    "Calgary Academy (private, K–12)",
+    "Webber Academy (private, K–12)",
+    "Calgary Academy Collegiate (private, K–12)"
+  ],
+  "FRANKLIN": [
+    "Discovering Choices II (public, 10–12)",
+    "Discovering Choices II (public, 10–12)",
+    "Janus Academy (private, K–6)"
+  ],
+  "BRIDLEWOOD": [
+    "Glenmore Christian Academy Junior High (private, K–9)",
+    "Glenmore Christian Academy Elementary (private, K–6)",
+    "Bridlewood School (public, K–6)",
+    "Monsignor J. J. O'Brien (Catholic, K–9)"
+  ],
+  "WINSTON HEIGHTS/MOUNTVIEW": [
+    "Mount View School (public, K–6)",
+    "Georges P. Vanier School (public, K–9)"
+  ],
+  "ROCKY RIDGE": [
+    "SCcyber E-Learning Institute (private, 10–12)"
+  ],
+  "CASTLERIDGE": [
+    "St. John Paul II School (Catholic, K–6)",
+    "O. S. Geiger School (public, K–6)"
+  ],
+  "GLENMORE PARK": [
+    "Emily Follensbee School (public, K–9)"
+  ],
+  "MAYLAND HEIGHTS": [
+    "Belfast School (public, K–6)",
+    "Sir John Franklin School (public, K–9)",
+    "Northeast Elementary Campus (private, K–6)",
+    "Mayland Heights School (public, K–6)"
+  ],
+  "RAMSAY": [
+    "Ramsay School (public, K–6)",
+    "St. Anne Academic Centre (Catholic, K–12)"
+  ],
+  "CLIFF BUNGALOW": [
+    "Montessori School of Calgary (private, K–6)",
+    "Western Canada High School (public, 10–12)"
+  ],
+  "RIDEAU PARK": [
+    "Rideau Park School (public, K–9)"
+  ],
+  "HORIZON": [
+    "Calgary Islamic School, Akram Jomaa Campus (private, K–12)",
+    "Palliser Beyond Borders at Calgary (private, Unknown)",
+    "Mountain View Academy (private, K–12)"
+  ],
+  "ST. ANDREWS HEIGHTS": [
+    "Maria Montessori School (private, K–9)",
+    "Adolescent Mental Health Services (public, K–12)"
+  ],
+  "TUXEDO PARK": [
+    "Balmoral School (public, K–9)",
+    "St. Isidore Online School (Catholic, K–12)",
+    "Chinook Learning Services (public, 10–12)"
+  ],
+  "KELVIN GROVE": [
+    "Canadian Montessori School West (private, Unknown)",
+    "Henry Wise Wood High School (public, 10–12)",
+    "Calgary Jewish Academy (private, K–9)",
+    "Canadian Montessori School (private, K–6)",
+    "Chinook Park School (public, K–6)",
+    "Canadian Montessori School North (private, Unknown)"
+  ],
+  "FAIRVIEW": [
+    "Le Roi Daniels School (public, K–6)",
+    "Fairview School (public, K–9)"
+  ],
+  "PENBROOKE MEADOWS": [
+    "G. W. Skene School (public, K–6)",
+    "Penbrooke Meadows School (public, K–6)",
+    "James Short Memorial School (public, K–6)",
+    "St. Peter Elementary School (Catholic, K–6)"
+  ],
+  "SUNRIDGE": [
+    "St. Gemma Outreach High School (Catholic, 10–12)"
+  ],
+  "SIGNAL HILL": [
+    "Battalion Park School (public, K–6)"
+  ],
+  "RICHMOND": [
+    "Richmond School (public, K–6)",
+    "Calgary Arts Academy (private, K–12)",
+    "North Point School (private, K–12)",
+    "North Point School - DSEPS (private, K–12)",
+    "North Point School for Boys (private, K–9)"
+  ],
+  "NORTH GLENMORE PARK": [
+    "CBe-learn (public, K–12)",
+    "St. James Elementary Junior High School (Catholic, K–9)",
+    "Central Memorial High School (public, 10–12)",
+    "Calgary Girls Charter School (private, K–9)",
+    "CLS Lord Shaughnessy Writing Centre (public, Unknown)"
+  ],
+  "CEDARBRAE": [
+    "Cedarbrae School (public, K–6)",
+    "St. Cyril School (Catholic, K–9)"
+  ],
+  "WHITEHORN": [
+    "Chief Justice Milvain School (public, K–6)",
+    "Colonel J. Fred Scott School (public, K–6)",
+    "Annie Gale School (public, K–9)",
+    "St. Wilfrid Elementary School (Catholic, K–6)"
+  ],
+  "SHAWNESSY": [
+    "Janet Johnstone School (public, K–6)",
+    "Samuel W. Shaw School (public, K–9)",
+    "Bishop O'Byrne High School (Catholic, 10–12)",
+    "Father Doucet School (Catholic, K–6)"
+  ],
+  "EVANSTON": [
+    "Our Lady of Grace School (Catholic, K–9)",
+    "St. Josephine Bakhita School (Catholic, K–6)",
+    "Kenneth D. Taylor School (public, K–6)"
+  ],
+  "SKYVIEW RANCH": [
+    "Apostles of Jesus (Catholic, K–9)",
+    "Prairie Sky School (public, K–9)"
+  ],
+  "SPRUCE CLIFF": [
+    "Calgary Quest School (private, K–12)",
+    "Greek Community School (private, 10–12)"
+  ],
+  "RANCHLANDS": [
+    "Ranchlands School (public, K–6)",
+    "St. Rita School (Catholic, K–6)",
+    "MAC Islamic School - Calgary Chapter (private, K–9)"
+  ],
+  "BOWNESS": [
+    "River Valley School (private, K–6)",
+    "Calgary German Language School Society (private, 7–12)",
+    "Renfrew Educational Services-Bowness Centre (private, Unknown)",
+    "Start Outreach (public, 10–12)",
+    "Bowness High School (public, 10–12)",
+    "Belvedere Parkway School (public, K–6)",
+    "Thomas B. Riley School (public, 7–9)",
+    "Bowcroft School (public, K–6)",
+    "Wood's Homes School (public, 7–12)",
+    "Our Lady of the Assumption School (Catholic, K–9)",
+    "River Valley School ECS (private, Unknown)"
+  ],
+  "SOUTHVIEW": [
+    "Almadina Language Charter Academy, Mountain View Campus (private, K–6)"
+  ],
+  "UNIVERSITY DISTRICT": [
+    "Dr. Gordon Townsend School (public, K–12)",
+    "Renfrew Educational Services - Child Development Centre (private, Unknown)"
+  ],
+  "RIVERBEND": [
+    "Holy Angels School (Catholic, K–6)",
+    "Riverbend School (public, K–6)"
+  ],
+  "ROYAL OAK": [
+    "Royal Oak School (public, K–6)",
+    "Calgary International Academy (private, K–6)",
+    "William D. Pratt School (public, K–9)"
+  ],
+  "HAYSBORO": [
+    "Our Lady of the Rockies High School (Catholic, 10–12)",
+    "Akiva Academy (private, K–9)",
+    "STEM Innovation Academy Middle School (private, 7–9)",
+    "Eugene Coste School (public, K–6)",
+    "Woodman School (public, K–9)",
+    "Haysboro School (public, K–6)"
+  ],
+  "DOWNTOWN COMMERCIAL CORE": [
+    "BOW VALLEY COLLEGE (private, )",
+    "UNIVERSITY OF LETHBRIDGE (private, )",
+    "W.H.Cushing Workplace School (public, Unknown)"
+  ],
+  "HILLHURST": [
+    "Hillhurst School (public, K–6)",
+    "Queen Elizabeth High School (public, 7–12)",
+    "ALBERTA UNIVERSITY OF THE ARTS (private, )",
+    "Queen Elizabeth School (public, K–6)"
+  ],
+  "BRAESIDE": [
+    "Braeside School (public, K–6)"
+  ],
+  "FALCONRIDGE": [
+    "Bishop McNally High School (Catholic, 10–12)",
+    "Grant MacEwan School (public, K–6)",
+    "Terry Fox School (public, 7–9)",
+    "Falconridge School (public, K–6)",
+    "Arise Christian Academy (private, K–12)",
+    "St. John XXIII School (Catholic, K–9)"
+  ],
+  "LINCOLN PARK": [
+    "MOUNT ROYAL UNIVERSITY - LINCOLN PARK CAMPUS (private, )",
+    "École Sainte-Marguerite-Bourgeoys (private, K–12)"
+  ],
+  "BANFF TRAIL": [
+    "William Aberhart High School (public, 7–12)",
+    "Branton School (public, K–9)"
+  ],
+  "DOUGLASDALE/GLEN": [
+    "Monsignor J. S. Smith School (Catholic, K–9)",
+    "Douglasdale School (public, K–6)"
+  ],
+  "HIDDEN VALLEY": [
+    "Hidden Valley School (public, K–6)",
+    "St. Elizabeth Seton (Catholic, K–9)",
+    "Valley Creek School (public, K–9)"
+  ],
+  "RUTLAND PARK": [
+    "All Boys Program (public, K–6)"
+  ],
+  "MARLBOROUGH": [
+    "Chris Akkerman School (public, K–6)",
+    "Marlborough School (public, K–6)",
+    "Bob Edwards School (public, K–9)",
+    "St. Mark Elementary School (Catholic, K–6)"
+  ],
+  "MISSION": [
+    "St. Monica School (Catholic, K–9)",
+    "St. Mary's High School (Catholic, 10–12)",
+    "Our Lady of Lourdes (Catholic, K–9)"
+  ],
+  "CRANSTON": [
+    "Christ the King Catholic School (Catholic, K–9)",
+    "Dr. George Stanley School (public, K–9)",
+    "Sibylla Kiddle School (public, K–6)",
+    "Cranston School (public, K–6)",
+    "Our Lady of the Rosary School (Catholic, K–6)"
+  ],
+  "BELTLINE": [
+    "Lady Fatima Academy (private, K–9)",
+    "Connaught School (public, K–6)",
+    "Discovering Choices (public, 10–12)",
+    "Alberta Ballet School (private, 7–12)"
+  ],
+  "COLLINGWOOD": [
+    "St. Francis High School (Catholic, 10–12)",
+    "St. Margaret School (Catholic, K–9)",
+    "Collingwood School (public, K–6)"
+  ],
+  "PARKDALE": [
+    "Foothills Academy (private, K–12)",
+    "Westmount Elementary School (private, K–6)"
+  ],
+  "LAKEVIEW": [
+    "Bishop Pinkham School (public, 7–9)",
+    "Connect Charter School (private, K–9)",
+    "Jennie Elliott School (public, K–6)"
+  ],
+  "WESTWINDS": [
+    "Filipino Language and Cultural School of Calgary (private, Unknown)",
+    "Ahmadiyya Muslim School (private, K–9)"
+  ],
+  "MERIDIAN": [
+    "Calgary Islamic School, Omar Bin Al-Khattab Campus (private, K–9)"
+  ],
+  "MCKENZIE TOWNE": [
+    "McKenzie Towne School (public, K–6)",
+    "McKenzie Highlands School (public, K–9)",
+    "St. Albert the Great (Catholic, K–9)"
+  ],
+  "SILVERADO": [
+    "School of East Indian Languages and Performing Arts (private, Unknown)",
+    "Holy Child School (Catholic, K–9)",
+    "Ron Southern School (public, K–6)"
+  ],
+  "HIGHWOOD": [
+    "Colonel Irvine School (public, K–9)",
+    "Northwest Elementary Campus (private, K–6)",
+    "Highwood School (public, K–6)"
+  ],
+  "SUNDANCE": [
+    "Sundance School (public, K–6)",
+    "Midsun School (public, K–9)",
+    "Renfrew Thomas W. Buchanan Centre (private, K–9)",
+    "Fish Creek School (public, K–6)",
+    "Centennial High School (public, 10–12)",
+    "Father James Whelihan (Catholic, K–9)"
+  ],
+  "STRATHCONA PARK": [
+    "Dr. Roberta Bondar School (public, K–6)",
+    "John Costello Catholic School (Catholic, K–6)",
+    "Olympic Heights School (public, K–6)"
+  ],
+  "HIGHLAND PARK": [
+    "Buchanan School (public, K–6)",
+    "CLS James Fowler Writing Centre (public, Unknown)",
+    "James Fowler High School (public, 10–12)"
+  ],
+  "INGLEWOOD": [
+    "The Gilbertine Academy (private, K–12)",
+    "Colonel Walker School (public, K–6)"
+  ],
+  "WILDWOOD": [
+    "Wildwood School (public, K–6)"
+  ],
+  "SOUTH CALGARY": [
+    "Maria Montessori School - cSPACE King Edward Location (private, Unknown)"
+  ],
+  "LEGACY": [
+    "All Saints School (Catholic, 10–12)"
+  ],
+  "UPPER MOUNT ROYAL": [
+    "Earl Grey School (public, K–6)",
+    "Mount Royal School (public, 7–9)"
+  ],
+  "MCKENZIE LAKE": [
+    "McKenzie Lake School (public, K–6)",
+    "St. John Henry Newman School (Catholic, K–9)",
+    "Mountain Park School (public, K–9)"
+  ],
+  "WESTGATE": [
+    "Westgate School (public, K–6)",
+    "Vincent Massey School (public, 7–9)"
+  ],
+  "STONEY 1": [
+    "Little Angels (private, Unknown)"
+  ],
+  "SCENIC ACRES": [
+    "Monsignor E. L. Doyle Elementary School (Catholic, K–6)",
+    "Scenic Acres School (public, K–6)",
+    "École du Nouveau-Monde (private, K–6)"
+  ],
+  "MAYLAND": [
+    "Phoenix Education Foundation (private, K–12)",
+    "Columbia College (private, 10–12)"
+  ],
+  "WOODLANDS": [
+    "William Roper Hull School (public, K–12)",
+    "Woodlands School (public, K–6)"
+  ],
+  "02E": [
+    "West View School (public, K–12)"
+  ],
+  "LAKE BONAVISTA": [
+    "Lake Bonavista School (public, K–6)",
+    "Sam Livingston School (public, K–6)",
+    "St. Bonaventure School (Catholic, 7–9)",
+    "St. Boniface Elementary School (Catholic, K–6)",
+    "Andrew Sibbald School (public, K–6)",
+    "Nickle School (public, K–9)"
+  ],
+  "HOUNSFIELD HEIGHTS/BRIAR HILL": [
+    "Briar Hill School (public, K–6)",
+    "AADAC Youth Services (public, Unknown)"
+  ],
+  "CITADEL": [
+    "Citadel Park School (public, K–6)",
+    "St. Brigid (Catholic, K–9)",
+    "Yufeng Chinese School (private, K–12)"
+  ],
+  "CRESCENT HEIGHTS": [
+    "Crescent Heights High School (public, 10–12)",
+    "Italian School of Calgary (private, 7–12)"
+  ],
+  "06B": [
+    "Chinook Winds Adventist Academy (private, K–12)"
+  ],
+  "RENFREW": [
+    "Colonel Macleod School (public, K–9)",
+    "Children's Village School (public, K–6)",
+    "St. Alphonsus Elementary Junior High School (Catholic, K–9)",
+    "Stanley Jones School (public, K–9)"
+  ],
+  "VARSITY": [
+    "F. E. Osborne School (public, K–9)",
+    "Christine Meikle School (public, K–12)",
+    "École Terre des Jeunes (private, K–6)",
+    "Calgary Charter School Hub ¿ Almadina Campus (private, 7–12)",
+    "Varsity Acres School (public, K–6)",
+    "STEM Innovation Academy High School (private, 10–12)",
+    "Marion Carson School (public, K–6)",
+    "Fusion Collegiate (private, 10–12)",
+    "St. Vincent De Paul Elementary Junior High School (Catholic, K–9)"
+  ],
+  "COPPERFIELD": [
+    "St. Isabella School (Catholic, K–9)",
+    "Copperfield School (public, K–6)"
+  ],
+  "WINDSOR PARK": [
+    "Calgary Home Education (public, K–12)"
+  ],
+  "WEST HILLHURST": [
+    "Madeleine D' Houet Bilingual School (Catholic, 7–9)",
+    "Louise Dean School (public, 10–12)"
+  ],
+  "SOMERSET": [
+    "Somerset School (public, K–6)"
+  ],
+  "PANORAMA HILLS": [
+    "Captain Nichola Goddard School (public, K–9)",
+    "Panorama Hills School (public, K–6)",
+    "St. Jerome Elementary School (Catholic, K–6)",
+    "Buffalo Rubbing Stone School (public, K–6)"
+  ],
+  "FAIRVIEW INDUSTRIAL": [
+    "Al-Qaim International School (private, K–12)",
+    "West Island College (private, 7–12)"
+  ],
+  "CALGARY INTERNATIONAL AIRPORT": [
+    "Aurora Learning Calgary (private, K–12)"
+  ],
+  "SCARBORO": [
+    "Sunalta School (public, K–6)"
+  ],
+  "ROSSCARROCK": [
+    "St. Michael School (Catholic, K–9)",
+    "Calgary Arts Academy Rosscarrock Middle School (private, Unknown)",
+    "Horizon Heritage Arabic School (private, Unknown)"
+  ],
+  "SHAGANAPPI": [
+    "Alex Ferguson School (public, K–6)"
+  ],
+  "COUGAR RIDGE": [
+    "Calgary French & International School (private, K–12)",
+    "Calgary Waldorf School (private, K–9)"
+  ],
+  "SUNALTA": [
+    "Sacred Heart Elementary School (Catholic, K–6)"
+  ],
+  "MONTEREY PARK": [
+    "Monterey Park School (public, K–6)"
+  ],
+  "BEDDINGTON HEIGHTS": [
+    "St. Bede Elementary School (Catholic, K–6)",
+    "Beddington Heights School (public, K–6)",
+    "Calgary Chinese Alliance School (private, 10–12)"
+  ],
+  "OAKRIDGE": [
+    "Louis Riel School (public, K–9)"
+  ],
+  "COUNTRY HILLS VILLAGE": [
+    "Notre Dame High School (Catholic, 10–12)"
+  ],
+  "NORTH AIRWAYS": [
+    "Heritage Christian Academy (private, K–12)"
+  ],
+  "KINGSLAND": [
+    "St. Augustine Elementary Junior High School (Catholic, K–9)"
+  ],
+  "ARBOUR LAKE": [
+    "Arbour Lake Middle School (public, K–9)",
+    "St. Ambrose School (Catholic, K–9)",
+    "Robert Thirsk High School (public, 10–12)"
+  ],
+  "ERIN WOODS": [
+    "Erin Woods School (public, K–6)"
+  ],
+  "TARADALE": [
+    "Taradale School (public, K–6)",
+    "Ted Harrison School (public, K–9)",
+    "Our Lady of Fatima (Catholic, K–6)"
+  ],
+  "SOUTH AIRWAYS": [
+    "Renfrew Educational Services - Park Place Centre (private, Unknown)",
+    "Renfrew Educational Services-Janice McTighe Centre (private, K–9)"
+  ],
+  "QUEENSLAND": [
+    "Haultain Memorial School (public, K–6)",
+    "Wilma Hansen School (public, K–9)"
+  ],
+  "UNIVERSITY HEIGHTS": [
+    "University School (public, K–6)",
+    "Westmount Mid/High School (private, K–12)"
+  ],
+  "SHERWOOD": [
+    "Blessed Marie-Rose (Catholic, K–9)"
+  ],
+  "EVERGREEN": [
+    "Marshall Springs School (public, K–9)",
+    "Dr. Freda Miller School (public, K–6)",
+    "Evergreen School (public, K–6)",
+    "Our Lady of the Evergreens Catholic School (Catholic, K–6)"
+  ],
+  "WOODBINE": [
+    "St. Jude School (Catholic, K–6)",
+    "Woodbine School (public, K–6)"
+  ],
+  "THORNCLIFFE": [
+    "Thorncliffe School (public, K–6)",
+    "Colonel Sanders School (public, K–6)",
+    "Corpus Christi School (Catholic, K–6)"
+  ],
+  "BURNS INDUSTRIAL": [
+    "Capstone Engineering Academy (private, K–12)"
+  ],
+  "HAMPTONS": [
+    "The Hamptons School (public, K–6)"
+  ],
+  "SUNNYSIDE": [
+    "Sunnyside School (public, K–6)"
+  ],
+  "ROSEDALE": [
+    "Rosedale School (public, K–9)"
+  ],
+  "MAHOGANY": [
+    "Mahogany School (public, K–6)",
+    "Divine Mercy School (Catholic, K–6)"
+  ],
+  "KILLARNEY/GLENGARRY": [
+    "Holy Name (Bilingual) School (Catholic, K–6)",
+    "Killarney School (public, K–6)"
+  ],
+  "SETON": [
+    "Joane Cardinal-Schubert High School (public, 10–12)"
+  ],
+  "HIGHFIELD": [
+    "Westbrook Outreach (public, 10–12)"
+  ],
+  "CHAPARRAL": [
+    "St. Sebastian Elementary School (Catholic, K–6)",
+    "Chaparral School (public, K–6)"
+  ],
+  "CORAL SPRINGS": [
+    "Monsignor A. J. Hetherington Elementary School (Catholic, K–6)"
+  ],
+  "VISTA HEIGHTS": [
+    "Vista Heights School (public, K–6)"
+  ],
+  "ROSEMONT": [
+    "Rosemont School (public, K–6)"
+  ],
+  "CANADA OLYMPIC PARK": [
+    "National Sport School (private, 7–12)"
+  ],
+  "ELBOYA": [
+    "St. Anthony (Catholic, K–12)",
+    "Elboya School (public, K–9)"
+  ],
+  "PALLISER": [
+    "Nellie McClung School (public, K–6)"
+  ],
+  "FOREST HEIGHTS": [
+    "Keeler School (public, K–6)"
+  ],
+  "09O": [
+    "Tyndale Christian School (private, K–12)"
+  ],
+  "GREENVIEW": [
+    "North Middle School Campus (private, K–9)"
+  ],
+  "NORTH HAVEN": [
+    "North Haven School (public, K–6)"
+  ],
+  "DEER RIDGE": [
+    "Don Bosco School (Catholic, K–9)"
+  ]
+}

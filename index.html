@@ -1581,7 +1581,7 @@ const HEAT_MAPS_BASE = 'https://raw.githubusercontent.com/grahamcookyyc/heat-map
 async function fetchRemoteData() {
   // --- Schools ---
   try {
-    const res = await fetch(`${HEAT_MAPS_BASE}/schools-by-neighbourhood.json`);
+    const res = await fetch('schools-by-neighbourhood.json');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     SCHOOLS_BY_NEIGHBOURHOOD = await res.json();
     console.log('Schools data loaded:', Object.keys(SCHOOLS_BY_NEIGHBOURHOOD).length, 'neighbourhoods');
