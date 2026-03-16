@@ -1817,12 +1817,22 @@ map.on('load', () => {
   map.once('idle', () => {
 
     // ── Step 1: Economic Index → categories 0,1,2,3,4,5,8 ──────────────────
-    try {
-      // Source layer name confirmed: CEI_Map-9ssgey
+    // Wrapped in async IIFE so we can await the style fetch.
+    // refreshScores() is called inside once scoring is complete.
+    (async () => { try {
+      // Fetch the live style JSON from Mapbox API to get the correct source ID.
+      // This bypasses any browser-cached version of the style that may predate
+      // the economic index layer being added.
+      const ECON_LAYER_ID     = 'map-economic-index-current';
       const ECON_SOURCE_LAYER = 'CEI_Map-9ssgey';
-      const econLayerSpec = map.getLayer('map-economic-index-current');
-      if (!econLayerSpec) throw new Error('Layer map-economic-index-current not found in style');
-      const econSourceId = econLayerSpec.source;
+      const styleRes = await fetch(
+        `https://api.mapbox.com/styles/v1/grahamcook/cmmtl2rl8003v01rbb7w7eju8?access_token=${mapboxgl.accessToken}`
+      );
+      if (!styleRes.ok) throw new Error(`Style fetch failed: ${styleRes.status}`);
+      const freshStyle   = await styleRes.json();
+      const econLayerDef = freshStyle.layers.find(l => l.id === ECON_LAYER_ID);
+      if (!econLayerDef) throw new Error(`${ECON_LAYER_ID} not found in published style`);
+      const econSourceId = econLayerDef.source;
 
       const econFeatures = map.querySourceFeatures(econSourceId, { sourceLayer: ECON_SOURCE_LAYER });
 
@@ -1925,9 +1935,10 @@ map.on('load', () => {
         scored++;
       });
       console.log(`Scores computed from economic index for ${scored} neighbourhoods`);
+      refreshScores();
     } catch (err) {
       console.warn('Economic index scoring failed:', err);
-    }
+    } })();
 
     // ── Step 2: Affordability from tr-benchmark (overwrites index 7) ─────────
     try {
