@@ -1818,18 +1818,13 @@ map.on('load', () => {
 
     // ── Step 1: Economic Index → categories 0,1,2,3,4,5,8 ──────────────────
     try {
-      // Look up the economic index layer directly by ID.
+      // Source layer name confirmed: CEI_Map-9ssgey
+      const ECON_SOURCE_LAYER = 'CEI_Map-9ssgey';
       const econLayerSpec = map.getLayer('map-economic-index-current');
-      if (!econLayerSpec) {
-        // Log all layer IDs to help debug if layer name differs
-        const ids = map.getStyle().layers.map(l => l.id);
-        console.info('All style layer IDs:', ids);
-        throw new Error('Layer map-economic-index-current not found — see layer IDs above');
-      }
-      const econSourceId    = econLayerSpec.source;
-      const econSourceLayer = econLayerSpec.sourceLayer; // Mapbox GL uses camelCase here
+      if (!econLayerSpec) throw new Error('Layer map-economic-index-current not found in style');
+      const econSourceId = econLayerSpec.source;
 
-      const econFeatures = map.querySourceFeatures(econSourceId, { sourceLayer: econSourceLayer });
+      const econFeatures = map.querySourceFeatures(econSourceId, { sourceLayer: ECON_SOURCE_LAYER });
 
       // Deduplicate by name (tiles may return the same feature multiple times)
       const allData = {};
