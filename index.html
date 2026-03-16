@@ -1818,17 +1818,18 @@ map.on('load', () => {
 
     // ── Step 1: Economic Index → categories 0,1,2,3,4,5,8 ──────────────────
     try {
-      // Find the layer that carries the economic index data.
-      // Try source-layer name first, then layer ID as fallback.
-      let econLayer = style.layers.find(l => l['source-layer'] === 'map-economic-index-current');
-      if (!econLayer) econLayer = style.layers.find(l => l.id === 'map-economic-index-current');
-      if (!econLayer) {
-        const available = style.layers.map(l => `${l.id} (sl:${l['source-layer'] || '–'})`).join('\n  ');
-        console.info('Available style layers:\n ', available);
-        throw new Error('map-economic-index-current not found — see layer list above');
+      // Look up the economic index layer directly by ID.
+      const econLayerSpec = map.getLayer('map-economic-index-current');
+      if (!econLayerSpec) {
+        // Log all layer IDs to help debug if layer name differs
+        const ids = map.getStyle().layers.map(l => l.id);
+        console.info('All style layer IDs:', ids);
+        throw new Error('Layer map-economic-index-current not found — see layer IDs above');
       }
+      const econSourceId    = econLayerSpec.source;
+      const econSourceLayer = econLayerSpec.sourceLayer; // Mapbox GL uses camelCase here
 
-      const econFeatures = map.querySourceFeatures(econLayer.source, { sourceLayer: econLayer['source-layer'] });
+      const econFeatures = map.querySourceFeatures(econSourceId, { sourceLayer: econSourceLayer });
 
       // Deduplicate by name (tiles may return the same feature multiple times)
       const allData = {};
