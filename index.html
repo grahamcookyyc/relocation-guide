@@ -1421,22 +1421,27 @@ const RELOC_SELECTED_ID = 'gc-reloc-selected';
 function paintMap() {
   if (!map.getLayer(RELOC_LAYER_ID)) return;
 
-  // Build the residential score match expression.
   const nameExpr = ['coalesce', ['upcase', ['get', 'name']], ['upcase', ['get', 'comm_name']]];
-  const matchExpr = ['match', nameExpr];
-  Object.entries(currentScores).forEach(([name, score]) => {
-    matchExpr.push(name, scoreToColor(score));
-  });
-  matchExpr.push('rgba(180,180,180,0.25)'); // unscored residential fallback
+  const entries  = Object.entries(currentScores);
 
-  // Branch by Class property so non-residential areas get fixed colours
-  // rather than being run through the scoring heatmap.
+  // 'match' requires at least one value/output pair — fall back to a flat colour
+  // until scores have loaded.
+  let residentialExpr;
+  if (entries.length === 0) {
+    residentialExpr = 'rgba(180,180,180,0.25)';
+  } else {
+    const matchExpr = ['match', nameExpr];
+    entries.forEach(([name, score]) => matchExpr.push(name, scoreToColor(score)));
+    matchExpr.push('rgba(180,180,180,0.25)');
+    residentialExpr = matchExpr;
+  }
+
   const colorExpr = [
     'case',
     ['==', ['get', 'Class'], 'Major Parks'],  'rgba(34,197,94,0.35)',
     ['==', ['get', 'Class'], 'Commercial'],   'rgba(148,163,184,0.2)',
     ['==', ['get', 'Class'], 'Industrial'],   'rgba(234,88,12,0.2)',
-    matchExpr  // Residential (and anything else) gets the score heatmap
+    residentialExpr
   ];
 
   map.setPaintProperty(RELOC_LAYER_ID, 'fill-color', colorExpr);
@@ -1813,10 +1818,17 @@ map.on('load', () => {
 
     // ── Step 1: Economic Index → categories 0,1,2,3,4,5,8 ──────────────────
     try {
-      const econLayer = style.layers.find(l => l['source-layer'] === 'map-economic-index-current');
-      if (!econLayer) throw new Error('map-economic-index-current layer not found in style');
+      // Find the layer that carries the economic index data.
+      // Try source-layer name first, then layer ID as fallback.
+      let econLayer = style.layers.find(l => l['source-layer'] === 'map-economic-index-current');
+      if (!econLayer) econLayer = style.layers.find(l => l.id === 'map-economic-index-current');
+      if (!econLayer) {
+        const available = style.layers.map(l => `${l.id} (sl:${l['source-layer'] || '–'})`).join('\n  ');
+        console.info('Available style layers:\n ', available);
+        throw new Error('map-economic-index-current not found — see layer list above');
+      }
 
-      const econFeatures = map.querySourceFeatures(econLayer.source, { sourceLayer: 'map-economic-index-current' });
+      const econFeatures = map.querySourceFeatures(econLayer.source, { sourceLayer: econLayer['source-layer'] });
 
       // Deduplicate by name (tiles may return the same feature multiple times)
       const allData = {};
