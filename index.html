@@ -868,11 +868,11 @@ if (typeof ANTHROPIC_API_KEY === 'undefined') window.ANTHROPIC_API_KEY = '';
 // These scores are estimates based on neighbourhood characteristics
 // Each category scored 0–10 for each neighbourhood
 
-const NEIGHBOURHOOD_SCORES = {
-  // Format: [schools, greenspace, transit, commute, safety, amenities, mountains, affordability, urbanvibe]
-  // commute = proximity/ease to downtown + major employment
-  // mountains = access to western routes / views
-  // urbanvibe = walkability, density, café culture
+// Scores computed at runtime from map-economic-index-current tileset.
+// Format: [schools, green, transit, commute, safety, amenities, _unused, afford, urban]
+// Affordability (index 7) overwritten by tr-benchmark live data.
+const NEIGHBOURHOOD_SCORES = {};
+const _LEGACY_SCORES_PLACEHOLDER = {
   "ABBEYDALE":              [5,5,5,5,5,5,1,8,3],
   "ACADIA":                 [7,7,8,6,6,7,2,6,5],
   "ALBERT PARK/RADISSON HEIGHTS": [6,6,7,7,5,6,2,7,4],
@@ -1084,7 +1084,7 @@ const NEIGHBOURHOOD_SCORES = {
   "12B": [1,3,1,4,4,1,1,8,1], "12C": [1,3,1,4,4,1,1,8,1],
   "12J": [1,3,1,4,4,1,1,8,1], "12K": [1,3,1,4,4,1,1,8,1],
   "12L": [1,3,1,4,4,1,1,8,1],
-};
+}; // _LEGACY_SCORES_PLACEHOLDER — not used
 
 // Score index positions
 const IDX = { schools:0, green:1, transit:2, commute:3, safety:4, amenities:5, afford:7, urban:8 };
@@ -1719,64 +1719,10 @@ function toggleOverlay(key, show) {
 const HEAT_MAPS_BASE = 'https://raw.githubusercontent.com/grahamcookyyc/heat-maps/main';
 
 async function fetchRemoteData() {
-  // --- Schools ---
-  try {
-    const res = await fetch('schools-by-neighbourhood.json');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    SCHOOLS_BY_NEIGHBOURHOOD = await res.json();
-    console.log('Schools data loaded:', Object.keys(SCHOOLS_BY_NEIGHBOURHOOD).length, 'neighbourhoods');
-  } catch (err) {
-    console.warn('Could not load schools data:', err);
-  }
-
   // --- Neighbourhood descriptions (stub — wire up when data is ready) ---
   // TODO: fetch(`${HEAT_MAPS_BASE}/neighbourhood-descriptions.json`)
 }
 
-// ── Spatial helpers ──
-
-function polygonCentroid(geom) {
-  let coords = [];
-  if (geom.type === 'Polygon') coords = geom.coordinates[0];
-  else if (geom.type === 'MultiPolygon') coords = geom.coordinates[0][0];
-  else return null;
-  if (!coords.length) return null;
-  const lng = coords.reduce((s, c) => s + c[0], 0) / coords.length;
-  const lat = coords.reduce((s, c) => s + c[1], 0) / coords.length;
-  return [lng, lat];
-}
-
-function polygonApproxAreaKm2(geom) {
-  let rings = [];
-  if (geom.type === 'Polygon') rings = [geom.coordinates[0]];
-  else if (geom.type === 'MultiPolygon') rings = geom.coordinates.map(p => p[0]);
-  let area = 0;
-  rings.forEach(ring => {
-    // Shoelace formula in degrees, convert to km² (rough: 1 deg ≈ 111 km at Calgary latitude)
-    let a = 0;
-    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-      a += (ring[j][0] + ring[i][0]) * (ring[j][1] - ring[i][1]);
-    }
-    area += Math.abs(a / 2) * 111 * 111 * Math.cos(51.05 * Math.PI / 180);
-  });
-  return area;
-}
-
-function pointInGeometry(pt, geom) {
-  if (geom.type === 'Polygon') return pointInPolygon(pt, geom.coordinates[0]);
-  if (geom.type === 'MultiPolygon') return geom.coordinates.some(p => pointInPolygon(pt, p[0]));
-  return false;
-}
-
-function pointInPolygon(pt, ring) {
-  const [x, y] = pt;
-  let inside = false;
-  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-    const [xi, yi] = ring[i], [xj, yj] = ring[j];
-    if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
-  }
-  return inside;
-}
 
 // ============================================================
 // MAP LOAD
@@ -1862,28 +1808,134 @@ map.on('load', () => {
   // Fetch remote data (fire-and-forget; map renders immediately with cached scores)
   fetchRemoteData();
 
-  // Initial paint + affordability scoring from benchmark prices
+  // Compute all scores from map-economic-index-current + tr-benchmark
   map.once('idle', () => {
-    buildSearchIndex();
 
-    // Pull tr-benchmark values from the neighbourhood source and normalise to 0–10 affordability scores.
-    // Lower benchmark price → higher affordability score (inverted scale).
+    // ── Step 1: Economic Index → categories 0,1,2,3,4,5,8 ──────────────────
+    try {
+      const econLayer = style.layers.find(l => l['source-layer'] === 'map-economic-index-current');
+      if (!econLayer) throw new Error('map-economic-index-current layer not found in style');
+
+      const econFeatures = map.querySourceFeatures(econLayer.source, { sourceLayer: 'map-economic-index-current' });
+
+      // Deduplicate by name (tiles may return the same feature multiple times)
+      const allData = {};
+      econFeatures.forEach(f => {
+        const p    = f.properties;
+        const name = String(p.name || p.comm_name || '').toUpperCase().trim();
+        if (!name || allData[name]) return;
+        allData[name] = p;
+      });
+
+      // Field definitions: [csv_column_name, invert]
+      // invert=true means lower raw value → better score
+      const FIELDS = {
+        spatialEdu:      ['Spatial Access to Primary and Secondary Education', false],
+        proxPrimary:     ['Proximity to Primary Education',                    false],
+        proxSecondary:   ['Proximity to Secondary Education',                  false],
+        parkArea:        ['Share of Park Area (%)',                            false],
+        proxParks:       ['Proximity to Neighbourhood Parks',                  false],
+        treeCanopy:      ['Tree Canopy (%)',                                   false],
+        landTemp:        ['Land Surface Temperature',                          true],
+        transitScore:    ['Transit Score',                                     false],
+        transitPct:      ['Commute to Work by Transit (%)',                    false],
+        commuteTime:     ['Commute to Work Time (minutes)',                    true],
+        walkScore:       ['Walk Score',                                        false],
+        personCrime:     ['Person Crime Rate',                                 true],
+        propertyCrime:   ['Property Crime Rate',                               true],
+        socialDisorder:  ['Social Disorder Rate',                              true],
+        physicalDisorder:['Physical Disorder Rate',                            true],
+        belonging:       ['Sense of Belonging to Local Community (%)',         false],
+        amenitiesDomain: ['Accessibility and Amenities Domain Score',          false],
+        proxGrocery:     ['Proximity to Grocery Store',                        false],
+        proxHealthcare:  ['Proximity to Healthcare',                           false],
+        proxChildcare:   ['Proximity to Childcare',                            false],
+        proxPharmacy:    ['Proximity to Pharmacies',                           false],
+        renterPct:       ['Renter Households (%)',                             false],
+      };
+
+      // Min/max across all neighbourhoods for each field
+      const stats = {};
+      Object.entries(FIELDS).forEach(([key, [col]]) => {
+        const vals = Object.values(allData)
+          .map(p => parseFloat(p[col]))
+          .filter(v => !isNaN(v) && isFinite(v));
+        if (!vals.length) { stats[key] = { min: 0, range: 1 }; return; }
+        const mn = Math.min(...vals), mx = Math.max(...vals);
+        stats[key] = { min: mn, range: mx - mn || 1 };
+      });
+
+      // Log any field that produced zero valid values (likely a column name mismatch)
+      const missingFields = Object.entries(stats).filter(([, s]) => s.range === 1 && s.min === 0);
+      if (missingFields.length) {
+        // Sample actual keys from first feature to help diagnose
+        const sampleKeys = Object.keys(Object.values(allData)[0] || {});
+        console.warn('Economic index fields with no data (possible name mismatch):', missingFields.map(([k]) => k));
+        console.info('Actual tileset property keys (sample):', sampleKeys);
+      }
+
+      function normField(props, key) {
+        const [col, invert] = FIELDS[key];
+        const val = parseFloat(props[col]);
+        if (isNaN(val) || !isFinite(val)) return null;
+        const n = (val - stats[key].min) / stats[key].range;
+        return invert ? 1 - n : n;
+      }
+
+      function composite(props, components) {
+        let totalW = 0, sum = 0;
+        components.forEach(([key, w]) => {
+          const n = normField(props, key);
+          if (n === null) return;
+          sum += n * w; totalW += w;
+        });
+        return totalW === 0 ? 5 : Math.round(1 + 9 * (sum / totalW));
+      }
+
+      let scored = 0;
+      Object.entries(allData).forEach(([name, props]) => {
+        NEIGHBOURHOOD_SCORES[name] = [
+          // 0 — Schools
+          composite(props, [['spatialEdu',0.5],['proxPrimary',0.3],['proxSecondary',0.2]]),
+          // 1 — Green Space
+          composite(props, [['parkArea',0.4],['proxParks',0.3],['treeCanopy',0.2],['landTemp',0.1]]),
+          // 2 — Transit
+          composite(props, [['transitScore',0.6],['transitPct',0.4]]),
+          // 3 — Commute
+          composite(props, [['commuteTime',0.7],['walkScore',0.2],['transitPct',0.1]]),
+          // 4 — Safety
+          composite(props, [['personCrime',0.3],['propertyCrime',0.3],['socialDisorder',0.2],['physicalDisorder',0.1],['belonging',0.1]]),
+          // 5 — Amenities
+          composite(props, [['amenitiesDomain',0.3],['proxGrocery',0.2],['proxHealthcare',0.2],['proxChildcare',0.15],['proxPharmacy',0.15]]),
+          // 6 — unused (mountains removed)
+          0,
+          // 7 — Affordability placeholder; overwritten by tr-benchmark below
+          5,
+          // 8 — Urban Vibe
+          composite(props, [['walkScore',0.4],['transitScore',0.25],['renterPct',0.2],['proxGrocery',0.15]]),
+        ];
+        scored++;
+      });
+      console.log(`Scores computed from economic index for ${scored} neighbourhoods`);
+    } catch (err) {
+      console.warn('Economic index scoring failed:', err);
+    }
+
+    // ── Step 2: Affordability from tr-benchmark (overwrites index 7) ─────────
     try {
       const features = map.querySourceFeatures(sourceId, { sourceLayer });
       const benchmarks = {};
       features.forEach(f => {
-        const name = String((f.properties.name || f.properties.comm_name || '')).toUpperCase();
+        const name = String((f.properties.name || f.properties.comm_name || '')).toUpperCase().trim();
         const val  = parseFloat(f.properties['tr-benchmark']);
         if (name && !isNaN(val) && val > 0) benchmarks[name] = val;
       });
       const prices = Object.values(benchmarks);
       if (prices.length > 0) {
-        const minP = Math.min(...prices);
-        const maxP = Math.max(...prices);
+        const minP = Math.min(...prices), maxP = Math.max(...prices);
         const range = maxP - minP || 1;
         Object.entries(benchmarks).forEach(([name, price]) => {
           if (NEIGHBOURHOOD_SCORES[name]) {
-            // index 7 = affordability
             NEIGHBOURHOOD_SCORES[name][7] = Math.round(1 + 9 * (1 - (price - minP) / range));
           }
         });
@@ -1893,59 +1945,7 @@ map.on('load', () => {
       console.warn('Could not compute affordability from tr-benchmark:', err);
     }
 
-    // --- Parks green space scoring (Calgary Open Data) ---
-    // Runs async after idle; refreshScores() called again when complete
-    (async () => {
-      try {
-        const parksRes = await fetch(
-          'https://data.calgary.ca/resource/vd9i-m9ze.geojson?$where=life_cycle_status=%27ACTIVE%27&$limit=5000'
-        );
-        if (!parksRes.ok) throw new Error(`HTTP ${parksRes.status}`);
-        const parksGeoJSON = await parksRes.json();
-
-        // Build neighbourhood polygon lookup from the already-loaded source
-        const hoods = map.querySourceFeatures(sourceId, { sourceLayer });
-        const hoodPolygons = {};
-        hoods.forEach(f => {
-          const name = String(f.properties.name || f.properties.comm_name || '').toUpperCase();
-          if (name && !hoodPolygons[name] && f.geometry) hoodPolygons[name] = f.geometry;
-        });
-
-        // Assign each park centroid to a neighbourhood
-        const parkStats = {};
-        parksGeoJSON.features.forEach(park => {
-          const geom = park.geometry;
-          if (!geom) return;
-          const centroid = polygonCentroid(geom);
-          if (!centroid) return;
-          const area = polygonApproxAreaKm2(geom);
-          for (const [name, hoodGeom] of Object.entries(hoodPolygons)) {
-            if (pointInGeometry(centroid, hoodGeom)) {
-              if (!parkStats[name]) parkStats[name] = { count: 0, totalArea: 0 };
-              parkStats[name].count++;
-              parkStats[name].totalArea += area;
-              break;
-            }
-          }
-        });
-
-        // Normalise count + area to 1–10 green space score
-        const raws = Object.values(parkStats).map(s => s.count * 0.4 + s.totalArea * 0.6);
-        const minR = Math.min(...raws), maxR = Math.max(...raws);
-        const rangeR = maxR - minR || 1;
-        Object.entries(parkStats).forEach(([name, s]) => {
-          if (NEIGHBOURHOOD_SCORES[name]) {
-            const raw = s.count * 0.4 + s.totalArea * 0.6;
-            NEIGHBOURHOOD_SCORES[name][1] = Math.round(1 + 9 * (raw - minR) / rangeR);
-          }
-        });
-        console.log(`Green space scores updated from Calgary Open Data (${Object.keys(parkStats).length} neighbourhoods)`);
-        refreshScores();
-      } catch (err) {
-        console.warn('Could not load parks data:', err);
-      }
-    })();
-
+    buildSearchIndex();
     refreshScores();
   });
 
