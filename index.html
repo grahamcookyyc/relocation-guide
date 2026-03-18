@@ -788,8 +788,9 @@
 const RELOC_LAYER_ID    = 'reloc-fill';
 const RELOC_OUTLINE_ID  = 'reloc-outline';
 const RELOC_SELECTED_ID = 'reloc-selected';
-const CEI_SOURCE_ID     = 'composite';
-const CEI_SOURCE_LAYER  = 'Community_Economic_Index_Map-509x5q';
+const CEI_SOURCE_ID          = 'composite';
+const CEI_STYLE_LAYER_ID     = 'community-economic-index-map'; // layer name in Studio
+let   CEI_SOURCE_LAYER       = '';                             // resolved on load
 
 const SCHOOLS_URL = 'https://raw.githubusercontent.com/grahamcookyyc/heat-maps/main/schools-by-neighbourhood.json';
 
@@ -1273,7 +1274,20 @@ function applyOverlayToggle(checkId) {
 
 map.on('load', () => {
 
-  // Add fill layer on composite / community-economic-index-map
+  // Resolve the source layer name from the style layer Mapbox already knows about
+  const ceiStyleLayer = map.getStyle().layers.find(l => l.id === CEI_STYLE_LAYER_ID);
+  if (!ceiStyleLayer) {
+    console.error(`Style layer "${CEI_STYLE_LAYER_ID}" not found. Check Studio.`);
+    document.getElementById('data-status').textContent = 'Error: CEI layer not in style.';
+    return;
+  }
+  CEI_SOURCE_LAYER = ceiStyleLayer['source-layer'];
+  console.log('CEI source layer resolved:', CEI_SOURCE_LAYER);
+
+  // Hide the existing styled layer so our scoring layer takes over
+  map.setLayoutProperty(CEI_STYLE_LAYER_ID, 'visibility', 'none');
+
+  // Add fill layer on composite / CEI source layer
   map.addLayer({
     id:             RELOC_LAYER_ID,
     type:           'fill',
