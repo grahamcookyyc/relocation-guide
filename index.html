@@ -79,299 +79,385 @@
       gap: 12px;
     }
 
-    /* ── Persona bar ── */
-    .persona-row {
+    /* ── Panel structure ── */
+    .panel-header {
       display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px 8px;
+      border-bottom: 1px solid #f3f4f6;
+      position: sticky;
+      top: 0;
+      background: #fff;
+      z-index: 1;
+      border-radius: 10px 10px 0 0;
+    }
+    .panel-header h3 { margin: 0; font-size: 13px; font-weight: 800; }
+    .panel-btn {
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+      padding: 3px 8px;
+      font-family: "Manrope", sans-serif;
+      font-weight: 700;
+    }
+    .panel-btn:hover { background: #f3f4f6; }
+
+    .panel-section {
+      padding: 10px 12px;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .panel-section:last-child { border-bottom: none; }
+
+    .section-label {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #9ca3af;
+      margin-bottom: 8px;
+    }
+
+    /* ── Persona grid ── */
+    .persona-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 6px;
-      flex-wrap: wrap;
     }
     .persona-btn {
-      flex: 1 1 auto;
-      padding: 7px 10px;
-      border: 1.5px solid var(--panel-border);
-      border-radius: 20px;
-      font-size: 11.5px;
-      font-weight: 600;
+      background: #f9fafb;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 7px 6px;
+      font-family: "Manrope", sans-serif;
+      font-size: 11px;
+      font-weight: 700;
       cursor: pointer;
-      background: #fff;
-      color: var(--text-muted);
-      transition: all 0.15s;
-      white-space: nowrap;
+      text-align: center;
+      line-height: 1.35;
+      transition: all 0.12s;
+      color: #374151;
     }
-    .persona-btn:hover { border-color: var(--brand); color: var(--brand); }
-    .persona-btn.active { background: var(--brand); color: #fff; border-color: var(--brand); }
+    .persona-btn:hover { background: #e6f0ee; border-color: var(--brand); }
+    .persona-btn.active { background: var(--brand); border-color: var(--brand); color: #fff; }
+    .persona-icon { font-size: 16px; display: block; margin-bottom: 2px; }
 
-    /* ── Sliders ── */
-    .sliders-header {
+    /* ── Priority sliders ── */
+    .slider-row {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+      transition: opacity 0.15s;
     }
-    .sliders-header h3 { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-    #reset-btn {
+    .slider-row:last-child { margin-bottom: 0; }
+    .slider-row.disabled { opacity: 0.4; }
+    .slider-row.disabled input[type="range"] { pointer-events: none; }
+
+    .slider-label {
       font-size: 11px;
       font-weight: 600;
-      color: var(--text-muted);
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 2px 6px;
-      border-radius: 4px;
-    }
-    #reset-btn:hover { color: var(--brand); background: var(--accent); }
-
-    .slider-group { display: flex; flex-direction: column; gap: 9px; }
-
-    .slider-row {
-      display: grid;
-      grid-template-columns: 18px 1fr 28px;
+      color: #374151;
+      width: 120px;
+      flex-shrink: 0;
+      display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 5px;
     }
-    .slider-row input[type="checkbox"] {
-      width: 15px; height: 15px;
+    .slider-label .icon { font-size: 13px; }
+    .cat-check {
+      width: 13px;
+      height: 13px;
+      flex-shrink: 0;
       accent-color: var(--brand);
       cursor: pointer;
+      margin: 0;
+    }
+    input[type="range"] {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 4px;
+      border-radius: 2px;
+      background: #e5e7eb;
+      outline: none;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--brand);
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+    .slider-value {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--brand);
+      width: 16px;
+      text-align: right;
       flex-shrink: 0;
     }
-    .slider-label-wrap { display: flex; flex-direction: column; gap: 2px; }
-    .slider-label { font-size: 12px; font-weight: 600; }
-    input[type="range"] {
-      width: 100%;
-      height: 4px;
-      accent-color: var(--brand);
-      cursor: pointer;
-    }
-    .slider-value {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--brand);
-      text-align: right;
-    }
-    .slider-row.disabled .slider-label,
-    .slider-row.disabled input[type="range"] { opacity: 0.35; }
-
-    .age-hint { font-size: 10px; color: var(--text-muted); font-style: italic; }
+    .age-hint { font-size: 10px; color: #9ca3af; font-style: italic; margin-top: 2px; }
 
     /* ── Top matches ── */
-    .section-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-
-    #top-matches { display: flex; flex-direction: column; gap: 6px; }
-
+    #top-matches { display: flex; flex-direction: column; gap: 5px; }
     .match-card {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 9px 11px;
-      border: 1.5px solid var(--panel-border);
-      border-radius: var(--radius);
+      gap: 8px;
+      padding: 6px 8px;
+      border: 1px solid #f3f4f6;
+      border-radius: 7px;
       cursor: pointer;
-      transition: all 0.15s;
+      transition: all 0.12s;
+      background: #f9fafb;
     }
-    .match-card:hover { border-color: var(--brand); background: var(--accent); }
-    .match-rank {
-      font-size: 13px;
-      font-weight: 800;
-      color: var(--text-muted);
-      width: 18px;
-      text-align: center;
-      flex-shrink: 0;
-    }
+    .match-card:hover { background: #e6f0ee; border-color: var(--brand); }
+    .match-rank { font-size: 11px; font-weight: 800; color: #9ca3af; width: 14px; flex-shrink: 0; }
     .match-info { flex: 1; min-width: 0; }
-    .match-name { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .match-bar-wrap { height: 4px; background: #e5e7eb; border-radius: 2px; margin-top: 4px; }
-    .match-bar { height: 4px; border-radius: 2px; background: var(--brand); }
-    .match-score { font-size: 15px; font-weight: 800; color: var(--brand); flex-shrink: 0; }
+    .match-name { font-size: 11px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #111827; }
+    .match-bar-wrap { height: 3px; background: #e5e7eb; border-radius: 2px; margin-top: 3px; }
+    .match-bar { height: 3px; border-radius: 2px; background: var(--brand); }
+    .match-score { font-size: 13px; font-weight: 800; color: var(--brand); flex-shrink: 0; }
 
-    /* ── Map area ── */
-    #map-wrap { flex: 1; position: relative; }
-    #map { width: 100%; height: 100%; }
-
-    /* ── Overlay controls ── */
-    #overlay-controls {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      background: rgba(255,255,255,0.96);
-      border-radius: var(--radius);
-      padding: 10px 12px;
-      box-shadow: var(--shadow);
-      font-size: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      z-index: 2;
+    /* ── Overlay grid (inside panel) ── */
+    .overlay-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
     }
-    .overlay-title { font-weight: 700; font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 2px; }
-    .overlay-row { display: flex; align-items: center; gap: 7px; cursor: pointer; }
-    .overlay-row input[type="checkbox"] { accent-color: var(--brand); }
-    .overlay-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .overlay-btn {
+      background: #f9fafb;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 7px;
+      padding: 5px 7px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: "Manrope", sans-serif;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: #374151;
+      transition: all 0.12s;
+    }
+    .overlay-btn:hover { background: #eff6ff; border-color: #93c5fd; }
+    .overlay-btn.active { background: #eff6ff; border-color: #1E88E5; color: #1e40af; }
+    .overlay-btn .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
-    /* ── Legend ── */
+    /* ── Legend (bottom right) ── */
     #legend {
       position: absolute;
-      bottom: 30px;
-      left: 12px;
-      background: rgba(255,255,255,0.95);
-      border-radius: var(--radius);
-      padding: 9px 12px;
-      box-shadow: var(--shadow);
+      bottom: 46px;
+      right: 10px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 8px 10px;
       font-size: 11px;
-      z-index: 2;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+      z-index: 10;
+      min-width: 200px;
     }
-    .legend-title { font-weight: 700; font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
+    .legend-title { font-weight: 800; margin-bottom: 5px; font-size: 11px; }
     .legend-gradient {
       height: 10px;
-      width: 160px;
+      width: 100%;
       border-radius: 5px;
       background: linear-gradient(to right, #1E88E5, #ffffff, #B71C1C);
-      border: 1px solid #e5e7eb;
-      margin-bottom: 3px;
+      border: 1px solid rgba(0,0,0,0.08);
+      margin-bottom: 4px;
     }
-    .legend-labels { display: flex; justify-content: space-between; color: var(--text-muted); font-size: 10px; }
+    .legend-labels { display: flex; justify-content: space-between; font-size: 10px; color: #6b7280; }
 
     /* ── Hover popup ── */
-    .hover-popup .mapboxgl-popup-content {
-      padding: 10px 13px;
-      border-radius: 8px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.14);
-      font-family: 'Manrope', sans-serif;
-      min-width: 160px;
+    .mapboxgl-popup { max-width: none !important; pointer-events: none; }
+    .mapboxgl-popup-tip { display: none !important; }
+    .mapboxgl-popup-content {
+      padding: 0 !important;
+      background: transparent !important;
+      box-shadow: none !important;
     }
-    .popup-name { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
-    .popup-score { font-size: 22px; font-weight: 800; color: var(--brand); }
-    .popup-score span { font-size: 12px; font-weight: 500; color: var(--text-muted); }
-    .popup-cats { margin-top: 5px; display: flex; flex-direction: column; gap: 2px; font-size: 11px; color: var(--text-muted); }
-    .popup-cat { display: flex; justify-content: space-between; gap: 8px; }
-    .popup-cat strong { color: var(--text); }
+    .hover-card {
+      font-family: "Manrope", sans-serif;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.14);
+      padding: 8px 11px;
+      white-space: nowrap;
+    }
+    .hover-name { font-weight: 900; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; margin: 0 0 4px; color: #111827; }
+    .hover-score { font-size: 12px; font-weight: 800; color: var(--brand); }
+    .hover-scores { display: flex; flex-direction: column; gap: 2px; margin-top: 3px; }
+    .hover-score-row { font-size: 11px; color: #6b7280; display: flex; align-items: center; gap: 5px; }
+    .hover-score-row .hval { font-weight: 700; color: #111827; }
 
-    /* ── Info panel — floating over map ── */
+    /* ── Info panel ── */
     #info-panel {
       position: absolute;
       top: 10px;
       right: 10px;
-      bottom: 10px;
-      width: 340px;
-      max-width: min(340px, 42vw);
-      background: var(--panel-bg);
-      border: 1px solid var(--panel-border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
+      bottom: 46px;
+      width: 360px;
+      max-width: min(360px, 42vw);
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.14);
+      z-index: 11;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
-      z-index: 11;
     }
     #info-panel.hidden { display: none; }
+
+    .info-panel-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      border-bottom: 1px solid #f3f4f6;
+      flex-shrink: 0;
+    }
+    .info-title { margin: 0; font-size: 14px; font-weight: 900; letter-spacing: 0.01em; }
+    .info-sub { margin: 3px 0 0; font-size: 11px; color: #6b7280; }
+    .info-close {
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      border-radius: 8px;
+      font-size: 11px;
+      padding: 5px 9px;
+      cursor: pointer;
+      font-family: "Manrope", sans-serif;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .info-close:hover { background: #f3f4f6; }
 
     #info-panel-inner {
       flex: 1;
       overflow-y: auto;
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .info-header-row {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 8px;
-    }
-    .info-name { font-size: 20px; font-weight: 800; line-height: 1.2; }
-    .info-close {
-      background: none;
-      border: none;
-      font-size: 20px;
-      cursor: pointer;
-      color: var(--text-muted);
-      line-height: 1;
-      flex-shrink: 0;
-      padding: 2px;
-    }
-    .info-close:hover { color: var(--text); }
-
-    .info-meta {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
+      padding: 10px 12px 14px;
       font-size: 12px;
-      color: var(--text-muted);
+      line-height: 1.5;
     }
-    .info-meta span { display: flex; align-items: center; gap: 4px; }
 
-    .info-match-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    /* Score card in info panel */
+    .score-card {
+      background: linear-gradient(135deg, #f0fdf4 0%, #eff6ff 100%);
+      border: 1px solid #d1fae5;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
     }
-    .info-match-score {
-      font-size: 36px;
+    .score-card-header {
+      font-size: 10px;
       font-weight: 800;
-      color: var(--brand);
-      line-height: 1;
-      flex-shrink: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #065f46;
+      margin-bottom: 8px;
     }
-    .info-match-bar-wrap { flex: 1; }
-    .info-match-label { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
-    .info-match-bar-bg { height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
-    .info-match-bar { height: 8px; border-radius: 4px; background: linear-gradient(90deg, var(--brand), #00a388); transition: width 0.4s; }
-
-    /* AI Block */
-    .ai-block {
-      background: #f8fffe;
-      border: 1.5px solid #b2dfdb;
-      border-radius: var(--radius);
-      padding: 12px;
-    }
-    .ai-block-title { font-size: 11px; font-weight: 700; color: var(--brand); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 7px; display: flex; align-items: center; gap: 5px; }
-    .ai-text { font-size: 13px; line-height: 1.55; color: #374151; }
-    .ai-loading { color: var(--text-muted); font-size: 12px; font-style: italic; }
-
-    /* Score breakdown */
-    .breakdown-grid { display: flex; flex-direction: column; gap: 7px; }
-    .breakdown-row {
-      display: grid;
-      grid-template-columns: 1fr 40px 100px;
+    .score-row {
+      display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 12px;
+      margin-bottom: 5px;
+      gap: 6px;
     }
-    .breakdown-label { font-weight: 600; }
-    .breakdown-val { font-weight: 700; text-align: right; }
-    .breakdown-bar-bg { height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden; }
-    .breakdown-bar { height: 6px; border-radius: 3px; background: var(--brand); transition: width 0.3s; }
+    .score-row:last-child { margin-bottom: 0; }
+    .score-row-label { font-size: 11px; color: #374151; flex: 1; display: flex; align-items: center; gap: 4px; }
+    .score-bar-bg { width: 70px; height: 5px; background: #e5e7eb; border-radius: 3px; overflow: hidden; }
+    .score-bar-fill { height: 100%; border-radius: 3px; background: var(--brand); transition: width 0.4s ease; }
+    .score-row-val { font-size: 11px; font-weight: 800; color: #111827; width: 20px; text-align: right; }
+
+    /* AI insight block */
+    .ai-pulse-block {
+      background: linear-gradient(135deg, #f0fdf4 0%, #eff6ff 100%);
+      border: 1px solid #d1fae5;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+    }
+    .ai-pulse-header { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+    .ai-pulse-icon { font-size: 13px; }
+    .ai-pulse-title { font-weight: 800; font-size: 11px; color: #065f46; text-transform: uppercase; letter-spacing: 0.05em; }
+    .ai-pulse-text { font-size: 12px; color: #065f46; font-style: italic; line-height: 1.5; }
+    .ai-pulse-loading { display: flex; align-items: center; gap: 7px; font-size: 12px; color: #6b7280; }
+    .spinner {
+      width: 13px; height: 13px;
+      border: 2px solid #d1fae5;
+      border-top-color: #065f46;
+      border-radius: 50%;
+      display: inline-block;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     /* Schools */
-    .schools-list { display: flex; flex-direction: column; gap: 5px; }
-    .school-item { font-size: 12px; display: flex; gap: 6px; align-items: flex-start; }
-    .school-type { flex-shrink: 0; font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 3px; margin-top: 1px; }
-    .school-type.elem { background: #e3f2fd; color: #1565c0; }
-    .school-type.jr { background: #fff3e0; color: #e65100; }
-    .school-type.sr { background: #f3e5f5; color: #6a1b9a; }
-    .school-type.other { background: #f5f5f5; color: #616161; }
+    .schools-list { margin: 5px 0 0; padding: 0; list-style: none; }
+    .schools-list li {
+      font-size: 11px;
+      color: #4b5563;
+      padding: 3px 0;
+      border-bottom: 1px solid #f9fafb;
+      display: flex;
+      align-items: flex-start;
+      gap: 5px;
+      line-height: 1.4;
+    }
+    .schools-list li:last-child { border-bottom: none; }
+    .school-dot { width: 6px; height: 6px; border-radius: 50%; background: #1E88E5; flex-shrink: 0; margin-top: 4px; }
 
     /* CTA buttons */
-    .cta-row { display: flex; flex-direction: column; gap: 7px; }
-    .cta-btn {
-      display: block;
-      width: 100%;
-      padding: 11px 16px;
-      border-radius: var(--radius);
-      font-family: 'Manrope', sans-serif;
-      font-size: 13px;
-      font-weight: 700;
+    .cta-row { display: flex; gap: 7px; margin-bottom: 12px; flex-wrap: wrap; }
+    .cta-btn-primary {
+      background: var(--brand);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-weight: 800;
+      font-size: 11px;
       cursor: pointer;
+      font-family: "Manrope", sans-serif;
+      flex: 1;
+      min-width: 130px;
       text-align: center;
       text-decoration: none;
-      transition: all 0.15s;
-      border: none;
+      display: inline-block;
     }
-    .cta-primary { background: var(--brand); color: #fff; }
-    .cta-primary:hover { background: var(--brand-light); }
-    .cta-secondary { background: #fff; color: var(--brand); border: 1.5px solid var(--brand); }
-    .cta-secondary:hover { background: var(--accent); }
+    .cta-btn-secondary {
+      background: #f3f4f6;
+      color: #111827;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-weight: 800;
+      font-size: 11px;
+      cursor: pointer;
+      font-family: "Manrope", sans-serif;
+      flex: 1;
+      min-width: 130px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .cta-btn-primary:hover { background: var(--brand-light); }
+    .cta-btn-secondary:hover { background: #e5e7eb; }
+
+    /* Desc section */
+    .desc-section { border-top: 1px solid #f3f4f6; padding-top: 10px; margin-top: 8px; }
+    .desc-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #9ca3af; margin-bottom: 5px; }
+    .desc-text { font-size: 12px; color: #374151; line-height: 1.55; }
 
     /* ── Footer ── */
     #footer {
@@ -541,117 +627,116 @@
     <aside id="sidebar">
       <div id="sidebar-inner">
 
-        <!-- Persona buttons -->
-        <div>
-          <div class="sliders-header" style="margin-bottom:8px;">
-            <h3>I am a&hellip;</h3>
+        <!-- Panel header -->
+        <div class="panel-header">
+          <h3>Your Priorities</h3>
+          <div style="display:flex;gap:5px;">
+            <button class="panel-btn" id="reset-btn" type="button">Reset</button>
           </div>
+        </div>
+
+        <!-- Life stage presets -->
+        <div class="panel-section">
+          <div class="section-label">Life Stage Preset</div>
           <div class="persona-row">
-            <button class="persona-btn" data-persona="family">Family</button>
-            <button class="persona-btn" data-persona="young-pro">Young Pro</button>
-            <button class="persona-btn" data-persona="empty-nester">Empty Nester</button>
-            <button class="persona-btn" data-persona="new-to-canada">New to Canada</button>
+            <button class="persona-btn" data-persona="family" type="button">
+              <span class="persona-icon">&#x1F46A;</span>Growing Family
+            </button>
+            <button class="persona-btn" data-persona="young-pro" type="button">
+              <span class="persona-icon">&#x1F4BC;</span>Young Professional
+            </button>
+            <button class="persona-btn" data-persona="empty-nester" type="button">
+              <span class="persona-icon">&#x1F3E1;</span>Empty Nester
+            </button>
+            <button class="persona-btn" data-persona="new-to-canada" type="button">
+              <span class="persona-icon">&#x1F30D;</span>New to Canada
+            </button>
           </div>
         </div>
 
-        <!-- Sliders -->
-        <div class="sliders-header">
-          <h3>What matters to you</h3>
-          <button id="reset-btn">Reset</button>
-        </div>
-
-        <div class="slider-group" id="slider-group">
+        <!-- Priority sliders -->
+        <div class="panel-section">
+          <div class="section-label">What matters most?</div>
 
           <div class="slider-row" data-key="schools">
-            <input type="checkbox" class="cat-check" data-key="schools" checked />
-            <div class="slider-label-wrap">
-              <span class="slider-label">Schools</span>
-              <input type="range" min="1" max="10" value="5" id="sl-schools" />
-            </div>
+            <span class="slider-label"><input type="checkbox" class="cat-check" data-key="schools" checked /><span class="icon">&#x1F3EB;</span> Schools</span>
+            <input type="range" min="1" max="10" value="5" id="sl-schools" />
             <span class="slider-value" id="sv-schools">5</span>
           </div>
 
           <div class="slider-row" data-key="green">
-            <input type="checkbox" class="cat-check" data-key="green" checked />
-            <div class="slider-label-wrap">
-              <span class="slider-label">Green Space &amp; Parks</span>
-              <input type="range" min="1" max="10" value="5" id="sl-green" />
-            </div>
+            <span class="slider-label"><input type="checkbox" class="cat-check" data-key="green" checked /><span class="icon">&#x1F33F;</span> Green Space</span>
+            <input type="range" min="1" max="10" value="5" id="sl-green" />
             <span class="slider-value" id="sv-green">5</span>
           </div>
 
           <div class="slider-row" data-key="transit">
-            <input type="checkbox" class="cat-check" data-key="transit" checked />
-            <div class="slider-label-wrap">
-              <span class="slider-label">Transit Access</span>
-              <input type="range" min="1" max="10" value="5" id="sl-transit" />
-            </div>
+            <span class="slider-label"><input type="checkbox" class="cat-check" data-key="transit" checked /><span class="icon">&#x1F687;</span> Transit</span>
+            <input type="range" min="1" max="10" value="5" id="sl-transit" />
             <span class="slider-value" id="sv-transit">5</span>
           </div>
 
           <div class="slider-row" data-key="commute">
-            <input type="checkbox" class="cat-check" data-key="commute" checked />
-            <div class="slider-label-wrap">
-              <span class="slider-label">Commute Time</span>
-              <input type="range" min="1" max="10" value="5" id="sl-commute" />
-            </div>
+            <span class="slider-label"><input type="checkbox" class="cat-check" data-key="commute" checked /><span class="icon">&#x1F697;</span> Commute</span>
+            <input type="range" min="1" max="10" value="5" id="sl-commute" />
             <span class="slider-value" id="sv-commute">5</span>
           </div>
 
           <div class="slider-row" data-key="safety">
-            <input type="checkbox" class="cat-check" data-key="safety" checked />
-            <div class="slider-label-wrap">
-              <span class="slider-label">Safety</span>
-              <input type="range" min="1" max="10" value="5" id="sl-safety" />
-            </div>
+            <span class="slider-label"><input type="checkbox" class="cat-check" data-key="safety" checked /><span class="icon">&#x1F512;</span> Safety</span>
+            <input type="range" min="1" max="10" value="5" id="sl-safety" />
             <span class="slider-value" id="sv-safety">5</span>
           </div>
 
           <div class="slider-row" data-key="amenities">
-            <input type="checkbox" class="cat-check" data-key="amenities" checked />
-            <div class="slider-label-wrap">
-              <span class="slider-label">Amenities &amp; Services</span>
-              <input type="range" min="1" max="10" value="5" id="sl-amenities" />
-            </div>
+            <span class="slider-label"><input type="checkbox" class="cat-check" data-key="amenities" checked /><span class="icon">&#x1F6D2;</span> Amenities</span>
+            <input type="range" min="1" max="10" value="5" id="sl-amenities" />
             <span class="slider-value" id="sv-amenities">5</span>
           </div>
 
           <div class="slider-row" data-key="urban">
-            <input type="checkbox" class="cat-check" data-key="urban" checked />
-            <div class="slider-label-wrap">
-              <span class="slider-label">Urban Feel</span>
-              <input type="range" min="1" max="10" value="5" id="sl-urban" />
-            </div>
+            <span class="slider-label"><input type="checkbox" class="cat-check" data-key="urban" checked /><span class="icon">&#x1F3D9;&#xFE0F;</span> Urban Vibe</span>
+            <input type="range" min="1" max="10" value="5" id="sl-urban" />
             <span class="slider-value" id="sv-urban">5</span>
           </div>
 
           <div class="slider-row" data-key="afford">
-            <input type="checkbox" class="cat-check" data-key="afford" checked />
-            <div class="slider-label-wrap">
-              <span class="slider-label">Affordability</span>
-              <input type="range" min="1" max="10" value="5" id="sl-afford" />
-            </div>
+            <span class="slider-label"><input type="checkbox" class="cat-check" data-key="afford" checked /><span class="icon">&#x1F4B0;</span> Affordability</span>
+            <input type="range" min="1" max="10" value="5" id="sl-afford" />
             <span class="slider-value" id="sv-afford">5</span>
           </div>
 
           <div class="slider-row" data-key="age">
-            <input type="checkbox" class="cat-check" data-key="age" checked />
-            <div class="slider-label-wrap">
-              <span class="slider-label">Community Age</span>
-              <input type="range" min="1" max="10" value="5" id="sl-age" />
-              <span class="age-hint" id="age-hint">1980s&ndash;90s</span>
-            </div>
+            <span class="slider-label"><input type="checkbox" class="cat-check" data-key="age" checked /><span class="icon">&#x1F3D8;&#xFE0F;</span> Era</span>
+            <input type="range" min="1" max="10" value="5" id="sl-age" />
             <span class="slider-value" id="sv-age">5</span>
           </div>
-
+          <div class="age-hint" id="age-hint" style="margin-top:4px;">1980s&ndash;90s</div>
         </div>
 
         <!-- Top matches -->
-        <div class="sliders-header">
-          <h3>Top Matches</h3>
+        <div class="panel-section">
+          <div class="section-label">&#x1F3C6; Top Matches</div>
+          <div id="top-matches" style="font-size:12px;color:#9ca3af;">Move sliders to see matches&hellip;</div>
         </div>
-        <div id="top-matches">
-          <div style="font-size:12px;color:var(--text-muted);">Loading neighbourhood data&hellip;</div>
+
+        <!-- Overlays -->
+        <div class="panel-section">
+          <div class="section-label">Context Overlays</div>
+          <div class="overlay-grid" id="overlay-grid">
+            <button class="overlay-btn" data-overlay="ctrain" type="button">
+              <div class="dot" style="background:#ef4444;"></div>&#x1F687; C-Train
+            </button>
+            <button class="overlay-btn" data-overlay="parks" type="button">
+              <div class="dot" style="background:#16a34a;"></div>&#x1F332; Major Parks
+            </button>
+            <button class="overlay-btn" data-overlay="industrial" type="button">
+              <div class="dot" style="background:#ea580c;"></div>&#x1F3ED; Industrial
+            </button>
+            <button class="overlay-btn" data-overlay="developing" type="button">
+              <div class="dot" style="background:#7c3aed;"></div>&#x1F3D7;&#xFE0F; Developing
+            </button>
+          </div>
         </div>
 
       </div>
@@ -660,31 +745,6 @@
     <!-- Map -->
     <div id="map-wrap">
       <div id="map"></div>
-
-      <!-- Overlay controls -->
-      <div id="overlay-controls">
-        <div class="overlay-title">Overlays</div>
-        <label class="overlay-row">
-          <input type="checkbox" id="ov-ctrain" checked />
-          <span class="overlay-dot" style="background:#1565c0;"></span>
-          C-Train
-        </label>
-        <label class="overlay-row">
-          <input type="checkbox" id="ov-parks" />
-          <span class="overlay-dot" style="background:#2e7d32;"></span>
-          Major Parks
-        </label>
-        <label class="overlay-row">
-          <input type="checkbox" id="ov-industrial" />
-          <span class="overlay-dot" style="background:#78909c;"></span>
-          Industrial
-        </label>
-        <label class="overlay-row">
-          <input type="checkbox" id="ov-developing" />
-          <span class="overlay-dot" style="background:#f9a825;"></span>
-          Developing
-        </label>
-      </div>
 
       <!-- Legend -->
       <div id="legend">
@@ -699,51 +759,14 @@
 
     <!-- Info Panel -->
     <div id="info-panel" class="hidden">
-      <div id="info-panel-inner">
-
-        <div class="info-header-row">
-          <div class="info-name" id="info-name">&mdash;</div>
-          <button class="info-close" id="info-close" title="Close">&times;</button>
-        </div>
-
-        <div class="info-meta" id="info-meta"></div>
-
-        <div class="info-match-row">
-          <div class="info-match-score" id="info-match-score">&mdash;</div>
-          <div class="info-match-bar-wrap">
-            <div class="info-match-label">Overall Match</div>
-            <div class="info-match-bar-bg">
-              <div class="info-match-bar" id="info-match-bar" style="width:0%"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- AI Insight -->
-        <div class="ai-block">
-          <div class="ai-block-title">&#10022; AI Neighbourhood Insight</div>
-          <div class="ai-text" id="ai-text"><span class="ai-loading">Generating insight&hellip;</span></div>
-        </div>
-
-        <!-- Score breakdown -->
+      <div class="info-panel-header">
         <div>
-          <div class="section-title" style="margin-bottom:8px;">Score Breakdown</div>
-          <div class="breakdown-grid" id="breakdown-grid"></div>
+          <h3 class="info-title" id="info-name">&mdash;</h3>
+          <p class="info-sub" id="info-meta">Click a neighbourhood to explore</p>
         </div>
-
-        <!-- Schools -->
-        <div id="schools-section" style="display:none;">
-          <div class="section-title" style="margin-bottom:8px;">Schools Nearby</div>
-          <div class="schools-list" id="schools-list"></div>
-        </div>
-
-        <!-- CTAs -->
-        <div class="cta-row">
-          <button class="cta-btn cta-primary" id="cta-homevalue">Check My Home Value in This Area</button>
-          <a class="cta-btn cta-secondary" id="cta-sold" href="#" target="_blank" rel="noopener">View Recent Sold Data</a>
-          <a class="cta-btn cta-secondary" href="https://grahamcookyyc.com/book" target="_blank" rel="noopener">Book a Call with Graham</a>
-        </div>
-
+        <button class="info-close" id="info-close" type="button">Close</button>
       </div>
+      <div id="info-panel-inner"></div>
     </div>
 
   </div><!-- /#main -->
@@ -1017,84 +1040,80 @@ function openInfoPanel(code) {
 
   const price = formatPrice(d.tr_benchmark);
   const era   = ageLabel(d);
-  document.getElementById('info-meta').innerHTML =
-    `<span>\uD83C\uDFE0 ${price} benchmark</span><span>\uD83C\uDFD8 ${era}</span><span>\uD83D\uDCCD ${code}</span>`;
+  document.getElementById('info-meta').textContent =
+    `\uD83C\uDFE0 ${price}  \u2022  \uD83C\uDFD8 ${era}  \u2022  ${code}`;
 
   const weights = getWeights();
   const score   = currentScores[code] !== undefined ? currentScores[code] : computeScore(code, weights);
-  document.getElementById('info-match-score').textContent = score !== null ? score : '\u2014';
-  document.getElementById('info-match-bar').style.width   = (score || 0) + '%';
+  const soldUrl = 'https://grahamcookyyc.com/sold?neighbourhood=' + encodeURIComponent(d.comm_name || code);
 
-  document.getElementById('cta-sold').href =
-    'https://grahamcookyyc.com/sold?neighbourhood=' + encodeURIComponent(d.comm_name || code);
+  // Render all body content into info-panel-inner
+  const body = document.getElementById('info-panel-inner');
+  body.innerHTML = `
+    <div class="score-card" style="margin-top:4px;">
+      <div class="score-card-header">\u2605 Overall Match: ${score !== null ? score + '/100' : '\u2014'}</div>
+      ${buildBreakdownHTML(d, weights)}
+    </div>
+    <div class="ai-pulse-block" id="ai-block">
+      <div class="ai-pulse-header"><span class="ai-pulse-icon">\u2728</span><span class="ai-pulse-title">AI Neighbourhood Insight</span></div>
+      <div class="ai-pulse-loading" id="ai-text"><span class="spinner"></span>Generating insight\u2026</div>
+    </div>
+    ${buildSchoolsHTML(code)}
+    <div class="cta-row">
+      <button class="cta-btn-primary" id="cta-homevalue" type="button">Check My Home Value</button>
+      <a class="cta-btn-secondary" href="${soldUrl}" target="_blank" rel="noopener">View Sold Data</a>
+      <a class="cta-btn-secondary" href="https://grahamcookyyc.com/book" target="_blank" rel="noopener">Book a Call</a>
+    </div>`;
 
-  renderBreakdown(code, d);
-  renderSchools(code);
+  document.getElementById('cta-homevalue').addEventListener('click', openHVModal);
   loadAiInsight(code, d);
 }
 
-function renderBreakdown(code, d) {
-  const weights = getWeights();
+function buildBreakdownHTML(d, weights) {
   const cats = [
-    { key: 'schools',   score: d.score_schools   },
-    { key: 'green',     score: d.score_green      },
-    { key: 'transit',   score: d.score_transit    },
-    { key: 'commute',   score: d.score_commute    },
-    { key: 'safety',    score: d.score_safety     },
-    { key: 'amenities', score: d.score_amenities  },
-    { key: 'urban',     score: d.score_urban      },
-    { key: 'afford',    score: d.score_afford     },
-    { key: 'age',       score: ageMatchScore(d, weights.age || 0) },
+    { key: 'schools',   score: d.score_schools,  icon: '\uD83C\uDFEB' },
+    { key: 'green',     score: d.score_green,     icon: '\uD83C\uDF3F' },
+    { key: 'transit',   score: d.score_transit,   icon: '\uD83D\uDE87' },
+    { key: 'commute',   score: d.score_commute,   icon: '\uD83D\uDE97' },
+    { key: 'safety',    score: d.score_safety,    icon: '\uD83D\uDD12' },
+    { key: 'amenities', score: d.score_amenities, icon: '\uD83D\uDED2' },
+    { key: 'urban',     score: d.score_urban,     icon: '\uD83C\uDFD9\uFE0F' },
+    { key: 'afford',    score: d.score_afford,    icon: '\uD83D\uDCB0' },
+    { key: 'age',       score: ageMatchScore(d, weights.age || 0), icon: '\uD83C\uDFD8\uFE0F' },
   ];
-  document.getElementById('breakdown-grid').innerHTML = cats.map(c => {
-    const s       = c.score;
-    const display = (s !== null && isFinite(s)) ? Math.round(s) : '\u2014';
-    const pct     = (s !== null && isFinite(s)) ? Math.round(s) : 0;
-    const w       = weights[c.key] || 0;
-    const dim     = w === 0 ? 'opacity:0.4;' : '';
-    return `
-      <div class="breakdown-row" style="${dim}">
-        <span class="breakdown-label">${CAT_LABELS[c.key]}</span>
-        <span class="breakdown-val">${display}</span>
-        <div class="breakdown-bar-bg"><div class="breakdown-bar" style="width:${pct}%"></div></div>
-      </div>`;
+  return cats.map(c => {
+    const s   = c.score;
+    const val = (s !== null && isFinite(s)) ? Math.round(s) : '\u2014';
+    const pct = (s !== null && isFinite(s)) ? Math.round(s) : 0;
+    const w   = weights[c.key] || 0;
+    const dim = w === 0 ? ' style="opacity:0.4"' : '';
+    return `<div class="score-row"${dim}>
+      <span class="score-row-label">${c.icon} ${CAT_LABELS[c.key]}</span>
+      <div class="score-bar-bg"><div class="score-bar-fill" style="width:${pct}%"></div></div>
+      <span class="score-row-val">${val}</span>
+    </div>`;
   }).join('');
 }
 
-function renderSchools(code) {
-  const section = document.getElementById('schools-section');
-  const list    = document.getElementById('schools-list');
+function buildSchoolsHTML(code) {
   const d       = NEIGHBOURHOOD_DATA[code];
   const schools = schoolsData[code] || (d && schoolsData[(d.comm_name || '').toUpperCase()]);
-
-  if (!schools || schools.length === 0) {
-    section.style.display = 'none';
-    return;
-  }
-  section.style.display = 'block';
-  list.innerHTML = schools.slice(0, 8).map(s => {
-    const type  = (s.type || s.level || 'other').toLowerCase();
-    const cls   = type.includes('elem') ? 'elem'
-                : (type.includes('jr') || type.includes('middle')) ? 'jr'
-                : (type.includes('sr') || type.includes('high')) ? 'sr'
-                : 'other';
-    const label = (s.type || s.level || 'School');
-    return `
-      <div class="school-item">
-        <span class="school-type ${cls}">${label}</span>
-        <span>${s.name || s.school_name || 'Unknown'}</span>
-      </div>`;
-  }).join('');
+  if (!schools || schools.length === 0) return '';
+  const items = schools.slice(0, 8).map(s =>
+    `<li><span class="school-dot"></span>${s.name || s.school_name || 'Unknown'}</li>`
+  ).join('');
+  return `<div class="desc-section"><div class="desc-label">\uD83C\uDFEB Schools Nearby</div><ul class="schools-list">${items}</ul></div>`;
 }
 
 // ── AI Insight ────────────────────────────────────────────────────────────────
 
 async function loadAiInsight(code, d) {
   const el = document.getElementById('ai-text');
-  if (aiCache[code]) { el.textContent = aiCache[code]; return; }
-  el.innerHTML = '<span class="ai-loading">Generating insight\u2026</span>';
+  if (!el) return;
+  if (aiCache[code]) { el.className = 'ai-pulse-text'; el.textContent = aiCache[code]; return; }
 
   if (typeof ANTHROPIC_API_KEY === 'undefined' || !ANTHROPIC_API_KEY) {
+    el.className = 'ai-pulse-text';
     el.textContent = 'AI insight unavailable (no API key configured).';
     return;
   }
@@ -1130,8 +1149,10 @@ Be specific, warm, and helpful. No generic filler. Do not start with the neighbo
     const json = await res.json();
     const text = json?.content?.[0]?.text || 'Insight unavailable.';
     aiCache[code] = text;
+    el.className = 'ai-pulse-text';
     el.textContent = text;
   } catch {
+    el.className = 'ai-pulse-text';
     el.textContent = 'Could not load AI insight at this time.';
   }
 }
@@ -1149,7 +1170,7 @@ document.querySelectorAll('input[type="range"]').forEach(slider => {
     }
     clearPersonaActive();
     paintMap();
-    if (selectedCode && NEIGHBOURHOOD_DATA[selectedCode]) renderBreakdown(selectedCode, NEIGHBOURHOOD_DATA[selectedCode]);
+    if (selectedCode && NEIGHBOURHOOD_DATA[selectedCode]) openInfoPanel(selectedCode);
   });
 });
 
@@ -1159,7 +1180,7 @@ document.querySelectorAll('.cat-check').forEach(cb => {
     if (row) row.classList.toggle('disabled', !cb.checked);
     clearPersonaActive();
     paintMap();
-    if (selectedCode && NEIGHBOURHOOD_DATA[selectedCode]) renderBreakdown(selectedCode, NEIGHBOURHOOD_DATA[selectedCode]);
+    if (selectedCode && NEIGHBOURHOOD_DATA[selectedCode]) openInfoPanel(selectedCode);
   });
 });
 
@@ -1187,7 +1208,7 @@ document.querySelectorAll('.persona-btn').forEach(btn => {
     const ageHint = document.getElementById('age-hint');
     if (ageHint) ageHint.textContent = AGE_HINT_LABELS[p.age] || '';
     paintMap();
-    if (selectedCode && NEIGHBOURHOOD_DATA[selectedCode]) renderBreakdown(selectedCode, NEIGHBOURHOOD_DATA[selectedCode]);
+    if (selectedCode && NEIGHBOURHOOD_DATA[selectedCode]) openInfoPanel(selectedCode);
   });
 });
 
@@ -1207,7 +1228,7 @@ document.getElementById('reset-btn').addEventListener('click', () => {
   if (ageHint) ageHint.textContent = AGE_HINT_LABELS[5];
   clearPersonaActive();
   paintMap();
-  if (selectedCode && NEIGHBOURHOOD_DATA[selectedCode]) renderBreakdown(selectedCode, NEIGHBOURHOOD_DATA[selectedCode]);
+  if (selectedCode && NEIGHBOURHOOD_DATA[selectedCode]) openInfoPanel(selectedCode);
 });
 
 document.getElementById('info-close').addEventListener('click', () => {
@@ -1267,16 +1288,16 @@ map.addControl(new mapboxgl.NavigationControl(), 'top-right');
 // ── Overlay toggles ───────────────────────────────────────────────────────────
 
 const OVERLAY_KEYWORDS = {
-  'ov-ctrain':     ['ctrain', 'c-train', 'transit_rail', 'transit-rail', 'rail'],
-  'ov-parks':      ['park', 'landuse_park', 'landuse-park', 'national-park'],
-  'ov-industrial': ['industrial', 'landuse_industrial', 'landuse-industrial'],
-  'ov-developing': ['construction', 'developing', 'building-construction'],
+  'ctrain':     ['ctrain', 'c-train', 'transit_rail', 'transit-rail', 'rail'],
+  'parks':      ['park', 'landuse_park', 'landuse-park', 'national-park'],
+  'industrial': ['industrial', 'landuse_industrial', 'landuse-industrial'],
+  'developing': ['construction', 'developing', 'building-construction'],
 };
+const overlayState = { ctrain: false, parks: false, industrial: false, developing: false };
 
-function applyOverlayToggle(checkId) {
-  const cb         = document.getElementById(checkId);
-  const keywords   = OVERLAY_KEYWORDS[checkId] || [];
-  const visibility = cb.checked ? 'visible' : 'none';
+function applyOverlayToggle(key, visible) {
+  const keywords   = OVERLAY_KEYWORDS[key] || [];
+  const visibility = visible ? 'visible' : 'none';
   const style      = map.getStyle();
   if (!style) return;
   style.layers.forEach(layer => {
@@ -1287,8 +1308,13 @@ function applyOverlayToggle(checkId) {
   });
 }
 
-['ov-ctrain', 'ov-parks', 'ov-industrial', 'ov-developing'].forEach(id => {
-  document.getElementById(id).addEventListener('change', () => applyOverlayToggle(id));
+document.querySelectorAll('.overlay-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const key = btn.dataset.overlay;
+    overlayState[key] = !overlayState[key];
+    btn.classList.toggle('active', overlayState[key]);
+    applyOverlayToggle(key, overlayState[key]);
+  });
 });
 
 // ── Map load ──────────────────────────────────────────────────────────────────
@@ -1359,8 +1385,7 @@ map.on('load', () => {
     },
   });
 
-  // Apply default overlays
-  applyOverlayToggle('ov-ctrain');
+  // C-Train visible by default — no action needed (already visible in style)
 
   // ── Data loading ────────────────────────────────────────────────────────────
   map.once('idle', async () => {
