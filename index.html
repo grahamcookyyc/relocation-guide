@@ -504,43 +504,6 @@
     .footer-socials a:hover { opacity: 1; }
     .footer-socials img { width: 18px; height: 18px; filter: none; }
 
-    /* ── Onboarding overlay ── */
-    #onboarding {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.55);
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    #onboarding.hidden { display: none; }
-    .onboarding-card {
-      background: #fff;
-      border-radius: 16px;
-      padding: 36px 40px;
-      max-width: 480px;
-      width: 90%;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-    }
-    .onboarding-card img { height: 40px; margin-bottom: 20px; }
-    .onboarding-card h2 { font-size: 24px; font-weight: 800; margin-bottom: 10px; }
-    .onboarding-card p { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 20px; }
-    .onboarding-card ol { margin: 0 0 24px 18px; font-size: 13px; color: var(--text-muted); line-height: 1.8; }
-    .onboarding-start {
-      display: block;
-      width: 100%;
-      padding: 14px;
-      background: var(--brand);
-      color: #fff;
-      border: none;
-      border-radius: var(--radius);
-      font-family: 'Manrope', sans-serif;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .onboarding-start:hover { background: var(--brand-light); }
 
     /* ── Home value modal ── */
     #hv-modal {
@@ -796,20 +759,7 @@
 
 </div><!-- /#app -->
 
-<!-- Onboarding Overlay -->
-<div id="onboarding">
-  <div class="onboarding-card">
-    <img src="assets/gc - Logo - GC Circle.png" alt="Graham Cook Realty" />
-    <h2>Find Your Perfect Calgary Neighbourhood</h2>
-    <p>Use this tool to explore Calgary's communities based on what matters most to you &mdash; schools, commute, safety, affordability, and more.</p>
-    <ol>
-      <li>Pick a persona or adjust the sliders to your priorities</li>
-      <li>The map updates in real time with your best matches</li>
-      <li>Click any neighbourhood to see a detailed breakdown &amp; AI insight</li>
-    </ol>
-    <button class="onboarding-start" id="onboarding-start">Let's Explore &rarr;</button>
-  </div>
-</div>
+<!-- Onboarding removed -->
 
 <!-- Home Value Modal -->
 <div id="hv-modal" class="hidden">
@@ -1264,13 +1214,7 @@ document.getElementById('hv-modal').addEventListener('click', e => {
 
 // ── Onboarding ────────────────────────────────────────────────────────────────
 
-if (sessionStorage.getItem('onboarding-done')) {
-  document.getElementById('onboarding').classList.add('hidden');
-}
-document.getElementById('onboarding-start').addEventListener('click', () => {
-  sessionStorage.setItem('onboarding-done', '1');
-  document.getElementById('onboarding').classList.add('hidden');
-});
+// Onboarding removed
 
 // ── Mapbox setup ──────────────────────────────────────────────────────────────
 
