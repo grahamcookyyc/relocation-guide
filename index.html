@@ -1236,7 +1236,7 @@ mapboxgl.accessToken = MAPBOX_TOKEN;
 
 const map = new mapboxgl.Map({
   container: 'map',
-  style:     'mapbox://styles/grahamcook/cmh2e1384003001rfezzl716k',
+  style:     (typeof MAPBOX_STYLE !== 'undefined' ? MAPBOX_STYLE : 'mapbox://styles/grahamcook/cmmtl2rl8003v01rbb7w7eju8'),
   bounds:    [[-114.30, 50.85], [-113.85, 51.20]],
   fitBoundsOptions: { padding: 20 },
 });
