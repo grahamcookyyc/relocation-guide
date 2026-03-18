@@ -1,2095 +1,1470 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Calgary Neighbourhood Relocation Guide</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/png" href="assets/gc%20-%20Favicon.png">
-
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
-
-  <!-- Mapbox -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calgary Neighbourhood Finder | Graham Cook Realty</title>
+  <link rel="icon" href="assets/gc - Favicon.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.js"></script>
   <link href="https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.css" rel="stylesheet" />
-
+  <script src="config.js"></script>
   <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     :root {
-      --gc-green: #00473e;
-      --gc-green-light: #e6f0ee;
-      --accent: #1E88E5;
-      --footer-space: 36px;
+      --brand:       #00473e;
+      --brand-light: #005c50;
+      --accent:      #e8f5e9;
+      --panel-bg:    #ffffff;
+      --panel-border:#e5e7eb;
+      --text:        #1a1a1a;
+      --text-muted:  #6b7280;
+      --radius:      10px;
+      --shadow:      0 4px 24px rgba(0,0,0,0.10);
     }
 
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: "Manrope", system-ui, sans-serif;
-      overflow: hidden;
-      background: #f9fafb;
-    }
+    html, body { height: 100%; font-family: 'Manrope', sans-serif; color: var(--text); background: #f3f4f6; }
 
-    /* ── HEADER ── */
-    header {
-      background: #fff;
-      padding: 8px 14px;
-      border-bottom: 1px solid #e5e7eb;
-      z-index: 100;
-      position: relative;
+    /* ── Layout ── */
+    #app { display: flex; flex-direction: column; height: 100vh; }
+
+    #header {
+      background: var(--brand);
+      color: #fff;
       display: flex;
-      justify-content: space-between;
       align-items: center;
       gap: 12px;
-      height: 60px;
-    }
-    .header-left { display: flex; gap: 10px; align-items: center; }
-    .gc-logo { height: 38px; width: auto; }
-    header h1 { margin: 0; font-size: 17px; font-weight: 800; }
-    header p  { margin: 2px 0 0; font-size: 11px; color: #6b7280; }
-
-    /* ── MAP ── */
-    #map { position: absolute; top: 60px; bottom: var(--footer-space); width: 100%; }
-
-    /* ── FOOTER ── */
-    footer {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      background: #fff;
-      border-top: 1px solid #e5e7eb;
-      height: var(--footer-space);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10.5px;
-      color: #9ca3af;
-      z-index: 50;
-    }
-
-    /* ── LEFT PANEL ── */
-    .panel {
-      position: absolute;
-      top: 76px;
-      left: 10px;
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
-      font-size: 12px;
+      padding: 0 20px;
+      height: 54px;
+      flex-shrink: 0;
       z-index: 10;
-      width: 270px;
-      max-height: calc(100vh - 110px);
-      overflow-y: auto;
-      transition: transform 0.2s ease, opacity 0.2s ease;
     }
-    .panel.minimized { transform: translateX(-120%); opacity: 0; pointer-events: none; }
+    #header img { height: 34px; }
+    #header h1 { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
+    #header .tagline { font-size: 12px; color: rgba(255,255,255,0.65); margin-left: 4px; }
 
-    .panel-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 12px 8px;
-      border-bottom: 1px solid #f3f4f6;
-      position: sticky;
-      top: 0;
-      background: #fff;
-      z-index: 1;
-      border-radius: 10px 10px 0 0;
-    }
-    .panel-header h3 { margin: 0; font-size: 13px; font-weight: 800; }
-    .panel-btn {
-      border: 1px solid #e5e7eb;
-      background: #f9fafb;
-      border-radius: 6px;
-      font-size: 11px;
-      cursor: pointer;
-      padding: 3px 8px;
-      font-family: "Manrope", sans-serif;
-      font-weight: 700;
-    }
-    .panel-btn:hover { background: #f3f4f6; }
+    #main { display: flex; flex: 1; overflow: hidden; }
 
-    .panel-section {
-      padding: 10px 12px;
-      border-bottom: 1px solid #f3f4f6;
-    }
-    .panel-section:last-child { border-bottom: none; }
-
-    .section-label {
-      font-size: 10px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      color: #9ca3af;
-      margin-bottom: 8px;
-    }
-
-    /* Search */
-    .search-box { position: relative; margin-bottom: 0; }
-    .search-box input {
-      width: 100%;
-      padding: 7px 10px;
-      font-size: 12px;
-      font-family: "Manrope", sans-serif;
-      border: 1px solid #e5e7eb;
-      border-radius: 6px;
-      outline: none;
-      transition: border-color 0.15s;
-    }
-    .search-box input:focus { border-color: var(--gc-green); }
-    #search-results {
-      background: #fff;
-      border: 1px solid #e5e7eb;
-      border-radius: 6px;
-      max-height: 160px;
-      overflow-y: auto;
-      display: none;
-      margin-top: 4px;
-      position: absolute;
-      width: 100%;
-      z-index: 999;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-    }
-    #search-results div {
-      padding: 6px 10px;
-      cursor: pointer;
-      font-size: 12px;
-      border-bottom: 1px solid #f3f4f6;
-    }
-    #search-results div:last-child { border-bottom: none; }
-    #search-results div:hover { background: #f0fdf4; }
-
-    /* Persona presets */
-    .persona-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-    }
-    .persona-btn {
-      background: #f9fafb;
-      border: 1.5px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 7px 6px;
-      font-family: "Manrope", sans-serif;
-      font-size: 11px;
-      font-weight: 700;
-      cursor: pointer;
-      text-align: center;
-      line-height: 1.35;
-      transition: all 0.12s;
-      color: #374151;
-    }
-    .persona-btn:hover { background: #e6f0ee; border-color: var(--gc-green); }
-    .persona-btn.active { background: var(--gc-green); border-color: var(--gc-green); color: #fff; }
-    .persona-icon { font-size: 16px; display: block; margin-bottom: 2px; }
-
-    /* Priority sliders */
-    .priority-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 8px;
-      transition: opacity 0.15s;
-    }
-    .priority-row:last-child { margin-bottom: 0; }
-    .priority-row.disabled .priority-slider,
-    .priority-row.disabled .priority-val { opacity: 0.3; pointer-events: none; }
-    .priority-row.disabled .priority-label { color: #9ca3af; }
-    .priority-label {
-      font-size: 11px;
-      font-weight: 600;
-      color: #374151;
-      width: 116px;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .priority-label .icon { font-size: 13px; }
-    .priority-check {
-      width: 13px;
-      height: 13px;
-      flex-shrink: 0;
-      accent-color: var(--gc-green);
-      cursor: pointer;
-      margin: 0;
-    }
-    .priority-slider {
-      flex: 1;
-      -webkit-appearance: none;
-      height: 4px;
-      border-radius: 2px;
-      background: #e5e7eb;
-      outline: none;
-      cursor: pointer;
-    }
-    .priority-slider::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: var(--gc-green);
-      cursor: pointer;
-      transition: transform 0.1s;
-    }
-    .priority-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
-    .priority-val {
-      font-size: 11px;
-      font-weight: 800;
-      color: var(--gc-green);
-      width: 16px;
-      text-align: right;
-      flex-shrink: 0;
-    }
-
-    /* Score display */
-    .score-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      background: #f0fdf4;
-      border: 1px solid #d1fae5;
-      border-radius: 20px;
-      padding: 2px 8px;
-      font-size: 11px;
-      font-weight: 700;
-      color: #065f46;
-    }
-
-    /* Mode toggle */
-    .mode-pills {
-      display: flex;
-      gap: 4px;
-    }
-    .mode-pill {
-      flex: 1;
-      border: 1.5px solid #e5e7eb;
-      background: #f9fafb;
-      border-radius: 6px;
-      padding: 5px 4px;
-      font-size: 11px;
-      font-weight: 700;
-      cursor: pointer;
-      font-family: "Manrope", sans-serif;
-      text-align: center;
-      transition: all 0.12s;
-      color: #374151;
-    }
-    .mode-pill.active { background: var(--gc-green); border-color: var(--gc-green); color: #fff; }
-
-    /* Overlay toggles */
-    .overlay-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 5px;
-    }
-    .overlay-btn {
-      background: #f9fafb;
-      border: 1.5px solid #e5e7eb;
-      border-radius: 7px;
-      padding: 5px 7px;
-      font-size: 11px;
-      font-weight: 600;
-      cursor: pointer;
-      font-family: "Manrope", sans-serif;
-      text-align: left;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      color: #374151;
-      transition: all 0.12s;
-    }
-    .overlay-btn:hover { background: #eff6ff; border-color: #93c5fd; }
-    .overlay-btn.active { background: #eff6ff; border-color: var(--accent); color: #1e40af; }
-    .overlay-btn .dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    /* Show controls button */
-    .show-menu {
-      position: absolute;
-      top: 76px;
-      left: 10px;
-      background: #fff;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 6px 12px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-      z-index: 9;
-      display: none;
-      font-family: "Manrope", sans-serif;
-    }
-
-    /* ── LEGEND ── */
-    .legend {
-      position: absolute;
-      bottom: calc(var(--footer-space) + 10px);
-      right: 10px;
-      background: #fff;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 8px 10px;
-      font-size: 11px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-      z-index: 10;
-      min-width: 200px;
-    }
-    .legend-title { font-weight: 800; margin-bottom: 5px; font-size: 11px; }
-    .legend-bar {
-      height: 10px;
-      width: 100%;
-      border-radius: 5px;
-      margin-bottom: 4px;
-      border: 1px solid rgba(0,0,0,0.08);
-    }
-    .legend-labels {
-      display: flex;
-      justify-content: space-between;
-      font-size: 10px;
-      color: #6b7280;
-    }
-    .legend-note {
-      font-size: 10px;
-      color: #9ca3af;
-      margin-top: 5px;
-      font-style: italic;
-    }
-
-    /* ── ONBOARDING ── */
-    #onboarding-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 8000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      background: rgba(0,0,0,0.35);
-    }
-    #onboarding-card {
-      background: #fff;
-      border-radius: 14px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.22);
-      padding: 20px 22px 18px;
-      max-width: 360px;
-      width: 100%;
-    }
-    .onboarding-title { font-weight: 800; font-size: 15px; margin: 0 0 4px; }
-    .onboarding-sub   { font-size: 12px; color: #6b7280; margin: 0 0 14px; }
-    .onboarding-steps { margin: 0 0 14px; padding: 0; list-style: none; }
-    .onboarding-steps li {
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
-      margin-bottom: 8px;
-      font-size: 12px;
-      color: #374151;
-      line-height: 1.45;
-    }
-    .onboarding-steps li span.num {
-      background: var(--gc-green);
-      color: #fff;
-      border-radius: 50%;
-      width: 20px; height: 20px;
-      font-size: 11px;
-      font-weight: 800;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      margin-top: 1px;
-    }
-    #onboarding-dismiss {
-      background: var(--gc-green);
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      padding: 10px 20px;
-      font-family: "Manrope", sans-serif;
-      font-weight: 800;
-      font-size: 13px;
-      cursor: pointer;
-      width: 100%;
-    }
-
-    /* ── RIGHT INFO PANEL ── */
-    .info-panel {
-      position: absolute;
-      top: 76px;
-      right: 10px;
-      bottom: calc(var(--footer-space) + 10px);
-      width: 360px;
-      max-width: min(360px, 42vw);
-      background: #fff;
-      border: 1px solid #e5e7eb;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.14);
-      z-index: 11;
-      overflow: hidden;
+    /* ── Left panel ── */
+    #sidebar {
+      width: 320px;
+      min-width: 300px;
+      background: var(--panel-bg);
+      border-right: 1px solid var(--panel-border);
       display: flex;
       flex-direction: column;
-    }
-    .info-panel.hidden { display: none; }
-
-    .info-panel-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 10px 12px;
-      border-bottom: 1px solid #f3f4f6;
-    }
-    .info-title { margin: 0; font-size: 14px; font-weight: 900; letter-spacing: 0.01em; }
-    .info-sub   { margin: 3px 0 0; font-size: 11px; color: #6b7280; }
-    .info-close {
-      border: 1px solid #e5e7eb;
-      background: #f9fafb;
-      border-radius: 8px;
-      font-size: 11px;
-      padding: 5px 9px;
-      cursor: pointer;
-      font-family: "Manrope", sans-serif;
-      font-weight: 800;
+      overflow: hidden;
       flex-shrink: 0;
     }
 
-    .info-body {
-      padding: 10px 12px 14px;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-      font-size: 12px;
-      line-height: 1.5;
+    #sidebar-inner {
       flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
     }
 
-    /* Score card in info panel */
-    .score-card {
-      background: linear-gradient(135deg, #f0fdf4 0%, #eff6ff 100%);
-      border: 1px solid #d1fae5;
-      border-radius: 10px;
-      padding: 10px 12px;
-      margin-bottom: 12px;
-    }
-    .score-card-header {
-      font-size: 10px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      color: #065f46;
-      margin-bottom: 8px;
-    }
-    .score-row {
+    /* ── Persona bar ── */
+    .persona-row {
       display: flex;
-      align-items: center;
-      margin-bottom: 5px;
       gap: 6px;
-    }
-    .score-row:last-child { margin-bottom: 0; }
-    .score-row-label { font-size: 11px; color: #374151; flex: 1; display: flex; align-items: center; gap: 4px; }
-    .score-bar-bg {
-      width: 70px;
-      height: 5px;
-      background: #e5e7eb;
-      border-radius: 3px;
-      overflow: hidden;
-    }
-    .score-bar-fill {
-      height: 100%;
-      border-radius: 3px;
-      background: var(--gc-green);
-      transition: width 0.4s ease;
-    }
-    .score-row-val { font-size: 11px; font-weight: 800; color: #111827; width: 20px; text-align: right; }
-
-    /* CTA buttons */
-    .cta-row {
-      display: flex;
-      gap: 7px;
-      margin-bottom: 12px;
       flex-wrap: wrap;
     }
-    .cta-btn-primary {
-      background: var(--gc-green);
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      padding: 9px 12px;
-      font-weight: 800;
-      font-size: 11px;
+    .persona-btn {
+      flex: 1 1 auto;
+      padding: 7px 10px;
+      border: 1.5px solid var(--panel-border);
+      border-radius: 20px;
+      font-size: 11.5px;
+      font-weight: 600;
       cursor: pointer;
-      font-family: "Manrope", sans-serif;
-      flex: 1;
-      min-width: 130px;
-    }
-    .cta-btn-secondary {
-      background: #f3f4f6;
-      color: #111827;
-      border: 1px solid #e5e7eb;
-      border-radius: 10px;
-      padding: 9px 12px;
-      font-weight: 800;
-      font-size: 11px;
-      cursor: pointer;
-      font-family: "Manrope", sans-serif;
-      flex: 1;
-      min-width: 130px;
-    }
-
-    /* Neighbourhood description */
-    .desc-section {
-      border-top: 1px solid #f3f4f6;
-      padding-top: 10px;
-      margin-top: 8px;
-    }
-    .desc-label {
-      font-size: 10px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: #9ca3af;
-      margin-bottom: 5px;
-    }
-    .desc-text {
-      font-size: 12px;
-      color: #374151;
-      line-height: 1.55;
-    }
-
-    /* Schools list */
-    .schools-list {
-      margin: 5px 0 0;
-      padding: 0;
-      list-style: none;
-    }
-    .schools-list li {
-      font-size: 11px;
-      color: #4b5563;
-      padding: 3px 0;
-      border-bottom: 1px solid #f9fafb;
-      display: flex;
-      align-items: flex-start;
-      gap: 5px;
-      line-height: 1.4;
-    }
-    .schools-list li:last-child { border-bottom: none; }
-    .school-dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--accent);
-      flex-shrink: 0;
-      margin-top: 4px;
-    }
-
-    /* Hover popup */
-    .mapboxgl-popup { max-width: none !important; pointer-events: none; }
-    .mapboxgl-popup-tip { display: none !important; }
-    .mapboxgl-popup-content {
-      padding: 0 !important;
-      background: transparent !important;
-      box-shadow: none !important;
-    }
-    .hover-card {
-      font-family: "Manrope", sans-serif;
       background: #fff;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.14);
-      padding: 8px 11px;
+      color: var(--text-muted);
+      transition: all 0.15s;
       white-space: nowrap;
     }
-    .hover-name {
-      font-weight: 900;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      margin: 0 0 4px;
-      color: #111827;
-    }
-    .hover-score {
-      font-size: 12px;
-      font-weight: 800;
-      color: var(--gc-green);
-    }
-    .hover-scores {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      margin-top: 3px;
-    }
-    .hover-score-row {
-      font-size: 11px;
-      color: #6b7280;
+    .persona-btn:hover { border-color: var(--brand); color: var(--brand); }
+    .persona-btn.active { background: var(--brand); color: #fff; border-color: var(--brand); }
+
+    /* ── Sliders ── */
+    .sliders-header {
       display: flex;
       align-items: center;
-      gap: 5px;
+      justify-content: space-between;
     }
-    .hover-score-row .hval { font-weight: 700; color: #111827; }
-
-    /* Overlay info tooltips */
-    .overlay-popup-content {
-      font-family: "Manrope", sans-serif;
-      background: #fff;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.14);
-      padding: 8px 11px;
-      max-width: 220px;
-      white-space: normal;
-    }
-    .overlay-popup-title { font-weight: 800; font-size: 12px; margin-bottom: 3px; }
-    .overlay-popup-text  { font-size: 11px; color: #4b5563; line-height: 1.45; }
-
-    /* AI Pulse in info panel */
-    .ai-pulse-block {
-      background: linear-gradient(135deg, #f0fdf4 0%, #eff6ff 100%);
-      border: 1px solid #d1fae5;
-      border-radius: 10px;
-      padding: 10px 12px;
-      margin-bottom: 12px;
-    }
-    .ai-pulse-header { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
-    .ai-pulse-icon  { font-size: 13px; }
-    .ai-pulse-title { font-weight: 800; font-size: 11px; color: #065f46; text-transform: uppercase; letter-spacing: 0.05em; }
-    .ai-pulse-text  { font-size: 12px; color: #065f46; font-style: italic; line-height: 1.5; }
-    .ai-pulse-loading { display: flex; align-items: center; gap: 7px; font-size: 12px; color: #6b7280; }
-    .spinner {
-      width: 13px; height: 13px;
-      border: 2px solid #d1fae5;
-      border-top-color: #065f46;
-      border-radius: 50%;
-      display: inline-block;
-      animation: spin 0.7s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .ai-pulse-trigger {
-      display: block;
-      width: 100%;
-      padding: 8px;
-      background: #065f46;
-      color: #fff;
+    .sliders-header h3 { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    #reset-btn {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: none;
       border: none;
-      border-radius: 7px;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    #reset-btn:hover { color: var(--brand); background: var(--accent); }
+
+    .slider-group { display: flex; flex-direction: column; gap: 9px; }
+
+    .slider-row {
+      display: grid;
+      grid-template-columns: 18px 1fr 28px;
+      align-items: center;
+      gap: 8px;
+    }
+    .slider-row input[type="checkbox"] {
+      width: 15px; height: 15px;
+      accent-color: var(--brand);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .slider-label-wrap { display: flex; flex-direction: column; gap: 2px; }
+    .slider-label { font-size: 12px; font-weight: 600; }
+    input[type="range"] {
+      width: 100%;
+      height: 4px;
+      accent-color: var(--brand);
+      cursor: pointer;
+    }
+    .slider-value {
       font-size: 12px;
       font-weight: 700;
+      color: var(--brand);
+      text-align: right;
+    }
+    .slider-row.disabled .slider-label,
+    .slider-row.disabled input[type="range"] { opacity: 0.35; }
+
+    .age-hint { font-size: 10px; color: var(--text-muted); font-style: italic; }
+
+    /* ── Top matches ── */
+    .section-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+    #top-matches { display: flex; flex-direction: column; gap: 6px; }
+
+    .match-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 11px;
+      border: 1.5px solid var(--panel-border);
+      border-radius: var(--radius);
       cursor: pointer;
-      font-family: "Manrope", sans-serif;
+      transition: all 0.15s;
+    }
+    .match-card:hover { border-color: var(--brand); background: var(--accent); }
+    .match-rank {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text-muted);
+      width: 18px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .match-info { flex: 1; min-width: 0; }
+    .match-name { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .match-bar-wrap { height: 4px; background: #e5e7eb; border-radius: 2px; margin-top: 4px; }
+    .match-bar { height: 4px; border-radius: 2px; background: var(--brand); }
+    .match-score { font-size: 15px; font-weight: 800; color: var(--brand); flex-shrink: 0; }
+
+    /* ── Map area ── */
+    #map-wrap { flex: 1; position: relative; }
+    #map { width: 100%; height: 100%; }
+
+    /* ── Overlay controls ── */
+    #overlay-controls {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: rgba(255,255,255,0.96);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      box-shadow: var(--shadow);
+      font-size: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 2;
+    }
+    .overlay-title { font-weight: 700; font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 2px; }
+    .overlay-row { display: flex; align-items: center; gap: 7px; cursor: pointer; }
+    .overlay-row input[type="checkbox"] { accent-color: var(--brand); }
+    .overlay-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── Legend ── */
+    #legend {
+      position: absolute;
+      bottom: 30px;
+      left: 12px;
+      background: rgba(255,255,255,0.95);
+      border-radius: var(--radius);
+      padding: 9px 12px;
+      box-shadow: var(--shadow);
+      font-size: 11px;
+      z-index: 2;
+    }
+    .legend-title { font-weight: 700; font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
+    .legend-gradient {
+      height: 10px;
+      width: 160px;
+      border-radius: 5px;
+      background: linear-gradient(to right, #1E88E5, #ffffff, #B71C1C);
+      border: 1px solid #e5e7eb;
+      margin-bottom: 3px;
+    }
+    .legend-labels { display: flex; justify-content: space-between; color: var(--text-muted); font-size: 10px; }
+
+    /* ── Hover popup ── */
+    .hover-popup .mapboxgl-popup-content {
+      padding: 10px 13px;
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.14);
+      font-family: 'Manrope', sans-serif;
+      min-width: 160px;
+    }
+    .popup-name { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+    .popup-score { font-size: 22px; font-weight: 800; color: var(--brand); }
+    .popup-score span { font-size: 12px; font-weight: 500; color: var(--text-muted); }
+    .popup-cats { margin-top: 5px; display: flex; flex-direction: column; gap: 2px; font-size: 11px; color: var(--text-muted); }
+    .popup-cat { display: flex; justify-content: space-between; gap: 8px; }
+    .popup-cat strong { color: var(--text); }
+
+    /* ── Info panel ── */
+    #info-panel {
+      width: 340px;
+      min-width: 300px;
+      background: var(--panel-bg);
+      border-left: 1px solid var(--panel-border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    #info-panel.hidden { display: none; }
+
+    #info-panel-inner {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
     }
 
-    /* Responsive */
-    @media (max-width: 768px) {
-      .info-panel { display: none !important; }
-      .panel { width: calc(100vw - 20px); }
+    .info-header-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
     }
+    .info-name { font-size: 20px; font-weight: 800; line-height: 1.2; }
+    .info-close {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: var(--text-muted);
+      line-height: 1;
+      flex-shrink: 0;
+      padding: 2px;
+    }
+    .info-close:hover { color: var(--text); }
+
+    .info-meta {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .info-meta span { display: flex; align-items: center; gap: 4px; }
+
+    .info-match-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .info-match-score {
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--brand);
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .info-match-bar-wrap { flex: 1; }
+    .info-match-label { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+    .info-match-bar-bg { height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
+    .info-match-bar { height: 8px; border-radius: 4px; background: linear-gradient(90deg, var(--brand), #00a388); transition: width 0.4s; }
+
+    /* AI Block */
+    .ai-block {
+      background: #f8fffe;
+      border: 1.5px solid #b2dfdb;
+      border-radius: var(--radius);
+      padding: 12px;
+    }
+    .ai-block-title { font-size: 11px; font-weight: 700; color: var(--brand); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 7px; display: flex; align-items: center; gap: 5px; }
+    .ai-text { font-size: 13px; line-height: 1.55; color: #374151; }
+    .ai-loading { color: var(--text-muted); font-size: 12px; font-style: italic; }
+
+    /* Score breakdown */
+    .breakdown-grid { display: flex; flex-direction: column; gap: 7px; }
+    .breakdown-row {
+      display: grid;
+      grid-template-columns: 1fr 40px 100px;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+    }
+    .breakdown-label { font-weight: 600; }
+    .breakdown-val { font-weight: 700; text-align: right; }
+    .breakdown-bar-bg { height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden; }
+    .breakdown-bar { height: 6px; border-radius: 3px; background: var(--brand); transition: width 0.3s; }
+
+    /* Schools */
+    .schools-list { display: flex; flex-direction: column; gap: 5px; }
+    .school-item { font-size: 12px; display: flex; gap: 6px; align-items: flex-start; }
+    .school-type { flex-shrink: 0; font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 3px; margin-top: 1px; }
+    .school-type.elem { background: #e3f2fd; color: #1565c0; }
+    .school-type.jr { background: #fff3e0; color: #e65100; }
+    .school-type.sr { background: #f3e5f5; color: #6a1b9a; }
+    .school-type.other { background: #f5f5f5; color: #616161; }
+
+    /* CTA buttons */
+    .cta-row { display: flex; flex-direction: column; gap: 7px; }
+    .cta-btn {
+      display: block;
+      width: 100%;
+      padding: 11px 16px;
+      border-radius: var(--radius);
+      font-family: 'Manrope', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      transition: all 0.15s;
+      border: none;
+    }
+    .cta-primary { background: var(--brand); color: #fff; }
+    .cta-primary:hover { background: var(--brand-light); }
+    .cta-secondary { background: #fff; color: var(--brand); border: 1.5px solid var(--brand); }
+    .cta-secondary:hover { background: var(--accent); }
+
+    /* ── Footer ── */
+    #footer {
+      background: var(--brand);
+      color: rgba(255,255,255,0.85);
+      flex-shrink: 0;
+    }
+    #footer-bar {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 6px 20px;
+      font-size: 12px;
+    }
+    #footer-toggle {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      font-size: 13px;
+      padding: 2px 4px;
+      margin-left: auto;
+    }
+    #footer-toggle:hover { color: #fff; }
+    #footer-expanded {
+      padding: 10px 20px 12px;
+      border-top: 1px solid rgba(255,255,255,0.15);
+      display: none;
+    }
+    #footer-expanded.open { display: block; }
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 18px;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    .footer-links a { color: rgba(255,255,255,0.8); text-decoration: none; }
+    .footer-links a:hover { color: #fff; text-decoration: underline; }
+    .footer-socials { display: flex; gap: 10px; align-items: center; }
+    .footer-socials a { opacity: 0.75; transition: opacity 0.15s; }
+    .footer-socials a:hover { opacity: 1; }
+    .footer-socials img { width: 20px; height: 20px; filter: brightness(10); }
+
+    /* ── Onboarding overlay ── */
+    #onboarding {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #onboarding.hidden { display: none; }
+    .onboarding-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 36px 40px;
+      max-width: 480px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+    .onboarding-card img { height: 40px; margin-bottom: 20px; }
+    .onboarding-card h2 { font-size: 24px; font-weight: 800; margin-bottom: 10px; }
+    .onboarding-card p { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 20px; }
+    .onboarding-card ol { margin: 0 0 24px 18px; font-size: 13px; color: var(--text-muted); line-height: 1.8; }
+    .onboarding-start {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: var(--brand);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      font-family: 'Manrope', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .onboarding-start:hover { background: var(--brand-light); }
+
+    /* ── Home value modal ── */
+    #hv-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #hv-modal.hidden { display: none; }
+    .hv-card {
+      background: #fff;
+      border-radius: 14px;
+      width: min(680px, 95vw);
+      height: min(560px, 90vh);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+    .hv-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--panel-border);
+    }
+    .hv-header h3 { font-size: 16px; font-weight: 700; }
+    .hv-close {
+      background: none;
+      border: none;
+      font-size: 22px;
+      cursor: pointer;
+      color: var(--text-muted);
+      line-height: 1;
+    }
+    .hv-card iframe { flex: 1; border: none; width: 100%; }
+
+    /* ── Data loading indicator ── */
+    #data-status {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      background: rgba(255,255,255,0.95);
+      border-radius: 8px;
+      padding: 7px 12px;
+      font-size: 11px;
+      color: var(--text-muted);
+      box-shadow: var(--shadow);
+      z-index: 2;
+      transition: opacity 0.5s;
+    }
+    #data-status.done { opacity: 0; pointer-events: none; }
+
+    /* ── Scrollbar ── */
+    #sidebar-inner::-webkit-scrollbar,
+    #info-panel-inner::-webkit-scrollbar { width: 4px; }
+    #sidebar-inner::-webkit-scrollbar-track,
+    #info-panel-inner::-webkit-scrollbar-track { background: transparent; }
+    #sidebar-inner::-webkit-scrollbar-thumb,
+    #info-panel-inner::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
   </style>
 </head>
 <body>
+<div id="app">
 
-<!-- ONBOARDING -->
-<div id="onboarding-overlay">
-  <div id="onboarding-card">
-    <p class="onboarding-title">🏡 Calgary Relocation Guide</p>
-    <p class="onboarding-sub">Find your ideal neighbourhood using personalized priorities</p>
-    <ol class="onboarding-steps">
-      <li><span class="num">1</span><span>Pick a <strong>life stage preset</strong> or adjust sliders to set what matters most to you</span></li>
-      <li><span class="num">2</span><span>The map updates in real time — hotter colours mean better fit for <em>your</em> priorities</span></li>
-      <li><span class="num">3</span><span>Click any neighbourhood to see schools, description, and a full breakdown</span></li>
-      <li><span class="num">4</span><span>Toggle <strong>overlays</strong> like Hail Risk or Flood Zones for extra context</span></li>
-    </ol>
-    <button id="onboarding-dismiss" type="button">Let's find my neighbourhood →</button>
-  </div>
-</div>
-
-<header>
-  <div class="header-left">
-    <a href="https://www.grahamcookyyc.com" aria-label="Graham Cook Real Estate">
-      <img src="assets/gc%20-%20Logo%20-%20GC%20Circle.png" alt="Graham Cook Real Estate" class="gc-logo" onerror="this.style.display='none'">
-    </a>
+  <!-- Header -->
+  <header id="header">
+    <img src="assets/gc - Logo - GC Circle.png" alt="Graham Cook Realty" />
     <div>
       <h1>Calgary Neighbourhood Finder</h1>
-      <p>Adjust priorities → map updates → click any neighbourhood</p>
     </div>
-  </div>
-</header>
+    <span class="tagline">Powered by Graham Cook Realty</span>
+  </header>
 
-<div id="map"></div>
+  <!-- Main -->
+  <div id="main">
 
-<!-- LEFT PANEL -->
-<div class="panel" id="controls">
-  <div class="panel-header">
-    <h3>Your Priorities</h3>
-    <div style="display:flex;gap:5px;">
-      <button class="panel-btn" id="reset-btn" type="button">Reset</button>
-      <button class="panel-btn" id="minimize-btn" type="button">Hide</button>
-    </div>
-  </div>
+    <!-- Left Sidebar -->
+    <aside id="sidebar">
+      <div id="sidebar-inner">
 
-  <!-- Search -->
-  <div class="panel-section">
-    <div class="search-box">
-      <input type="text" id="search" placeholder="🔍  Search neighbourhood…" autocomplete="off">
-      <div id="search-results"></div>
-    </div>
-  </div>
+        <!-- Persona buttons -->
+        <div>
+          <div class="sliders-header" style="margin-bottom:8px;">
+            <h3>I am a&hellip;</h3>
+          </div>
+          <div class="persona-row">
+            <button class="persona-btn" data-persona="family">Family</button>
+            <button class="persona-btn" data-persona="young-pro">Young Pro</button>
+            <button class="persona-btn" data-persona="empty-nester">Empty Nester</button>
+            <button class="persona-btn" data-persona="new-to-canada">New to Canada</button>
+          </div>
+        </div>
 
-  <!-- Life stage presets -->
-  <div class="panel-section">
-    <div class="section-label">Life Stage Preset</div>
-    <div class="persona-grid">
-      <button class="persona-btn" data-persona="family" type="button">
-        <span class="persona-icon">👨‍👩‍👧‍👦</span>Growing Family
-      </button>
-      <button class="persona-btn" data-persona="young-pro" type="button">
-        <span class="persona-icon">💼</span>Young Professional
-      </button>
-      <button class="persona-btn" data-persona="empty-nester" type="button">
-        <span class="persona-icon">🏡</span>Empty Nester
-      </button>
-      <button class="persona-btn" data-persona="new-to-canada" type="button">
-        <span class="persona-icon">🌍</span>New to Canada
-      </button>
-    </div>
-  </div>
+        <!-- Sliders -->
+        <div class="sliders-header">
+          <h3>What matters to you</h3>
+          <button id="reset-btn">Reset</button>
+        </div>
 
-  <!-- Priority sliders -->
-  <div class="panel-section">
-    <div class="section-label">What matters most?</div>
+        <div class="slider-group" id="slider-group">
 
-    <div class="priority-row">
-      <div class="priority-label"><input type="checkbox" class="priority-check" id="chk-schools" checked><span class="icon">🏫</span> Schools</div>
-      <input type="range" class="priority-slider" id="sl-schools" min="0" max="10" value="5">
-      <div class="priority-val" id="v-schools">5</div>
-    </div>
-    <div class="priority-row">
-      <div class="priority-label"><input type="checkbox" class="priority-check" id="chk-green" checked><span class="icon">🌿</span> Green Space</div>
-      <input type="range" class="priority-slider" id="sl-green" min="0" max="10" value="5">
-      <div class="priority-val" id="v-green">5</div>
-    </div>
-    <div class="priority-row">
-      <div class="priority-label"><input type="checkbox" class="priority-check" id="chk-transit" checked><span class="icon">🚇</span> Transit</div>
-      <input type="range" class="priority-slider" id="sl-transit" min="0" max="10" value="5">
-      <div class="priority-val" id="v-transit">5</div>
-    </div>
-    <div class="priority-row">
-      <div class="priority-label"><input type="checkbox" class="priority-check" id="chk-commute" checked><span class="icon">🚗</span> Commute</div>
-      <input type="range" class="priority-slider" id="sl-commute" min="0" max="10" value="5">
-      <div class="priority-val" id="v-commute">5</div>
-    </div>
-    <div class="priority-row">
-      <div class="priority-label"><input type="checkbox" class="priority-check" id="chk-safety" checked><span class="icon">🔒</span> Safety</div>
-      <input type="range" class="priority-slider" id="sl-safety" min="0" max="10" value="5">
-      <div class="priority-val" id="v-safety">5</div>
-    </div>
-    <div class="priority-row">
-      <div class="priority-label"><input type="checkbox" class="priority-check" id="chk-amenities" checked><span class="icon">🛒</span> Amenities</div>
-      <input type="range" class="priority-slider" id="sl-amenities" min="0" max="10" value="5">
-      <div class="priority-val" id="v-amenities">5</div>
+          <div class="slider-row" data-key="schools">
+            <input type="checkbox" class="cat-check" data-key="schools" checked />
+            <div class="slider-label-wrap">
+              <span class="slider-label">Schools</span>
+              <input type="range" min="1" max="10" value="5" id="sl-schools" />
+            </div>
+            <span class="slider-value" id="sv-schools">5</span>
+          </div>
+
+          <div class="slider-row" data-key="green">
+            <input type="checkbox" class="cat-check" data-key="green" checked />
+            <div class="slider-label-wrap">
+              <span class="slider-label">Green Space &amp; Parks</span>
+              <input type="range" min="1" max="10" value="5" id="sl-green" />
+            </div>
+            <span class="slider-value" id="sv-green">5</span>
+          </div>
+
+          <div class="slider-row" data-key="transit">
+            <input type="checkbox" class="cat-check" data-key="transit" checked />
+            <div class="slider-label-wrap">
+              <span class="slider-label">Transit Access</span>
+              <input type="range" min="1" max="10" value="5" id="sl-transit" />
+            </div>
+            <span class="slider-value" id="sv-transit">5</span>
+          </div>
+
+          <div class="slider-row" data-key="commute">
+            <input type="checkbox" class="cat-check" data-key="commute" checked />
+            <div class="slider-label-wrap">
+              <span class="slider-label">Commute Time</span>
+              <input type="range" min="1" max="10" value="5" id="sl-commute" />
+            </div>
+            <span class="slider-value" id="sv-commute">5</span>
+          </div>
+
+          <div class="slider-row" data-key="safety">
+            <input type="checkbox" class="cat-check" data-key="safety" checked />
+            <div class="slider-label-wrap">
+              <span class="slider-label">Safety</span>
+              <input type="range" min="1" max="10" value="5" id="sl-safety" />
+            </div>
+            <span class="slider-value" id="sv-safety">5</span>
+          </div>
+
+          <div class="slider-row" data-key="amenities">
+            <input type="checkbox" class="cat-check" data-key="amenities" checked />
+            <div class="slider-label-wrap">
+              <span class="slider-label">Amenities &amp; Services</span>
+              <input type="range" min="1" max="10" value="5" id="sl-amenities" />
+            </div>
+            <span class="slider-value" id="sv-amenities">5</span>
+          </div>
+
+          <div class="slider-row" data-key="urban">
+            <input type="checkbox" class="cat-check" data-key="urban" checked />
+            <div class="slider-label-wrap">
+              <span class="slider-label">Urban Feel</span>
+              <input type="range" min="1" max="10" value="5" id="sl-urban" />
+            </div>
+            <span class="slider-value" id="sv-urban">5</span>
+          </div>
+
+          <div class="slider-row" data-key="afford">
+            <input type="checkbox" class="cat-check" data-key="afford" checked />
+            <div class="slider-label-wrap">
+              <span class="slider-label">Affordability</span>
+              <input type="range" min="1" max="10" value="5" id="sl-afford" />
+            </div>
+            <span class="slider-value" id="sv-afford">5</span>
+          </div>
+
+          <div class="slider-row" data-key="age">
+            <input type="checkbox" class="cat-check" data-key="age" checked />
+            <div class="slider-label-wrap">
+              <span class="slider-label">Community Age</span>
+              <input type="range" min="1" max="10" value="5" id="sl-age" />
+              <span class="age-hint" id="age-hint">1980s&ndash;90s</span>
+            </div>
+            <span class="slider-value" id="sv-age">5</span>
+          </div>
+
+        </div>
+
+        <!-- Top matches -->
+        <div class="sliders-header">
+          <h3>Top Matches</h3>
+        </div>
+        <div id="top-matches">
+          <div style="font-size:12px;color:var(--text-muted);">Loading neighbourhood data&hellip;</div>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- Map -->
+    <div id="map-wrap">
+      <div id="map"></div>
+
+      <!-- Overlay controls -->
+      <div id="overlay-controls">
+        <div class="overlay-title">Overlays</div>
+        <label class="overlay-row">
+          <input type="checkbox" id="ov-ctrain" checked />
+          <span class="overlay-dot" style="background:#1565c0;"></span>
+          C-Train
+        </label>
+        <label class="overlay-row">
+          <input type="checkbox" id="ov-parks" />
+          <span class="overlay-dot" style="background:#2e7d32;"></span>
+          Major Parks
+        </label>
+        <label class="overlay-row">
+          <input type="checkbox" id="ov-industrial" />
+          <span class="overlay-dot" style="background:#78909c;"></span>
+          Industrial
+        </label>
+        <label class="overlay-row">
+          <input type="checkbox" id="ov-developing" />
+          <span class="overlay-dot" style="background:#f9a825;"></span>
+          Developing
+        </label>
+      </div>
+
+      <!-- Legend -->
+      <div id="legend">
+        <div class="legend-title">Match Score</div>
+        <div class="legend-gradient"></div>
+        <div class="legend-labels"><span>Worse fit</span><span>Better fit</span></div>
+      </div>
+
+      <!-- Data status -->
+      <div id="data-status">Loading data&hellip;</div>
     </div>
 
-    <div class="priority-row">
-      <div class="priority-label"><input type="checkbox" class="priority-check" id="chk-afford" checked><span class="icon">💰</span> Affordability</div>
-      <input type="range" class="priority-slider" id="sl-afford" min="0" max="10" value="5">
-      <div class="priority-val" id="v-afford">5</div>
-    </div>
-    <div class="priority-row">
-      <div class="priority-label"><input type="checkbox" class="priority-check" id="chk-urban" checked><span class="icon">🏙️</span> Urban Vibe</div>
-      <input type="range" class="priority-slider" id="sl-urban" min="0" max="10" value="4">
-      <div class="priority-val" id="v-urban">4</div>
-    </div>
-  </div>
+    <!-- Info Panel -->
+    <div id="info-panel" class="hidden">
+      <div id="info-panel-inner">
 
-  <!-- Top matches -->
-  <div class="panel-section">
-    <div class="section-label">🏆 Top Matches</div>
-    <div id="top-matches" style="font-size:12px;color:#9ca3af;">Click the map or move sliders…</div>
-  </div>
+        <div class="info-header-row">
+          <div class="info-name" id="info-name">&mdash;</div>
+          <button class="info-close" id="info-close" title="Close">&times;</button>
+        </div>
 
-  <!-- Overlays -->
-  <div class="panel-section">
-    <div class="section-label">Context Overlays</div>
-    <div class="overlay-grid">
+        <div class="info-meta" id="info-meta"></div>
 
-      <button class="overlay-btn" data-overlay="ctrain" type="button">
-        <div class="dot" style="background:#ef4444;"></div>🚇 C-Train
-      </button>
-      <button class="overlay-btn" data-overlay="map-major-parks-only-current" type="button">
-        <div class="dot" style="background:#16a34a;"></div>🌲 Major Parks
-      </button>
-      <button class="overlay-btn" data-overlay="map-industrial-only-current" type="button">
-        <div class="dot" style="background:#ea580c;"></div>🏭 Industrial
-      </button>
-      <button class="overlay-btn" data-overlay="map-developing-only-current" type="button">
-        <div class="dot" style="background:#7c3aed;"></div>🏗️ Developing
-      </button>
+        <div class="info-match-row">
+          <div class="info-match-score" id="info-match-score">&mdash;</div>
+          <div class="info-match-bar-wrap">
+            <div class="info-match-label">Overall Match</div>
+            <div class="info-match-bar-bg">
+              <div class="info-match-bar" id="info-match-bar" style="width:0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Insight -->
+        <div class="ai-block">
+          <div class="ai-block-title">&#10022; AI Neighbourhood Insight</div>
+          <div class="ai-text" id="ai-text"><span class="ai-loading">Generating insight&hellip;</span></div>
+        </div>
+
+        <!-- Score breakdown -->
+        <div>
+          <div class="section-title" style="margin-bottom:8px;">Score Breakdown</div>
+          <div class="breakdown-grid" id="breakdown-grid"></div>
+        </div>
+
+        <!-- Schools -->
+        <div id="schools-section" style="display:none;">
+          <div class="section-title" style="margin-bottom:8px;">Schools Nearby</div>
+          <div class="schools-list" id="schools-list"></div>
+        </div>
+
+        <!-- CTAs -->
+        <div class="cta-row">
+          <button class="cta-btn cta-primary" id="cta-homevalue">Check My Home Value in This Area</button>
+          <a class="cta-btn cta-secondary" id="cta-sold" href="#" target="_blank" rel="noopener">View Recent Sold Data</a>
+          <a class="cta-btn cta-secondary" href="https://grahamcookyyc.com/book" target="_blank" rel="noopener">Book a Call with Graham</a>
+        </div>
+
+      </div>
     </div>
+
+  </div><!-- /#main -->
+
+  <!-- Footer -->
+  <footer id="footer">
+    <div id="footer-bar">
+      <img src="assets/gc - Logo - GC Circle.png" alt="" style="height:22px;opacity:0.85;" />
+      <span style="font-size:11px;">&copy; 2025 Graham Cook Realty. All rights reserved.</span>
+      <button id="footer-toggle" title="Expand footer">&#9650; More</button>
+    </div>
+    <div id="footer-expanded">
+      <div class="footer-links">
+        <a href="#" id="footer-homevalue">Check Home Value</a>
+        <a href="https://grahamcookyyc.com/sold" target="_blank" rel="noopener">Sold Data</a>
+        <a href="https://grahamcookyyc.com/subscribe" target="_blank" rel="noopener">Subscribe</a>
+        <a href="https://grahamcookyyc.com/book" target="_blank" rel="noopener">Book a Call</a>
+        <a href="https://grahamcookyyc.com" target="_blank" rel="noopener">grahamcookyyc.com</a>
+      </div>
+      <div class="footer-socials">
+        <a href="https://youtube.com/@grahamcookyyc" target="_blank" rel="noopener"><img src="assets/icon-youtube.svg" alt="YouTube" /></a>
+        <a href="https://substack.com/@grahamcookyyc" target="_blank" rel="noopener"><img src="assets/icon-substack.svg" alt="Substack" /></a>
+        <a href="https://instagram.com/grahamcookyyc" target="_blank" rel="noopener"><img src="assets/icon-instagram.svg" alt="Instagram" /></a>
+        <a href="https://facebook.com/grahamcookyyc" target="_blank" rel="noopener"><img src="assets/icon-facebook.svg" alt="Facebook" /></a>
+      </div>
+    </div>
+  </footer>
+
+</div><!-- /#app -->
+
+<!-- Onboarding Overlay -->
+<div id="onboarding">
+  <div class="onboarding-card">
+    <img src="assets/gc - Logo - GC Circle.png" alt="Graham Cook Realty" />
+    <h2>Find Your Perfect Calgary Neighbourhood</h2>
+    <p>Use this tool to explore Calgary's communities based on what matters most to you &mdash; schools, commute, safety, affordability, and more.</p>
+    <ol>
+      <li>Pick a persona or adjust the sliders to your priorities</li>
+      <li>The map updates in real time with your best matches</li>
+      <li>Click any neighbourhood to see a detailed breakdown &amp; AI insight</li>
+    </ol>
+    <button class="onboarding-start" id="onboarding-start">Let's Explore &rarr;</button>
   </div>
 </div>
 
-<button class="show-menu" id="show-menu" type="button">☰ Show controls</button>
-
-<!-- LEGEND -->
-<div class="legend" id="legend">
-  <div class="legend-title" id="legend-title">Neighbourhood Match Score</div>
-  <div class="legend-bar" id="legend-bar" style="background: linear-gradient(to right, #e5e7eb, #86efac, #00473e);"></div>
-  <div class="legend-labels">
-    <span>Poor fit</span><span>Good fit</span><span>Best fit</span>
-  </div>
-  <div class="legend-note" id="legend-note">Based on your priority sliders</div>
-</div>
-
-<!-- RIGHT INFO PANEL -->
-<div class="info-panel hidden" id="info-panel">
-  <div class="info-panel-header">
-    <div>
-      <h3 class="info-title" id="info-title">—</h3>
-      <p class="info-sub" id="info-sub">Click a neighbourhood to explore</p>
+<!-- Home Value Modal -->
+<div id="hv-modal" class="hidden">
+  <div class="hv-card">
+    <div class="hv-header">
+      <h3>Check Your Home Value</h3>
+      <button class="hv-close" id="hv-close">&times;</button>
     </div>
-    <button class="info-close" id="info-close" type="button">Close</button>
+    <iframe
+      src="https://checkyourhomevalue.ca/home-valuation-widget/KUlkDLOaFkASu6wYeyTTJswiTGTtaA5H"
+      title="Home Valuation"
+      loading="lazy"
+    ></iframe>
   </div>
-  <div class="info-body" id="info-body"></div>
 </div>
 
-<footer>
-  Calgary Relocation Guide • Data: City of Calgary, CREB, Schools data • © 2026 Graham Cook Real Estate •
-  <a href="https://www.grahamcookyyc.com" target="_blank" rel="noopener" style="color:var(--gc-green);font-weight:700;text-decoration:none;margin-left:4px;">grahamcookyyc.com</a>
-</footer>
-
-<script src="config.js"></script>
 <script>
-// Fallbacks so the script doesn't crash if config.js didn't load (e.g. on Netlify)
-if (typeof MAPBOX_TOKEN === 'undefined')      window.MAPBOX_TOKEN = '';
-if (typeof ANTHROPIC_API_KEY === 'undefined') window.ANTHROPIC_API_KEY = '';
+// ── Constants ──────────────────────────────────────────────────────────────────
 
-// ============================================================
-// NEIGHBOURHOOD SCORING DATA
-// ============================================================
-// These scores are estimates based on neighbourhood characteristics
-// Each category scored 0–10 for each neighbourhood
+const RELOC_LAYER_ID    = 'reloc-fill';
+const RELOC_OUTLINE_ID  = 'reloc-outline';
+const RELOC_SELECTED_ID = 'reloc-selected';
+const CEI_SOURCE_ID     = 'composite';
+const CEI_SOURCE_LAYER  = 'Community_Economic_Index_Map-509x5q';
 
-// Scores computed at runtime from map-economic-index-current tileset.
-// Format: [schools, green, transit, commute, safety, amenities, _unused, afford, urban]
-// Affordability (index 7) overwritten by tr-benchmark live data.
-const NEIGHBOURHOOD_SCORES = {};
-const _LEGACY_SCORES_PLACEHOLDER = {
-  "ABBEYDALE":              [5,5,5,5,5,5,1,8,3],
-  "ACADIA":                 [7,7,8,6,6,7,2,6,5],
-  "ALBERT PARK/RADISSON HEIGHTS": [6,6,7,7,5,6,2,7,4],
-  "ALPINE PARK":            [4,6,2,4,7,5,3,7,2],
-  "ALTADORE":               [7,8,6,8,8,9,3,4,8],
-  "AMBLETON":               [4,6,4,5,7,5,3,7,2],
-  "APPLEWOOD PARK":         [5,5,5,5,6,5,1,7,3],
-  "ARBOUR LAKE":            [8,9,7,5,8,7,3,6,4],
-  "ASPEN WOODS":            [8,7,6,6,8,7,6,4,5],
-  "AUBURN BAY":             [9,8,5,4,8,7,2,6,5],
-  "BANFF TRAIL":            [7,7,9,9,7,7,3,6,7],
-  "BANKVIEW":               [5,6,8,9,6,7,3,7,7],
-  "BAYVIEW":                [6,8,3,5,8,5,4,3,3],
-  "BEDDINGTON HEIGHTS":     [7,8,6,6,7,6,2,7,4],
-  "BEL-AIRE":               [7,7,5,6,8,7,4,3,4],
-  "BELMONT":                [5,6,4,4,7,6,2,7,2],
-  "BELTLINE":               [6,6,10,10,7,10,2,5,10],
-  "BONAVISTA DOWNS":        [6,8,4,5,7,5,2,6,3],
-  "BOWNESS":                [7,9,5,6,6,6,6,7,5],
-  "BRENTWOOD":              [9,7,9,7,7,7,3,6,6],
-  "BRIDGELAND/RIVERSIDE":   [6,8,9,10,7,8,2,5,9],
-  "CHAPARRAL":              [7,8,4,3,8,6,3,6,3],
-  "CITADEL":                [7,6,5,5,7,6,3,7,3],
-  "COACH HILL":             [7,6,5,6,7,6,6,6,4],
-  "COPPERFIELD":            [7,7,5,4,8,7,2,7,4],
-  "COUGAR RIDGE":           [6,7,5,6,7,6,6,6,3],
-  "CRANSTON":               [8,8,4,4,8,7,3,6,4],
-  "DALHOUSIE":              [8,7,8,6,7,7,3,6,5],
-  "DEER RIDGE":             [7,8,4,4,7,6,2,7,3],
-  "DISCOVERY RIDGE":        [6,9,3,5,8,5,7,5,3],
-  "DOUGLASDALE/GLEN":       [7,8,5,5,8,7,2,6,4],
-  "EDGEMONT":               [8,7,5,5,7,6,3,5,4],
-  "ERLTON":                 [6,7,8,9,7,8,2,5,8],
-  "EVANSTON":               [6,6,5,5,7,6,3,7,3],
-  "EVERGREEN":              [7,8,5,4,8,7,4,6,3],
-  "GLAMORGAN":              [6,6,6,7,7,6,4,7,4],
-  "GLENBROOK":              [7,6,6,7,7,6,5,6,5],
-  "HAMPTONS":               [7,7,5,5,7,6,3,5,3],
-  "HARVEST HILLS":          [6,6,5,5,7,6,2,7,3],
-  "HAWKWOOD":               [6,6,5,5,7,6,3,6,3],
-  "HILLHURST":              [7,7,8,10,8,9,3,5,9],
-  "INGLEWOOD":              [5,8,7,9,7,8,2,6,9],
-  "KILLARNEY/GLENGARRY":    [7,6,7,8,7,7,4,6,7],
-  "KINCORA":                [6,6,5,4,7,6,2,7,3],
-  "LAKE BONAVISTA":         [8,9,5,5,8,6,2,4,4],
-  "LAKEVIEW":               [7,7,6,7,7,7,5,6,5],
-  "LEGACY":                 [7,7,4,4,8,7,2,7,3],
-  "LINCOLN PARK":           [6,7,5,7,7,6,5,6,4],
-  "LIVINGSTON":             [5,6,4,5,7,6,2,7,2],
-  "LOWER MOUNT ROYAL":      [7,7,8,10,8,9,3,4,9],
-  "MAHOGANY":               [8,9,4,4,8,7,2,5,5],
-  "MCCKENZIE LAKE":         [7,8,4,4,8,7,2,6,3],
-  "MCKENZIE TOWNE":         [8,7,5,4,8,7,2,6,4],
-  "MIDNAPORE":              [7,8,6,4,8,7,3,6,4],
-  "MILLRISE":               [6,7,7,5,7,7,3,7,4],
-  "MISSION":                [5,7,8,10,7,9,2,4,10],
-  "MONTGOMERY":             [5,8,6,7,7,7,6,7,6],
-  "MOUNT PLEASANT":         [6,7,8,8,7,7,2,6,7],
-  "NEW BRIGHTON":           [8,7,5,4,8,7,2,7,4],
-  "NOLAN HILL":             [6,6,4,5,7,6,3,7,3],
-  "NORTH HAVEN":            [6,6,6,6,7,6,2,7,4],
-  "OAKRIDGE":               [7,7,6,5,7,7,4,6,4],
-  "OGDEN":                  [5,6,6,6,6,5,2,8,4],
-  "PALLISER":               [7,7,5,5,7,7,4,6,4],
-  "PANORAMA HILLS":         [7,7,4,4,7,6,2,6,3],
-  "PARKDALE":               [6,8,8,9,7,8,4,5,7],
-  "PARKLAND":               [7,8,4,5,8,6,3,5,3],
-  "PATTERSON":              [6,7,5,7,7,6,6,6,4],
-  "RAMSAY":                 [5,7,7,9,7,7,2,6,8],
-  "RANCHLANDS":             [7,7,6,6,7,6,3,7,4],
-  "REDSTONE":               [5,5,5,4,6,5,1,8,2],
-  "RENFREW":                [6,7,8,9,7,7,2,6,7],
-  "RIVERBEND":              [7,8,5,5,8,7,2,6,3],
-  "ROCKY RIDGE":            [7,7,5,5,7,6,4,5,3],
-  "ROSEDALE":               [7,8,7,9,8,8,3,3,7],
-  "ROYAL OAK":              [7,7,5,5,7,6,3,6,3],
-  "SADDLE RIDGE":           [6,5,6,4,6,6,1,7,3],
-  "SAGE HILL":              [6,6,4,5,7,6,2,7,3],
-  "SCENIC ACRES":           [7,6,5,5,7,6,4,6,3],
-  "SETON":                  [7,7,5,4,8,8,2,6,4],
-  "SHAWNESSY":              [8,7,8,5,7,8,3,7,4],
-  "SIGNAL HILL":            [7,6,5,6,7,6,6,5,4],
-  "SILVER SPRINGS":         [8,8,5,6,8,6,4,6,4],
-  "SILVERADO":              [6,6,5,4,7,6,3,7,2],
-  "SOMERSET":               [7,7,8,5,7,8,3,7,4],
-  "SOUTH CALGARY":          [6,7,8,9,7,8,3,5,8],
-  "SPRINGBANK HILL":        [7,8,4,6,8,6,8,4,4],
-  "STRATHCONA PARK":        [7,7,5,7,7,6,6,5,4],
-  "SUNALTA":                [5,6,9,10,6,8,2,6,9],
-  "SUNNYSIDE":              [6,8,9,10,7,9,3,5,9],
-  "TUSCANY":                [8,7,7,5,8,7,4,6,4],
-  "UNIVERSITY DISTRICT":    [7,7,9,8,8,8,3,5,8],
-  "UPPER MOUNT ROYAL":      [8,8,7,9,9,8,4,3,7],
-  "VALLEY RIDGE":           [6,8,3,6,7,5,7,5,3],
-  "VARSITY":                [8,7,8,7,8,7,3,5,6],
-  "WALDEN":                 [6,7,4,4,7,6,2,7,3],
-  "WEST HILLHURST":         [7,7,8,10,8,8,3,5,8],
-  "WEST SPRINGS":           [7,7,5,6,8,7,7,5,5],
-  "WESTGATE":               [6,6,6,7,7,6,5,7,5],
-  "WILDWOOD":               [6,8,6,7,7,7,6,6,5],
-  "WILLOW PARK":            [7,8,5,5,7,7,2,5,4],
-  "WINDSOR PARK":           [7,7,7,8,8,8,3,4,7],
-  "WINSTON HEIGHTS/MOUNTVIEW": [6,7,7,8,7,7,2,6,7],
-  "WOLF WILLOW":            [5,7,3,4,7,5,3,7,2],
-  "WOODBINE":               [7,7,5,5,7,7,3,6,3],
-  "WOODLANDS":              [7,8,5,5,8,6,3,5,3],
-  "YORKVILLE":              [5,6,4,4,7,6,2,7,2],
+const SCHOOLS_URL = 'https://raw.githubusercontent.com/grahamcookyyc/heat-maps/main/schools-by-neighbourhood.json';
 
-  // ── Inner-city & SW established ──
-  "BRITANNIA":              [7,9,5,7,9,8,3,3,6],
-  "CAMBRIAN HEIGHTS":       [7,8,7,7,7,7,3,4,6],
-  "CAPITOL HILL":           [7,7,8,8,7,8,3,4,7],
-  "CHARLESWOOD":            [7,8,6,6,8,7,3,5,5],
-  "CHINOOK PARK":           [7,8,5,6,8,7,3,4,5],
-  "CHINATOWN":              [4,6,8,9,6,9,3,3,8],
-  "COLLINGWOOD":            [7,8,7,7,7,7,3,4,6],
-  "CRESCENT HEIGHTS":       [7,7,8,8,7,8,3,4,7],
-  "DOWNTOWN COMMERCIAL CORE":[3,4,9,9,5,10,3,3,10],
-  "DOWNTOWN EAST VILLAGE":  [4,5,8,9,6,9,3,3,9],
-  "DOWNTOWN WEST END":      [4,5,8,9,6,9,3,3,9],
-  "EAU CLAIRE":             [5,8,8,9,7,9,3,3,9],
-  "ELBOW PARK":             [8,9,6,7,9,8,3,3,6],
-  "ELBOYA":                 [7,8,5,6,8,7,3,4,5],
-  "FAIRVIEW":               [7,7,6,7,7,7,3,5,5],
-  "GLENDALE":               [7,7,6,6,7,7,3,5,5],
-  "HAYSBORO":               [7,7,6,6,7,7,3,5,5],
-  "HIGHLAND PARK":          [6,6,7,7,6,6,2,5,5],
-  "HIGHWOOD":               [6,7,7,7,6,6,2,5,5],
-  "KINGSLAND":              [7,7,6,7,7,7,3,5,6],
-  "MANCHESTER":             [4,5,6,8,5,7,3,5,6],
-  "MEADOWLARK PARK":        [7,8,6,6,8,7,3,4,5],
-  "MEDICINE HILL":          [4,5,5,7,5,5,3,5,5],
-  "POINT MCKAY":            [6,8,6,7,8,7,4,4,6],
-  "QUEENS PARK VILLAGE":    [5,6,6,7,6,7,3,4,6],
-  "RIDEAU PARK":            [7,8,6,7,8,7,3,4,5],
-  "ROSEMONT":               [7,7,7,7,7,7,3,4,6],
-  "ROSSCARROCK":            [7,7,7,7,7,7,3,5,6],
-  "ROXBORO":                [7,9,6,7,9,8,3,3,6],
-  "SCARBORO/SUNALTA WEST":  [6,7,7,8,7,8,3,4,7],
-  "SPRUCE CLIFF":           [7,8,6,7,7,7,3,4,6],
-  "TUXEDO PARK":            [6,7,7,7,6,7,2,4,6],
-  "UNIVERSITY OF CALGARY":  [6,7,7,7,7,7,4,5,7],
-  "VISTA HEIGHTS":          [5,5,5,6,5,5,2,6,4],
+const AGE_MAP = {
+  'CENTRE CITY':  1,
+  'INNER CITY':   1,
+  '1950s':        1,
+  '1960s/1970s':  3,
+  '1980s/1990s':  5,
+  '2000s':        7,
+  '2010s':        8,
+  '2020s':        9,
+  'BUILDING OUT': 10,
+};
+const AGE_LABELS = {
+  1:  'Pre-1960s',
+  3:  '1960s\u201370s',
+  5:  '1980s\u201390s',
+  7:  '2000s',
+  8:  '2010s',
+  9:  '2020s',
+  10: 'Building Out',
+};
+const NON_RESIDENTIAL_CLASSES = ['Industrial', 'EMPLOYMENT', 'PARKS', 'UNDEVELOPED', 'OTHER'];
 
-  // ── NW established ──
-  "COUNTRY HILLS":          [7,6,5,5,7,7,2,6,4],
-  "GREENVIEW":              [5,6,6,7,5,6,2,5,5],
-  "HIDDEN VALLEY":          [8,7,5,5,8,7,3,5,4],
-  "KEYSTONE HILLS":         [6,6,5,5,7,6,2,6,4],
-  "MACEWAN GLEN":           [7,7,6,5,8,7,3,5,4],
-  "NORTH HAVEN UPPER":      [7,7,7,6,7,6,2,5,5],
-  "ROYAL VISTA":            [5,6,4,5,7,5,2,6,3],
-  "SANDSTONE VALLEY":       [8,7,6,5,8,7,3,5,4],
-  "SKYLINE WEST":           [5,5,4,5,6,5,1,7,3],
-  "TUXEDO PARK":            [6,7,7,7,6,7,2,4,6],
-
-  // ── NE established ──
-  "CASTLERIDGE":            [6,6,5,5,6,6,1,7,4],
-  "CITYSCAPE":              [6,6,4,5,7,6,1,6,3],
-  "CORAL SPRINGS":          [5,7,5,6,6,6,1,6,4],
-  "CORNERSTONE":            [5,6,4,5,7,5,1,7,3],
-  "HOMESTEAD":              [5,6,3,5,7,5,2,7,3],
-  "MARTINDALE":             [7,6,6,5,6,6,1,6,4],
-  "MONTEREY PARK":          [6,6,5,5,6,6,1,6,4],
-  "SKYVIEW RANCH":          [5,6,4,5,7,6,1,6,3],
-  "TARADALE":               [7,6,6,5,6,6,1,6,4],
-
-  // ── SE / East developing ──
-  "AMBLERIDGE":             [5,7,4,5,7,5,2,6,3],
-  "BELVEDERE":              [5,6,3,5,7,5,1,7,3],
-  "GREAT PLAINS":           [3,5,2,4,6,3,2,7,2],
-  "GREAT PLAINS EAST":      [3,5,2,4,6,3,2,7,2],
-  "HOTCHKISS":              [4,6,2,4,7,4,2,7,2],
-  "HUXLEY":                 [4,5,2,4,7,4,2,7,2],
-  "LEWISBURG":              [3,5,2,4,6,3,1,8,2],
-  "RANGEVIEW":              [5,7,3,5,7,5,2,7,3],
-  "RICARDO RANCH":          [3,4,2,4,5,3,2,7,2],
-  "SECTION 23":             [3,5,1,4,6,3,2,8,1],
-  "STARFIELD":              [4,6,2,4,7,4,2,7,2],
-  "STARFIELD EAST":         [4,6,2,4,7,4,2,7,2],
-  "STONEGATE LANDING":      [4,5,3,4,6,4,3,7,3],
-  "TWINHILLS":              [4,5,2,4,7,4,1,7,2],
-
-  // ── Parks / reserves / special ──
-  "NOSE HILL PARK":         [2,10,3,5,8,2,4,8,1],
-  "STONEY 1":               [2,5,2,4,5,2,3,8,1],
-  "STONEY 3":               [2,5,2,4,5,2,3,8,1],
-  "STONEY 4":               [2,5,2,4,5,2,3,8,1],
-
-  // ── Industrial / business parks ──
-  "AURORA BUSINESS PARK":    [1,2,2,4,5,1,3,6,1],
-  "DEERFOOT BUSINESS CENTRE":[1,1,2,5,4,1,2,6,1],
-  "EAST FAIRVIEW INDUSTRIAL":[1,2,4,7,5,2,2,5,1],
-  "EAST SHEPARD INDUSTRIAL": [2,2,2,4,4,2,1,6,1],
-  "FAIRVIEW INDUSTRIAL":     [1,2,4,7,5,2,2,5,1],
-  "GREENVIEW INDUSTRIAL PARK":[1,2,3,6,4,1,2,5,1],
-  "SADDLE RIDGE INDUSTRIAL": [2,2,3,5,4,2,1,7,1],
-
-  // ── Numeric sector codes (rural / undeveloped / utility) ──
-  "01F": [1,3,1,3,4,1,3,8,1], "01K": [1,3,1,3,4,1,3,8,1],
-  "02B": [1,3,1,3,4,1,2,8,1], "02C": [1,3,1,3,4,1,2,8,1],
-  "02E": [1,3,1,3,4,1,2,8,1], "02F": [1,3,1,3,4,1,2,8,1],
-  "02K": [1,3,1,3,4,1,2,8,1], "03W": [1,3,1,3,4,1,2,8,1],
-  "05D": [1,3,1,3,4,1,3,8,1], "05E": [1,3,1,3,4,1,3,8,1],
-  "05F": [1,3,1,3,4,1,3,8,1], "05G": [1,3,1,3,4,1,3,8,1],
-  "09O": [1,3,1,4,4,1,2,8,1], "09P": [1,3,1,4,4,1,2,8,1],
-  "09Q": [1,3,1,4,4,1,2,8,1], "10D": [1,3,1,4,4,1,2,8,1],
-  "10E": [1,3,1,4,4,1,2,8,1], "12A": [1,3,1,4,4,1,1,8,1],
-  "12B": [1,3,1,4,4,1,1,8,1], "12C": [1,3,1,4,4,1,1,8,1],
-  "12J": [1,3,1,4,4,1,1,8,1], "12K": [1,3,1,4,4,1,1,8,1],
-  "12L": [1,3,1,4,4,1,1,8,1],
-}; // _LEGACY_SCORES_PLACEHOLDER — not used
-
-// Score index positions
-const IDX = { schools:0, green:1, transit:2, commute:3, safety:4, amenities:5, afford:7, urban:8 };
-
-// Life stage presets [schools, green, transit, commute, safety, amenities, _, afford, urban]
-// index 6 (mountains) retained in data arrays but not used in scoring
 const PERSONAS = {
-  "family":       [9, 8, 5, 6, 9, 7, 0, 6, 3],
-  "young-pro":    [2, 5, 9, 9, 7, 8, 0, 6, 9],
-  "empty-nester": [3, 9, 7, 5, 8, 7, 0, 5, 6],
-  "new-to-canada":[8, 6, 8, 7, 7, 8, 0, 8, 6],
+  'family':        { schools:9, green:7, transit:5, commute:6, safety:9, amenities:7, urban:3, afford:6, age:4 },
+  'young-pro':     { schools:2, green:4, transit:9, commute:9, safety:6, amenities:8, urban:9, afford:7, age:6 },
+  'empty-nester':  { schools:2, green:9, transit:6, commute:5, safety:8, amenities:7, urban:5, afford:5, age:3 },
+  'new-to-canada': { schools:8, green:5, transit:8, commute:7, safety:7, amenities:8, urban:6, afford:9, age:5 },
 };
 
-// Calgary-specific overlay data
-const OVERLAY_DATA = {
-  ctrain: {
-    title: "🚇 C-Train Proximity",
-    description: "Calgary's C-Train runs on two lines: Red Line (NE/SW) and Blue Line (NW/downtown). Communities within ~1km of a station have significantly better transit scores.",
-    zones: {
-      "STATION": ["BELTLINE","SUNNYSIDE","HILLHURST","BRIDGELAND/RIVERSIDE","RENFREW","RAMSAY","INGLEWOOD","UNIVERSITY DISTRICT","VARSITY","DALHOUSIE","BRENTWOOD","BANFF TRAIL","CAPITOL HILL","MOUNT PLEASANT","TUXEDO PARK","CRESCENT HEIGHTS","ERLTON","PARKHILL","MISSION","SOUTH CALGARY","OAKRIDGE","PALLISER","MIDNAPORE","SOMERSET","SHAWNESSY","MILLRISE","ANDERSON","ACADIA","HERITAGE","CHINOOK PARK","FAIRVIEW","HAYSBORO","WILLOW PARK","LAKE BONAVISTA","WOODBINE","MARLBOROUGH","RUNDLE","TEMPLE","WHITEHORN","CASTLERIDGE","FALCONRIDGE","MARTINDALE","SADDLE RIDGE","TARADALE"],
-      "NEARBY": ["BANKVIEW","ALTADORE","CLIFF BUNGALOW","LOWER MOUNT ROYAL","UPPER MOUNT ROYAL","SUNALTA","SCARBORO","WEST HILLHURST","KINGSLAND","HAYSBORO","MAPLE RIDGE","SILVERADO","WESTGATE","GLENBROOK","GLAMORGAN","KILLARNEY/GLENGARRY","LAKEVIEW"],
-    }
-  }
+const CAT_LABELS = {
+  schools:   'Schools',
+  green:     'Green Space',
+  transit:   'Transit',
+  commute:   'Commute',
+  safety:    'Safety',
+  amenities: 'Amenities',
+  urban:     'Urban Feel',
+  afford:    'Affordability',
+  age:       'Community Age',
 };
 
-// ============================================================
-// MAP SETUP
-// ============================================================
-mapboxgl.accessToken = MAPBOX_TOKEN;
+const AGE_HINT_LABELS = {
+  1: 'Pre-1960s', 2: 'Pre-1960s',
+  3: '1960s\u201370s', 4: '1960s\u201370s',
+  5: '1980s\u201390s', 6: '1980s\u201390s',
+  7: '2000s', 8: '2010s', 9: '2020s', 10: 'Building Out'
+};
 
-const DEFAULT_BOUNDS = [[-114.30, 50.85], [-113.85, 51.20]];
-const isMobile = window.matchMedia('(max-width: 768px)').matches;
+// ── State ─────────────────────────────────────────────────────────────────────
 
-const map = new mapboxgl.Map({
-  container: 'map',
-  style: 'mapbox://styles/grahamcook/cmh2e1384003001rfezzl716k',
-  bounds: DEFAULT_BOUNDS,
-  fitBoundsOptions: { padding: 60 }
-});
+const NEIGHBOURHOOD_DATA = {};
+let schoolsData   = {};
+let currentScores = {};
+let selectedCode  = null;
+let hoverPopup    = null;
+let aiCache       = {};
 
-// ============================================================
-// SCORING ENGINE
-// ============================================================
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function numOrNull(v) {
+  const n = parseFloat(v);
+  return isNaN(n) ? null : n;
+}
+
+function isResidential(d) {
+  return d &&
+    !NON_RESIDENTIAL_CLASSES.includes(d.comm_class) &&
+    !NON_RESIDENTIAL_CLASSES.includes(d.comm_structure);
+}
+
+function ageMatchScore(d, sliderValue) {
+  if (d.score_age === null || d.score_age === undefined) return null;
+  const userTarget = sliderValue * 10;
+  const distance   = Math.abs(d.score_age - userTarget);
+  return Math.max(0, 100 - distance);
+}
+
 function getWeights() {
-  function w(id) {
-    const chk = document.getElementById('chk-' + id);
-    return chk && !chk.checked ? 0 : parseInt(document.getElementById('sl-' + id).value);
-  }
-  return {
-    schools:   w('schools'),
-    green:     w('green'),
-    transit:   w('transit'),
-    commute:   w('commute'),
-    safety:    w('safety'),
-    amenities: w('amenities'),
-
-    afford:    w('afford'),
-    urban:     w('urban'),
-  };
+  const weights = {};
+  document.querySelectorAll('.cat-check').forEach(cb => {
+    const key = cb.dataset.key;
+    const slider = document.getElementById('sl-' + key);
+    weights[key] = cb.checked ? parseInt(slider.value, 10) : 0;
+  });
+  return weights;
 }
 
-function computeScore(neighbourhood, weights) {
-  const scores = NEIGHBOURHOOD_SCORES[neighbourhood];
-  if (!scores) return null;
-  let totalWeight = 0, weightedSum = 0;
-  const keys = Object.keys(IDX);
-  keys.forEach(k => {
-    const w = weights[k] || 0;
+function computeScore(code, weights) {
+  const d = NEIGHBOURHOOD_DATA[code];
+  if (!d) return null;
+  const cats = [
+    { key: 'schools',   score: d.score_schools   },
+    { key: 'green',     score: d.score_green      },
+    { key: 'transit',   score: d.score_transit    },
+    { key: 'commute',   score: d.score_commute    },
+    { key: 'safety',    score: d.score_safety     },
+    { key: 'amenities', score: d.score_amenities  },
+    { key: 'urban',     score: d.score_urban      },
+    { key: 'afford',    score: d.score_afford     },
+    { key: 'age',       score: ageMatchScore(d, weights.age || 0) },
+  ];
+  let weightedSum = 0, totalWeight = 0;
+  cats.forEach(({ key, score }) => {
+    const w = weights[key] || 0;
+    if (w === 0 || score === null || !isFinite(score)) return;
+    weightedSum += score * w;
     totalWeight += w;
-    weightedSum += scores[IDX[k]] * w;
   });
-  if (totalWeight === 0) return 5; // default midpoint
-  return weightedSum / totalWeight; // 0–10
-}
-
-function computeAllScores(weights) {
-  const result = {};
-  Object.keys(NEIGHBOURHOOD_SCORES).forEach(n => {
-    result[n] = computeScore(n, weights);
-  });
-  return result;
+  return totalWeight === 0 ? null : Math.round(weightedSum / totalWeight);
 }
 
 function scoreToColor(score) {
-  // 0 = grey, 5 = light green, 10 = deep green
-  if (score === null) return 'rgba(0,0,0,0)';
-  const t = score / 10;
-  if (t < 0.3) return `rgba(229,231,235,0.6)`;
-  if (t < 0.5) return `rgba(187,247,208,0.7)`;
-  if (t < 0.7) return `rgba(74,222,128,0.75)`;
-  if (t < 0.85) return `rgba(22,163,74,0.8)`;
-  return `rgba(0,71,62,0.85)`;
+  if (score === null || score === undefined) return 'rgba(0,0,0,0)';
+  if (score < 20) return 'rgba(30,136,229,0.85)';
+  if (score < 40) return 'rgba(144,202,249,0.75)';
+  if (score < 60) return 'rgba(255,255,255,0.65)';
+  if (score < 80) return 'rgba(239,154,154,0.75)';
+  return               'rgba(183,28,28,0.85)';
 }
 
-// ============================================================
-// NEIGHBOURHOOD DATA
-// ============================================================
-// TODO: Replace with remote fetch from heat-maps repo once
-//       neighbourhood-descriptions.json is published there.
-//       See fetchRemoteData() stub in the REMOTE DATA FETCH section.
-const NEIGHBOURHOOD_DESCRIPTIONS = {
-  "ABBEYDALE": `Located in Calgary's northeast quadrant, Abbeydale is a quiet, family-oriented neighbourhood with most homes built in the late 1970s and 1980s. The community has a large child and youth population, with predominantly single-family homes. Abbeydale School (public, K-6) and Blessed Kateri Tekakwitha Elementary School (Catholic) serve the area. Community parks feature playgrounds, sports fields, and picnic areas.`,
-  "ACADIA": `This established neighbourhood in southeast Calgary was created in 1960, with a mix of seniors and young families. The Heritage C-Train Station serves the neighbourhood. Lord Beaverbrook High School, the city's largest, is located here. The Acadia Aquatic & Fitness Centre and Sue Higgins Park (largest fenced off-leash dog area in the city) are major draws.`,
-  "ALBERT PARK/RADISSON HEIGHTS": `Located in southeast Calgary, established in 1910. The community enjoys ample open space, views of the Bow River Valley and the Rockies, and good access to shopping. The nearest C-Train station is Marlborough. Several public and Catholic schools serve the area.`,
-  "ALTADORE": `This residential inner-city southwest neighbourhood features a mix of 1950s bungalows and modern infill homes, attracting young professionals and families. Just a 10-minute drive from downtown, it borders Marda Loop — one of Calgary's most popular urban villages with boutiques, cafes, and restaurants.`,
-  "ARBOUR LAKE": `Established in the early 1990s, this northwest community features a 10-acre man-made lake stocked with rainbow trout. Near Crowfoot C-Train Station and Crowfoot Crossing mall. Excellent for families with Robert Thirsk High School and multiple elementary options.`,
-  "ASPEN WOODS": `An upscale residential neighbourhood in southwest Calgary near the 69th Street SW C-Train station. Features modern properties, Edworthy Park proximity, and access to Westside Recreation Centre. Aspen Landing offers local shopping.`,
-  "AUBURN BAY": `A suburban southeast neighbourhood established in 2005 with a picturesque 43-acre private lake. One of the highest numbers of preschool-aged children in the city. Features five schools, 15 playgrounds, and an off-leash dog park. The Green Line C-Train will run along its eastern boundary.`,
-  "BANFF TRAIL": `A well-established northwest neighbourhood near the University of Calgary, McMahon Stadium, and the Banff Trail C-Train station. Popular with families, professionals, and students. Close to Nose Hill Park and North Hill Shopping Centre.`,
-  "BANKVIEW": `Established 1908 in southwest Calgary, featuring mid-century apartment buildings and condos. 85.7% of buildings are condominiums or apartments. About a 12-minute walk to Sunalta C-Train station. Minutes from 17th Avenue SW's trendy boutiques and diverse dining.`,
-  "BEDDINGTON HEIGHTS": `An established suburban neighbourhood in northwest Calgary (1979) with easy connections to Stoney Trail. Two schools within the neighbourhood. Adjacent to Nose Hill Park — the second largest park in the city.`,
-  "BELTLINE": `Calgary's most urban neighbourhood, immediately south of downtown. Highest population density in the city. The hub for nightlife, restaurants, and urban culture. 17th Avenue features 100+ restaurants and cafés. Walk score among the highest in Calgary.`,
-  "BOWNESS": `Calgary's oldest neighbourhood and former town, amalgamated in 1964. Socioeconomically diverse with character homes and gentrification underway. Bowness Park is one of Calgary's most popular, with river access and skating. Northwest location offers mountain access.`,
-  "BRENTWOOD": `Mature residential community established 1960 in northwest Calgary. Served by Brentwood C-Train station and seven bus lines. Nine schools in the area. Adjacent to University of Calgary and south of Nose Hill Park. Brentwood Village Shopping Centre nearby.`,
-  "BRIDGELAND/RIVERSIDE": `Bohemian/bourgeois neighbourhood northeast of downtown with high walkability. Has an LRT station on Memorial Drive. Heritage Italian enclave along 1st Avenue NE. Strong community garden, disc golf, and recreational amenities. Growing population of young professionals.`,
-  "CHAPARRAL": `Southern Calgary community with lake access and an active community association. Primarily single-family homes. Good school options including Lake Chaparral School. Fish Creek Provincial Park nearby for hiking and outdoor recreation.`,
-  "CITADEL": `Northwest Calgary community with single-family homes and good transit access. Multiple schools in the area. Nearby Crowfoot Crossing mall and C-Train access.`,
-  "COACH HILL": `West Calgary community with access to mountain routes via Highway 1. Elevated terrain with Rockies views. Close to Westhills Towne Centre for shopping.`,
-  "COPPERFIELD": `Southeast community established in the early 2000s with a strong family demographic. Multiple schools, parks, and pathways. Accessible via major roads to Deerfoot Trail.`,
-  "COUGAR RIDGE": `West Calgary community near West Springs with Rockies access. Newer homes and good schools. Close to Westside Recreation Centre.`,
-  "CRANSTON": `Southeast Calgary community with fish ponds, playgrounds, and community centre. Multiple schools. Proximity to Seton shopping and services hub.`,
-  "DALHOUSIE": `Northwest Calgary mature community served by Dalhousie C-Train station. Family-friendly with multiple schools and Crowfoot Crossing mall nearby.`,
-  "DISCOVERY RIDGE": `West Calgary community along the Elbow River with Griffith Woods Park access. Upscale homes with mountain views and a strong natural setting. Good schools.`,
-  "DOUGLASDALE/GLEN": `Southeast community along the Bow River with a golf course. Family-oriented with good schools, parks, and pathway access.`,
-  "EDGEMONT": `Established northwest community with excellent schools including Edgemont School. Family-friendly with access to Nose Hill Park and a community association with rink and programs.`,
-  "ERLTON": `Small inner-city community adjacent to the Elbow River and Victoria Park. C-Train accessible. Close to Stampede grounds and Erlton/Stampede station.`,
-  "EVANSTON": `Growing north Calgary community with newer homes and a developing commercial district. Good family demographics and community programs.`,
-  "EVERGREEN": `South Calgary community with Fish Creek Park access. Good schools, parks, and pathways. Family-friendly with established amenities.`,
-  "GLAMORGAN": `Established west Calgary community near Mount Royal University. Good transit access and schools including Glamorgan School.`,
-  "GLENBROOK": `West Calgary community with Calgary Christian School and other options. Good transit connections and proximity to West Hills shopping.`,
-  "HAMPTONS": `Northwest Calgary community with good schools and community amenities. Family demographic with established infrastructure.`,
-  "HARVEST HILLS": `North Calgary community with newer homes and community facilities. Good access to Deerfoot Trail. Country Hills shopping nearby.`,
-  "HAWKWOOD": `Northwest Calgary community with Hawkwood School and St. Maria Goretti Elementary nearby. Family-oriented with good parks.`,
-  "HILLHURST": `Inner-city northwest neighbourhood adjacent to Sunnyside with excellent walkability. Kensington Road features boutiques, restaurants, and cafés. Near C-Train and downtown.`,
-  "INGLEWOOD": `Calgary's oldest neighbourhood with a vibrant arts and culture scene along 9th Avenue. Craft breweries, antique shops, boutiques, and diverse restaurants. C-Train accessible and close to downtown.`,
-  "KILLARNEY/GLENGARRY": `West inner-city neighbourhood with 26th Avenue shopping. Good walkability and transit access. Family-friendly with parks and the Killarney Aquatic & Recreation Centre.`,
-  "KINCORA": `North Calgary newer community with growing amenities. Easy Stoney Trail access. Country Hills Town Centre for shopping.`,
-  "LAKE BONAVISTA": `South Calgary lake community with exclusive lake access for residents. Established and family-oriented with excellent parks. Close to Fish Creek Provincial Park.`,
-  "LAKEVIEW": `West Calgary mature community adjacent to North Glenmore Park and the reservoir. Excellent pathways, cycling, and green space. Good west-side transit connections.`,
-  "LEGACY": `South Calgary newer community with community facilities and parks. Good schools including Legacy School. Easy Stoney Trail access.`,
-  "LINCOLN PARK": `West Calgary community adjacent to Mount Royal University. Quiet residential with proximity to Glenmore Reservoir pathway.`,
-  "LIVINGSTON": `North Calgary growing community with newer homes. Access to Deerfoot Trail and CrossIron Mills. Community hub under development.`,
-  "LOWER MOUNT ROYAL": `Prestigious inner-city southwest neighbourhood bordering downtown. Mix of heritage homes and infill. Excellent walkability on 17th Avenue and 4th Street.`,
-  "MAHOGANY": `Southeast Calgary lake community established in 2007. Largest lake in Calgary (63 acres). Year-round recreational activities, excellent schools, and Seton commercial hub nearby.`,
-  "MCKENZIE TOWNE": `Southeast planned community with a traditional town square design. 130+ locally owned stores and restaurants. Multiple schools and community events. Very family-friendly.`,
-  "MIDNAPORE": `South Calgary lake community with access to Midnapore Lake. Family-oriented with good schools and Fish Creek park access.`,
-  "MILLRISE": `South Calgary community near Shawnessy C-Train station. Good schools, amenities, and pathway access.`,
-  "MISSION": `Inner-city community on the Elbow River with the highest restaurant and café density in Calgary. 4th Street SW is the commercial spine. Very walkable and close to downtown.`,
-  "MONTGOMERY": `Northwest Calgary along the Bow River with good mountain access. Established community with diverse housing. Walkable area with local shops.`,
-  "MOUNT PLEASANT": `North inner-city community with C-Train accessible via bus. Close to downtown. Community gardens and parks. Mix of families and young professionals.`,
-  "NEW BRIGHTON": `Southeast Calgary community with beach volleyball, spray park, and clubhouse for residents. Multiple schools and excellent family amenities.`,
-  "NOLAN HILL": `North Calgary newer community with good family demographics. Stoney Trail access. Developing amenities.`,
-  "NORTH HAVEN": `Established north Calgary community with schools and parks. Good access to Deerfoot Trail.`,
-  "OAKRIDGE": `Southwest Calgary mature community near Southland Leisure Centre and C-Train. Family-friendly with parks and shopping.`,
-  "OGDEN": `Southeast community south of the Bow River. Affordable housing with good access to major roads.`,
-  "PALLISER": `Southwest Calgary community near Southland C-Train station. Family-oriented with parks and Glenmore Reservoir pathway access.`,
-  "PANORAMA HILLS": `North Calgary community with two schools, the County Hills Towne Centre, and Genesis Centre recreation facility.`,
-  "PARKDALE": `Inner-city northwest community on the Bow River with excellent pathway access. Close to downtown and C-Train. Very family-friendly with community facilities.`,
-  "PARKLAND": `South Calgary community near Fish Creek Provincial Park. Good schools and outdoor recreation access.`,
-  "PATTERSON": `West Calgary community with elevated terrain and Rockies views. Good access to Highway 1 for mountain trips. Patterson Park and Community Association.`,
-  "RAMSAY": `Inner-city community southeast of downtown with character homes and arts scene. Close to the Stampede grounds and C-Train.`,
-  "RANCHLANDS": `Northwest community with Nose Hill Park access and good schools. Community Association with excellent programs.`,
-  "REDSTONE": `Northeast Calgary newer community with growing demographics. Affordable entry-level housing.`,
-  "RENFREW": `Inner-city community northeast of downtown with great character and C-Train access. Renovated homes alongside originals. Close to downtown amenities.`,
-  "RIVERBEND": `Southeast community on the Bow River with good schools and pathways. Family-oriented.`,
-  "ROCKY RIDGE": `Northwest community near Royal Oak C-Train station with mountains access. Newer homes and good schools.`,
-  "ROSEDALE": `Prestigious inner-city northwest community overlooking downtown. Character homes and excellent walkability to Kensington.`,
-  "ROYAL OAK": `Northwest community near Royal Oak C-Train station. Family-friendly with multiple schools and Crowfoot Crossing mall nearby.`,
-  "SADDLE RIDGE": `Northeast Calgary newer community with a large South Asian demographic. Diverse amenities and growing infrastructure.`,
-  "SAGE HILL": `North Calgary newer community with developing amenities. Good Stoney Trail access.`,
-  "SCENIC ACRES": `Northwest Calgary mature community with good schools, Nose Hill Park proximity, and a strong community association.`,
-  "SETON": `Southeast Calgary newest urban district with hospitals, YMCA, cinema, and abundant retail. Growing and very amenity-rich.`,
-  "SHAWNESSY": `South Calgary community near Shawnessy C-Train station and the largest outdoor mall in western Canada. Multiple schools and Cardel Rec Centre.`,
-  "SIGNAL HILL": `West Calgary community with elevated Rockies views. West Hills Towne Centre for shopping. Good access to mountains via Highway 1.`,
-  "SILVER SPRINGS": `Northwest community on the Bow River with one of the best community associations in the city. Excellent schools, Silver Springs Pool, and pathway access.`,
-  "SILVERADO": `South Calgary newer community with Silverado Marketplace nearby. Family-oriented with growing infrastructure.`,
-  "SOMERSET": `South Calgary community near Somerset/Bridlewood C-Train station. Good schools, parks, and Shawnessy shopping nearby.`,
-  "SOUTH CALGARY": `Inner-city southwest community along Marda Loop's 33rd Avenue. Walkable with shops and cafés. Good transit and downtown proximity.`,
-  "SPRINGBANK HILL": `Upscale west Calgary community with prominent Rockies views and large lots. Excellent schools and access to recreational areas.`,
-  "STRATHCONA PARK": `West Calgary community with Edworthy Park and Bow River pathway access. Good schools and proximity to the mountains.`,
-  "SUNALTA": `Inner-city west community with Sunalta C-Train station. Very walkable with downtown proximity. Popular with young professionals.`,
-  "SUNNYSIDE": `Inner-city northwest community adjacent to Kensington Road with the highest walkability outside of downtown. Community gardens, pathways, C-Train access.`,
-  "TUSCANY": `Northwest community near Tuscany C-Train station with mountain views. Family-oriented with excellent schools and Twelve Mile Coulee natural area.`,
-  "UNIVERSITY DISTRICT": `New northwest community built around walkability and sustainability. Adjacent to University of Calgary, Foothills Hospital, and Alberta Children's Hospital.`,
-  "UPPER MOUNT ROYAL": `Most prestigious established neighbourhood in Calgary. Large lots, heritage homes, and proximity to Elbow River pathways. Close to downtown.`,
-  "VALLEY RIDGE": `West Calgary community on the Bow River with mountain views and natural ravine. Quiet and upscale.`,
-  "VARSITY": `Northwest community near Varsity/University C-Train stations. Adjacent to University of Calgary. Excellent schools and Nose Hill access.`,
-  "WALDEN": `South Calgary newer community with developing amenities. Easy Highway 22X access.`,
-  "WEST HILLHURST": `Inner-city northwest community adjacent to Kensington. Excellent walkability, C-Train proximity, and schools.`,
-  "WEST SPRINGS": `West Calgary community with excellent Rockies proximity and access to Wentworth area shopping. Strong family demographics.`,
-  "WESTGATE": `West community near Westbrook C-Train station with established infrastructure. Affordable and family-friendly.`,
-  "WILDWOOD": `West community along Edworthy Park with excellent pathway network. Quiet and established with good mountain access.`,
-  "WILLOW PARK": `South Calgary established community near Willow Park Estates Golf Course. Family-oriented with good schools.`,
-  "WINDSOR PARK": `Inner-city southwest community near Elbow Drive and the river. Close to downtown with established character homes.`,
-  "WINSTON HEIGHTS/MOUNTVIEW": `Inner-city northeast community with views of downtown. Good transit and growing population of young families.`,
-  "WOLF WILLOW": `Newest south Calgary community along the Bow River. Very new with growing amenities. Future development planned.`,
-  "WOODBINE": `South Calgary community adjacent to Fish Creek Provincial Park. Excellent outdoor access and schools.`,
-  "WOODLANDS": `South Calgary community near Fish Creek. Good schools and outdoor recreation. Established family community.`,
-  "YORKVILLE": `South Calgary newer community with developing amenities. Affordable entry-level housing.`,
-};
-
-// SCHOOLS_BY_NEIGHBOURHOOD is loaded asynchronously from the heat-maps repo.
-// See fetchRemoteData() below.
-let SCHOOLS_BY_NEIGHBOURHOOD = {};
-
-// ============================================================
-// STATE & UI
-// ============================================================
-let allCommunities = [];
-let currentScores  = {};
-let activeOverlays = new Set();
-let overlayPopup   = null;
-let hoverPopup     = new mapboxgl.Popup({ closeButton: false, closeOnClick: false, offset: 10 });
-let selectedName   = null;
-
-const aiCache = {};
-
-// ============================================================
-// ONBOARDING
-// ============================================================
-(function() {
-  const overlay = document.getElementById('onboarding-overlay');
-  if (sessionStorage.getItem('reloc_onboarding_seen')) {
-    overlay.style.display = 'none'; return;
-  }
-  function dismissOnboarding() {
-    overlay.style.display = 'none';
-    sessionStorage.setItem('reloc_onboarding_seen', '1');
-  }
-  document.getElementById('onboarding-dismiss').addEventListener('click', dismissOnboarding);
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) dismissOnboarding();
-  });
-})();
-
-// ============================================================
-// PANEL TOGGLE
-// ============================================================
-const controls = document.getElementById('controls');
-const showMenu  = document.getElementById('show-menu');
-document.getElementById('minimize-btn').addEventListener('click', () => {
-  controls.classList.add('minimized'); showMenu.style.display = 'block';
-});
-showMenu.addEventListener('click', () => {
-  controls.classList.remove('minimized'); showMenu.style.display = 'none';
-});
-
-// ============================================================
-// SLIDER SYNC
-// ============================================================
-const sliderIds = ['schools','green','transit','commute','safety','amenities','afford','urban'];
-sliderIds.forEach(id => {
-  const slider = document.getElementById('sl-' + id);
-  const val    = document.getElementById('v-' + id);
-  slider.addEventListener('input', () => {
-    val.textContent = slider.value;
-    document.querySelectorAll('.persona-btn').forEach(b => b.classList.remove('active'));
-    debouncedRefresh();
-  });
-});
-
-sliderIds.forEach(id => {
-  const chk = document.getElementById('chk-' + id);
-  if (!chk) return;
-  chk.addEventListener('change', () => {
-    const row = chk.closest('.priority-row');
-    row.classList.toggle('disabled', !chk.checked);
-    document.querySelectorAll('.persona-btn').forEach(b => b.classList.remove('active'));
-    debouncedRefresh();
-  });
-});
-
-// ============================================================
-// PERSONA PRESETS
-// ============================================================
-document.querySelectorAll('.persona-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.persona-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    const weights = PERSONAS[btn.dataset.persona];
-    if (!weights) return;
-    sliderIds.forEach((id, i) => {
-      document.getElementById('sl-' + id).value = weights[i];
-      document.getElementById('v-' + id).textContent  = weights[i];
-    });
-    refreshScores();
-  });
-});
-
-// ============================================================
-// RESET
-// ============================================================
-document.getElementById('reset-btn').addEventListener('click', () => {
-  sliderIds.forEach(id => {
-    const defaults = {schools:5,green:5,transit:5,commute:5,safety:5,amenities:5,afford:5,urban:4};
-    document.getElementById('sl-' + id).value = defaults[id];
-    document.getElementById('v-' + id).textContent = defaults[id];
-    const chk = document.getElementById('chk-' + id);
-    if (chk) { chk.checked = true; chk.closest('.priority-row').classList.remove('disabled'); }
-  });
-  document.querySelectorAll('.persona-btn').forEach(b => b.classList.remove('active'));
-  // clear overlays
-  activeOverlays.forEach(o => toggleOverlay(o, false));
-  activeOverlays.clear();
-  document.querySelectorAll('.overlay-btn').forEach(b => b.classList.remove('active'));
-  closeInfoPanel();
-  refreshScores();
-  map.fitBounds(DEFAULT_BOUNDS, { padding: 60, duration: 800 });
-});
-
-// ============================================================
-// DEBOUNCE
-// ============================================================
-let refreshTimer = null;
-function debouncedRefresh() {
-  clearTimeout(refreshTimer);
-  refreshTimer = setTimeout(refreshScores, 80);
+function formatPrice(v) {
+  if (!v || !isFinite(v)) return '\u2014';
+  return '$' + Math.round(v).toLocaleString();
 }
 
-// ============================================================
-// SCORE REFRESH → MAP PAINT
-// ============================================================
-function refreshScores() {
-  const weights = getWeights();
-  currentScores = computeAllScores(weights);
-  paintMap();
-  updateTopMatches();
+function ageLabel(d) {
+  if (!d || !d.comm_structure) return '\u2014';
+  const raw = AGE_MAP[d.comm_structure];
+  return AGE_LABELS[raw] || d.comm_structure;
 }
 
-const RELOC_LAYER_ID = 'gc-reloc-fill';
-const RELOC_OUTLINE_ID = 'gc-reloc-outline';
-const RELOC_SELECTED_ID = 'gc-reloc-selected';
+// ── Map painting ──────────────────────────────────────────────────────────────
 
 function paintMap() {
   if (!map.getLayer(RELOC_LAYER_ID)) return;
-
-  const nameExpr = ['coalesce', ['upcase', ['get', 'name']], ['upcase', ['get', 'comm_name']]];
-  const entries  = Object.entries(currentScores);
-
-  // 'match' requires at least one value/output pair — fall back to a flat colour
-  // until scores have loaded.
-  let residentialExpr;
-  if (entries.length === 0) {
-    residentialExpr = 'rgba(180,180,180,0.25)';
-  } else {
-    const matchExpr = ['match', nameExpr];
-    entries.forEach(([name, score]) => matchExpr.push(name, scoreToColor(score)));
-    matchExpr.push('rgba(180,180,180,0.25)');
-    residentialExpr = matchExpr;
+  const weights = getWeights();
+  if (Object.keys(NEIGHBOURHOOD_DATA).length === 0) {
+    map.setPaintProperty(RELOC_LAYER_ID, 'fill-color', 'rgba(0,0,0,0)');
+    return;
   }
-
-  const colorExpr = [
-    'case',
-    ['==', ['get', 'Class'], 'Major Parks'],  'rgba(34,197,94,0.35)',
-    ['==', ['get', 'Class'], 'Commercial'],   'rgba(148,163,184,0.2)',
-    ['==', ['get', 'Class'], 'Industrial'],   'rgba(234,88,12,0.2)',
-    residentialExpr
-  ];
-
-  map.setPaintProperty(RELOC_LAYER_ID, 'fill-color', colorExpr);
+  currentScores = {};
+  const matchExpr = ['match', ['get', 'comm_code']];
+  Object.keys(NEIGHBOURHOOD_DATA).forEach(code => {
+    const score = computeScore(code, weights);
+    currentScores[code] = score;
+    matchExpr.push(code, scoreToColor(score));
+  });
+  matchExpr.push('rgba(0,0,0,0)');
+  map.setPaintProperty(RELOC_LAYER_ID, 'fill-color', matchExpr);
   map.setPaintProperty(RELOC_LAYER_ID, 'fill-opacity', 0.82);
+  updateTopMatches();
 }
 
-// ============================================================
-// TOP MATCHES
-// ============================================================
+// ── Top matches ───────────────────────────────────────────────────────────────
+
 function updateTopMatches() {
-  const sorted = Object.entries(currentScores)
-    .filter(([n, s]) => s !== null && NEIGHBOURHOOD_DESCRIPTIONS[n])
-    .sort(([,a],[,b]) => b - a)
+  const container = document.getElementById('top-matches');
+  const scored = Object.entries(currentScores)
+    .filter(([, s]) => s !== null && isFinite(s))
+    .sort((a, b) => b[1] - a[1])
     .slice(0, 5);
 
-  const el = document.getElementById('top-matches');
-  if (!sorted.length) { el.textContent = 'No data'; return; }
+  if (scored.length === 0) {
+    container.innerHTML = '<div style="font-size:12px;color:var(--text-muted);">No data yet.</div>';
+    return;
+  }
 
-  el.innerHTML = sorted.map(([name, score], i) => {
-    const pct = Math.round(score * 10);
-    const medal = ['🥇','🥈','🥉','4️⃣','5️⃣'][i];
-    return `<div style="display:flex;align-items:center;gap:7px;padding:4px 0;border-bottom:1px solid #f3f4f6;cursor:pointer;"
-      onclick="flyToNeighbourhood('${name.replace(/'/g,"\\'")}')"
-      onmouseover="this.style.background='#f0fdf4'"
-      onmouseout="this.style.background=''">
-      <span style="font-size:14px;">${medal}</span>
-      <div style="flex:1;min-width:0;">
-        <div style="font-size:11px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}</div>
-        <div style="display:flex;align-items:center;gap:4px;margin-top:2px;">
-          <div style="flex:1;height:4px;background:#e5e7eb;border-radius:2px;overflow:hidden;">
-            <div style="width:${pct}%;height:100%;background:var(--gc-green);border-radius:2px;"></div>
-          </div>
-          <span style="font-size:10px;font-weight:800;color:var(--gc-green);width:28px;">${pct}%</span>
+  container.innerHTML = scored.map(([code, score], i) => {
+    const d    = NEIGHBOURHOOD_DATA[code];
+    const name = d ? (d.comm_name || code) : code;
+    return `
+      <div class="match-card" data-code="${code}">
+        <span class="match-rank">${i + 1}</span>
+        <div class="match-info">
+          <div class="match-name">${name}</div>
+          <div class="match-bar-wrap"><div class="match-bar" style="width:${score}%"></div></div>
         </div>
-      </div>
-    </div>`;
+        <span class="match-score">${score}</span>
+      </div>`;
+  }).join('');
+
+  container.querySelectorAll('.match-card').forEach(card => {
+    card.addEventListener('click', () => openInfoPanel(card.dataset.code));
+  });
+}
+
+// ── Info Panel ────────────────────────────────────────────────────────────────
+
+function openInfoPanel(code) {
+  selectedCode = code;
+  const d = NEIGHBOURHOOD_DATA[code];
+  if (!d) return;
+
+  if (map.getLayer(RELOC_SELECTED_ID)) {
+    map.setFilter(RELOC_SELECTED_ID, ['==', ['get', 'comm_code'], code]);
+  }
+
+  document.getElementById('info-panel').classList.remove('hidden');
+  document.getElementById('info-name').textContent = d.comm_name || code;
+
+  const price = formatPrice(d.tr_benchmark);
+  const era   = ageLabel(d);
+  document.getElementById('info-meta').innerHTML =
+    `<span>\uD83C\uDFE0 ${price} benchmark</span><span>\uD83C\uDFD8 ${era}</span><span>\uD83D\uDCCD ${code}</span>`;
+
+  const weights = getWeights();
+  const score   = currentScores[code] !== undefined ? currentScores[code] : computeScore(code, weights);
+  document.getElementById('info-match-score').textContent = score !== null ? score : '\u2014';
+  document.getElementById('info-match-bar').style.width   = (score || 0) + '%';
+
+  document.getElementById('cta-sold').href =
+    'https://grahamcookyyc.com/sold?neighbourhood=' + encodeURIComponent(d.comm_name || code);
+
+  renderBreakdown(code, d);
+  renderSchools(code);
+  loadAiInsight(code, d);
+}
+
+function renderBreakdown(code, d) {
+  const weights = getWeights();
+  const cats = [
+    { key: 'schools',   score: d.score_schools   },
+    { key: 'green',     score: d.score_green      },
+    { key: 'transit',   score: d.score_transit    },
+    { key: 'commute',   score: d.score_commute    },
+    { key: 'safety',    score: d.score_safety     },
+    { key: 'amenities', score: d.score_amenities  },
+    { key: 'urban',     score: d.score_urban      },
+    { key: 'afford',    score: d.score_afford     },
+    { key: 'age',       score: ageMatchScore(d, weights.age || 0) },
+  ];
+  document.getElementById('breakdown-grid').innerHTML = cats.map(c => {
+    const s       = c.score;
+    const display = (s !== null && isFinite(s)) ? Math.round(s) : '\u2014';
+    const pct     = (s !== null && isFinite(s)) ? Math.round(s) : 0;
+    const w       = weights[c.key] || 0;
+    const dim     = w === 0 ? 'opacity:0.4;' : '';
+    return `
+      <div class="breakdown-row" style="${dim}">
+        <span class="breakdown-label">${CAT_LABELS[c.key]}</span>
+        <span class="breakdown-val">${display}</span>
+        <div class="breakdown-bar-bg"><div class="breakdown-bar" style="width:${pct}%"></div></div>
+      </div>`;
   }).join('');
 }
 
-function flyToNeighbourhood(name) {
-  // find in allCommunities
-  const found = allCommunities.find(c => String(c.name).toUpperCase() === name.toUpperCase());
-  if (found) {
-    flyToGeometry(found.geometry);
-    openInfoPanelForName(name, found.properties);
+function renderSchools(code) {
+  const section = document.getElementById('schools-section');
+  const list    = document.getElementById('schools-list');
+  const d       = NEIGHBOURHOOD_DATA[code];
+  const schools = schoolsData[code] || (d && schoolsData[(d.comm_name || '').toUpperCase()]);
+
+  if (!schools || schools.length === 0) {
+    section.style.display = 'none';
+    return;
   }
-}
-
-function getFeatureBbox(geom) {
-  let coords = [];
-  if (!geom) return null;
-  if (geom.type === 'Polygon') coords = geom.coordinates.flat();
-  else if (geom.type === 'MultiPolygon') coords = geom.coordinates.flat(2);
-  else return null;
-  let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
-  coords.forEach(c => { if(c[0]<minX)minX=c[0]; if(c[1]<minY)minY=c[1]; if(c[0]>maxX)maxX=c[0]; if(c[1]>maxY)maxY=c[1]; });
-  return [minX,minY,maxX,maxY];
-}
-function flyToGeometry(geom) {
-  const bbox = getFeatureBbox(geom);
-  if (!bbox) return;
-  map.fitBounds([[bbox[0],bbox[1]],[bbox[2],bbox[3]]], { padding:40, maxZoom:14, duration:650 });
-}
-
-// ============================================================
-// INFO PANEL
-// ============================================================
-const infoPanel = document.getElementById('info-panel');
-const infoTitle = document.getElementById('info-title');
-const infoSub   = document.getElementById('info-sub');
-const infoBody  = document.getElementById('info-body');
-
-document.getElementById('info-close').addEventListener('click', closeInfoPanel);
-function closeInfoPanel() {
-  infoPanel.classList.add('hidden');
-  selectedName = null;
-  if (map.getLayer(RELOC_SELECTED_ID)) {
-    map.setFilter(RELOC_SELECTED_ID, ['==',['get','name'],'']);
-  }
-}
-
-function openInfoPanelForName(name, props) {
-  selectedName = name;
-  const score = currentScores[name] || null;
-  const pct   = score !== null ? Math.round(score * 10) : null;
-  const weights = getWeights();
-  const scores  = NEIGHBOURHOOD_SCORES[name];
-  const desc    = NEIGHBOURHOOD_DESCRIPTIONS[name] || 'No description available.';
-  const schools = SCHOOLS_BY_NEIGHBOURHOOD[name] || [];
-
-  // Selected outline
-  if (map.getLayer(RELOC_SELECTED_ID)) {
-    map.setFilter(RELOC_SELECTED_ID, ['==',['upcase',['get','name']], name]);
-  }
-
-  infoTitle.textContent = name;
-  infoSub.textContent   = pct !== null ? `Match Score: ${pct}%` : 'No score data';
-
-  // Build per-category breakdown
-  let breakdownHtml = '';
-  if (scores) {
-    const categories = [
-      { key:'schools',   label:'Schools',     icon:'🏫' },
-      { key:'green',     label:'Green Space', icon:'🌿' },
-      { key:'transit',   label:'Transit',     icon:'🚇' },
-      { key:'commute',   label:'Commute',     icon:'🚗' },
-      { key:'safety',    label:'Safety',      icon:'🔒' },
-      { key:'amenities', label:'Amenities',   icon:'🛒' },
-
-      { key:'afford',    label:'Affordability',icon:'💰'},
-      { key:'urban',     label:'Urban Vibe',  icon:'🏙️' },
-    ];
-    breakdownHtml = `
-      <div class="score-card">
-        <div class="score-card-header">📊 Neighbourhood Breakdown</div>
-        ${categories.map(c => {
-          const w = weights[c.key] || 0;
-          if (w === 0) return '';
-          const s = scores[IDX[c.key]];
-          return `<div class="score-row">
-            <div class="score-row-label"><span>${c.icon}</span>${c.label}</div>
-            <div class="score-bar-bg"><div class="score-bar-fill" style="width:${s*10}%"></div></div>
-            <div class="score-row-val">${s}</div>
-          </div>`;
-        }).join('')}
+  section.style.display = 'block';
+  list.innerHTML = schools.slice(0, 8).map(s => {
+    const type  = (s.type || s.level || 'other').toLowerCase();
+    const cls   = type.includes('elem') ? 'elem'
+                : (type.includes('jr') || type.includes('middle')) ? 'jr'
+                : (type.includes('sr') || type.includes('high')) ? 'sr'
+                : 'other';
+    const label = (s.type || s.level || 'School');
+    return `
+      <div class="school-item">
+        <span class="school-type ${cls}">${label}</span>
+        <span>${s.name || s.school_name || 'Unknown'}</span>
       </div>`;
-  }
-
-  // Schools list
-  const schoolsHtml = schools.length
-    ? `<div class="desc-section">
-        <div class="desc-label">🏫 Schools in / near this area</div>
-        <ul class="schools-list">
-          ${schools.map(s => `<li><div class="school-dot"></div>${s}</li>`).join('')}
-        </ul>
-       </div>`
-    : '';
-
-  // AI neighbourhood summary
-  const aiKey = name;
-  const aiCached = aiCache[aiKey];
-
-  infoBody.innerHTML = `
-    <div class="ai-pulse-block">
-      <div class="ai-pulse-header">
-        <span class="ai-pulse-icon">✦</span>
-        <span class="ai-pulse-title">AI Neighbourhood Insight</span>
-      </div>
-      <div id="ai-insight-body">
-        ${aiCached
-          ? `<p class="ai-pulse-text">${aiCached}</p>`
-          : `<button class="ai-pulse-trigger" onclick="loadAIInsight('${name.replace(/'/g,"\\'")}')">✦ Generate insight for ${name}</button>`
-        }
-      </div>
-    </div>
-
-    ${breakdownHtml}
-
-    <div class="cta-row">
-      <button class="cta-btn-primary" onclick="window.open('https://www.grahamcookyyc.com/listing?condition=${encodeURIComponent(JSON.stringify({location:{subdivision:[name+', Calgary, AB']}}))}','_blank')">🏠 Active Listings</button>
-      <button class="cta-btn-secondary" onclick="window.open('https://bit.ly/4qK9Czx','_blank')">🔒 Sold Data</button>
-    </div>
-
-    <div class="desc-section">
-      <div class="desc-label">About this neighbourhood</div>
-      <div class="desc-text">${desc}</div>
-    </div>
-
-    ${schoolsHtml}
-  `;
-
-  infoPanel.classList.remove('hidden');
+  }).join('');
 }
 
-// ============================================================
-// AI INSIGHT
-// ============================================================
-async function loadAIInsight(name) {
-  const el = document.getElementById('ai-insight-body');
-  if (!el) return;
-  el.innerHTML = `<div class="ai-pulse-loading"><span class="spinner"></span> Generating insight…</div>`;
+// ── AI Insight ────────────────────────────────────────────────────────────────
 
-  const scores   = NEIGHBOURHOOD_SCORES[name];
-  const weights  = getWeights();
-  const matchPct = currentScores[name] ? Math.round(currentScores[name]*10) : '?';
-  const scoreStr = scores ? sliderIds.map((k,i) => `${k}: ${scores[i]}/10`).join(', ') : 'N/A';
+async function loadAiInsight(code, d) {
+  const el = document.getElementById('ai-text');
+  if (aiCache[code]) { el.textContent = aiCache[code]; return; }
+  el.innerHTML = '<span class="ai-loading">Generating insight\u2026</span>';
 
-  const weightStr = sliderIds
-    .filter(k => weights[k] > 0)
-    .map(k => `${k}: ${weights[k]}/10`)
+  if (typeof ANTHROPIC_API_KEY === 'undefined' || !ANTHROPIC_API_KEY) {
+    el.textContent = 'AI insight unavailable (no API key configured).';
+    return;
+  }
+
+  const weights = getWeights();
+  const topCats = Object.entries(weights)
+    .filter(([, w]) => w > 0)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([k]) => CAT_LABELS[k])
     .join(', ');
 
-  const prompt = `You're a Calgary real estate and relocation expert helping someone decide if ${name} is a good fit for them.
-
-Their priorities (weight out of 10): ${weightStr}
-Neighbourhood scores: ${scoreStr}
-Overall match score: ${matchPct}%
-
-In 2-3 concise, friendly sentences, tell them:
-1. Why this neighbourhood does or doesn't match their specific priorities
-2. One key thing to know about living here that the data doesn't show (character, vibe, community feel)
-
-Be direct, warm, and specific. No generic filler.`;
+  const prompt = `You are a Calgary real estate expert. Write a 2-3 sentence neighbourhood insight for "${d.comm_name || code}" in Calgary.
+Key data: benchmark price ${formatPrice(d.tr_benchmark)}, era ${ageLabel(d)}, safety score ${Math.round(d.score_safety ?? 0)}/100, transit score ${Math.round(d.score_transit ?? 0)}/100, schools score ${Math.round(d.score_schools ?? 0)}/100.
+The user cares most about: ${topCats}.
+Be specific, warm, and helpful. No generic filler. Do not start with the neighbourhood name.`;
 
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': ANTHROPIC_API_KEY,
         'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
+        'anthropic-dangerous-direct-browser-access': 'true',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 400,
-        messages: [{ role: 'user', content: prompt }]
-      })
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 220,
+        messages: [{ role: 'user', content: prompt }],
+      }),
     });
-    const data = await resp.json();
-    const text = data.content[0].text;
-    aiCache[name] = text;
-    el.innerHTML = `<p class="ai-pulse-text">${text}</p>`;
-  } catch(e) {
-    el.innerHTML = `<p style="font-size:12px;color:#9ca3af;">Could not load insight.</p>`;
+    const json = await res.json();
+    const text = json?.content?.[0]?.text || 'Insight unavailable.';
+    aiCache[code] = text;
+    el.textContent = text;
+  } catch {
+    el.textContent = 'Could not load AI insight at this time.';
   }
 }
 
-// Make loadAIInsight globally accessible
-window.loadAIInsight = loadAIInsight;
-window.flyToNeighbourhood = flyToNeighbourhood;
+// ── UI events ─────────────────────────────────────────────────────────────────
 
-// ============================================================
-// OVERLAYS
-// ============================================================
-document.querySelectorAll('.overlay-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const key = btn.dataset.overlay;
-    const isActive = activeOverlays.has(key);
-    toggleOverlay(key, !isActive);
-    btn.classList.toggle('active', !isActive);
-    if (!isActive) activeOverlays.add(key);
-    else           activeOverlays.delete(key);
+document.querySelectorAll('input[type="range"]').forEach(slider => {
+  const key = slider.id.replace('sl-', '');
+  slider.addEventListener('input', () => {
+    const valEl = document.getElementById('sv-' + key);
+    if (valEl) valEl.textContent = slider.value;
+    if (key === 'age') {
+      const hint = document.getElementById('age-hint');
+      if (hint) hint.textContent = AGE_HINT_LABELS[slider.value] || '';
+    }
+    clearPersonaActive();
+    paintMap();
+    if (selectedCode && NEIGHBOURHOOD_DATA[selectedCode]) renderBreakdown(selectedCode, NEIGHBOURHOOD_DATA[selectedCode]);
   });
 });
 
-const EXTRA_LAYERS = [
-  'map-developing-only-current',
-  'map-major-parks-only-current',
-  'map-industrial-only-current'
-];
+document.querySelectorAll('.cat-check').forEach(cb => {
+  cb.addEventListener('change', () => {
+    const row = cb.closest('.slider-row');
+    if (row) row.classList.toggle('disabled', !cb.checked);
+    clearPersonaActive();
+    paintMap();
+    if (selectedCode && NEIGHBOURHOOD_DATA[selectedCode]) renderBreakdown(selectedCode, NEIGHBOURHOOD_DATA[selectedCode]);
+  });
+});
 
-function bringExtraLayersToTop() {
-  for (const id of EXTRA_LAYERS) {
-    if (!map.getLayer(id)) continue;
-    try { map.moveLayer(id); } catch(e) {}
-  }
+function clearPersonaActive() {
+  document.querySelectorAll('.persona-btn').forEach(b => b.classList.remove('active'));
 }
 
-function toggleOverlay(key, show) {
-  // GeoJSON-backed layers use a 'geojson-{key}' layer prefix
-  const geojsonLayerIds = {
-    ctrain: ['ctrain-stations']
-  };
-  if (geojsonLayerIds[key]) {
-    geojsonLayerIds[key].forEach(id => {
-      if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', show ? 'visible' : 'none');
+document.querySelectorAll('.persona-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const p = PERSONAS[btn.dataset.persona];
+    if (!p) return;
+    clearPersonaActive();
+    btn.classList.add('active');
+    Object.entries(p).forEach(([key, val]) => {
+      const slider = document.getElementById('sl-' + key);
+      const valEl  = document.getElementById('sv-' + key);
+      const cb     = document.querySelector(`.cat-check[data-key="${key}"]`);
+      if (slider) { slider.value = val; if (valEl) valEl.textContent = val; }
+      if (cb) {
+        cb.checked = val > 0;
+        const row = cb.closest('.slider-row');
+        if (row) row.classList.toggle('disabled', !cb.checked);
+      }
     });
-    return;
+    const ageHint = document.getElementById('age-hint');
+    if (ageHint) ageHint.textContent = AGE_HINT_LABELS[p.age] || '';
+    paintMap();
+    if (selectedCode && NEIGHBOURHOOD_DATA[selectedCode]) renderBreakdown(selectedCode, NEIGHBOURHOOD_DATA[selectedCode]);
+  });
+});
+
+document.getElementById('reset-btn').addEventListener('click', () => {
+  document.querySelectorAll('input[type="range"]').forEach(slider => {
+    slider.value = 5;
+    const key = slider.id.replace('sl-', '');
+    const valEl = document.getElementById('sv-' + key);
+    if (valEl) valEl.textContent = '5';
+  });
+  document.querySelectorAll('.cat-check').forEach(cb => {
+    cb.checked = true;
+    const row = cb.closest('.slider-row');
+    if (row) row.classList.remove('disabled');
+  });
+  const ageHint = document.getElementById('age-hint');
+  if (ageHint) ageHint.textContent = AGE_HINT_LABELS[5];
+  clearPersonaActive();
+  paintMap();
+  if (selectedCode && NEIGHBOURHOOD_DATA[selectedCode]) renderBreakdown(selectedCode, NEIGHBOURHOOD_DATA[selectedCode]);
+});
+
+document.getElementById('info-close').addEventListener('click', () => {
+  document.getElementById('info-panel').classList.add('hidden');
+  selectedCode = null;
+  if (map.getLayer(RELOC_SELECTED_ID)) {
+    map.setFilter(RELOC_SELECTED_ID, ['==', ['get', 'comm_code'], '']);
   }
-  // Mapbox style layers (EXTRA_LAYERS) toggled directly by ID
-  if (!map.getLayer(key)) return;
-  map.setLayoutProperty(key, 'visibility', show ? 'visible' : 'none');
-  if (show) bringExtraLayersToTop();
+});
+
+// ── Footer ────────────────────────────────────────────────────────────────────
+
+const footerToggle   = document.getElementById('footer-toggle');
+const footerExpanded = document.getElementById('footer-expanded');
+footerToggle.addEventListener('click', () => {
+  const open = footerExpanded.classList.toggle('open');
+  footerToggle.textContent = open ? '\u25BC Less' : '\u25B2 More';
+});
+
+// ── Home value modal ──────────────────────────────────────────────────────────
+
+function openHVModal() { document.getElementById('hv-modal').classList.remove('hidden'); }
+document.getElementById('hv-close').addEventListener('click', () => {
+  document.getElementById('hv-modal').classList.add('hidden');
+});
+document.getElementById('cta-homevalue').addEventListener('click', openHVModal);
+document.getElementById('footer-homevalue').addEventListener('click', e => {
+  e.preventDefault(); openHVModal();
+});
+document.getElementById('hv-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('hv-modal')) document.getElementById('hv-modal').classList.add('hidden');
+});
+
+// ── Onboarding ────────────────────────────────────────────────────────────────
+
+if (sessionStorage.getItem('onboarding-done')) {
+  document.getElementById('onboarding').classList.add('hidden');
 }
+document.getElementById('onboarding-start').addEventListener('click', () => {
+  sessionStorage.setItem('onboarding-done', '1');
+  document.getElementById('onboarding').classList.add('hidden');
+});
 
-// ============================================================
-// REMOTE DATA FETCH
-// ============================================================
-const HEAT_MAPS_BASE = 'https://raw.githubusercontent.com/grahamcookyyc/heat-maps/main';
+// ── Mapbox setup ──────────────────────────────────────────────────────────────
 
-async function fetchRemoteData() {
-  // --- Neighbourhood descriptions (stub — wire up when data is ready) ---
-  // TODO: fetch(`${HEAT_MAPS_BASE}/neighbourhood-descriptions.json`)
-}
+mapboxgl.accessToken = MAPBOX_TOKEN;
 
+const map = new mapboxgl.Map({
+  container: 'map',
+  style:     'mapbox://styles/grahamcook/cmh2e1384003001rfezzl716k',
+  bounds:    [[-114.30, 50.85], [-113.85, 51.20]],
+  fitBoundsOptions: { padding: 20 },
+});
 
-// ============================================================
-// MAP LOAD
-// ============================================================
-map.on('load', () => {
-  // Get existing TR monthly layer as source reference
-  const style   = map.getStyle();
-  const trLayer = style.layers.find(l => l.id === 'map-tr-current-monthly');
+map.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
-  if (!trLayer) {
-    console.warn('Source layer not found — map style may not have loaded correctly');
-    return;
-  }
+// ── Overlay toggles ───────────────────────────────────────────────────────────
 
-  const sourceId    = trLayer.source;
-  const sourceLayer = trLayer['source-layer'];
+const OVERLAY_KEYWORDS = {
+  'ov-ctrain':     ['ctrain', 'c-train', 'transit_rail', 'transit-rail', 'rail'],
+  'ov-parks':      ['park', 'landuse_park', 'landuse-park', 'national-park'],
+  'ov-industrial': ['industrial', 'landuse_industrial', 'landuse-industrial'],
+  'ov-developing': ['construction', 'developing', 'building-construction'],
+};
 
-  // Add fill layer for relocation scoring
-  map.addLayer({
-    id: RELOC_LAYER_ID,
-    type: 'fill',
-    source: sourceId,
-    'source-layer': sourceLayer,
-    paint: {
-      'fill-color': 'rgba(0,0,0,0)',
-      'fill-opacity': 0.82
+function applyOverlayToggle(checkId) {
+  const cb         = document.getElementById(checkId);
+  const keywords   = OVERLAY_KEYWORDS[checkId] || [];
+  const visibility = cb.checked ? 'visible' : 'none';
+  const style      = map.getStyle();
+  if (!style) return;
+  style.layers.forEach(layer => {
+    const id = layer.id.toLowerCase();
+    if (keywords.some(kw => id.includes(kw)) && map.getLayer(layer.id)) {
+      map.setLayoutProperty(layer.id, 'visibility', visibility);
     }
   });
+}
 
-  // Hover outline
+['ov-ctrain', 'ov-parks', 'ov-industrial', 'ov-developing'].forEach(id => {
+  document.getElementById(id).addEventListener('change', () => applyOverlayToggle(id));
+});
+
+// ── Map load ──────────────────────────────────────────────────────────────────
+
+map.on('load', () => {
+
+  // Add fill layer on composite / community-economic-index-map
   map.addLayer({
-    id: RELOC_OUTLINE_ID,
-    type: 'line',
-    source: sourceId,
-    'source-layer': sourceLayer,
+    id:             RELOC_LAYER_ID,
+    type:           'fill',
+    source:         CEI_SOURCE_ID,
+    'source-layer': CEI_SOURCE_LAYER,
+    paint: {
+      'fill-color':   'rgba(0,0,0,0)',
+      'fill-opacity': 0.82,
+    },
+  });
+
+  map.addLayer({
+    id:             RELOC_OUTLINE_ID,
+    type:           'line',
+    source:         CEI_SOURCE_ID,
+    'source-layer': CEI_SOURCE_LAYER,
+    paint: {
+      'line-color': 'rgba(0,0,0,0.18)',
+      'line-width': 0.7,
+    },
+  });
+
+  map.addLayer({
+    id:             RELOC_SELECTED_ID,
+    type:           'line',
+    source:         CEI_SOURCE_ID,
+    'source-layer': CEI_SOURCE_LAYER,
+    filter:         ['==', ['get', 'comm_code'], ''],
     paint: {
       'line-color': '#00473e',
-      'line-width': 1.5,
-      'line-opacity': 0.4
+      'line-width': 3,
     },
-    filter: ['==', ['get', 'name'], '']
   });
 
-  // Selected outline
-  map.addLayer({
-    id: RELOC_SELECTED_ID,
-    type: 'line',
-    source: sourceId,
-    'source-layer': sourceLayer,
-    paint: {
-      'line-color': '#111827',
-      'line-width': 2.5,
-      'line-opacity': 0.8
-    },
-    filter: ['==', ['get', 'name'], '']
-  });
+  // Apply default overlays
+  applyOverlayToggle('ov-ctrain');
 
-  // ── Hide extra style layers initially ──
-  EXTRA_LAYERS.forEach(id => {
-    if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', 'none');
-    else console.warn('Extra layer not found in style:', id);
-  });
+  // ── Data loading ────────────────────────────────────────────────────────────
+  map.once('idle', async () => {
+    const statusEl = document.getElementById('data-status');
 
-  // ── C-Train overlay (Calgary Open Data) ──
-  map.addSource('ctrain-stations-src', {
-    type: 'geojson',
-    data: 'https://data.calgary.ca/resource/2axz-xm4q.geojson'
-  });
-  map.addLayer({
-    id: 'ctrain-stations',
-    type: 'circle',
-    source: 'ctrain-stations-src',
-    layout: { visibility: 'none' },
-    paint: {
-      'circle-radius': 6,
-      'circle-color': '#ef4444',
-      'circle-stroke-color': '#fff',
-      'circle-stroke-width': 2,
-      'circle-opacity': 0.95
-    }
-  });
+    // Step 1: CEI
+    statusEl.textContent = 'Step 1/5: Loading CEI data\u2026';
+    const ceiFeatures = map.querySourceFeatures(CEI_SOURCE_ID, { sourceLayer: CEI_SOURCE_LAYER });
 
-  // Fetch remote data (fire-and-forget; map renders immediately with cached scores)
-  fetchRemoteData();
+    ceiFeatures.forEach(f => {
+      const p    = f.properties;
+      const code = p.comm_code;
+      if (!code) return;
+      if (NON_RESIDENTIAL_CLASSES.includes(p.comm_class) ||
+          NON_RESIDENTIAL_CLASSES.includes(p.comm_structure)) return;
 
-  // Compute all scores from map-economic-index-current + tr-benchmark
-  map.once('idle', () => {
-
-    // ── Step 1: Economic Index → categories 0,1,2,3,4,5,8 ──────────────────
-    // Wrapped in async IIFE so we can await the style fetch.
-    // refreshScores() is called inside once scoring is complete.
-    (async () => { try {
-      // Fetch the live style JSON from Mapbox API to get the correct source ID.
-      // This bypasses any browser-cached version of the style that may predate
-      // the economic index layer being added.
-      const ECON_LAYER_ID     = 'map-economic-index-current';
-      const ECON_SOURCE_LAYER = 'CEI_Map-9ssgey';
-      const styleRes = await fetch(
-        `https://api.mapbox.com/styles/v1/grahamcook/cmmtl2rl8003v01rbb7w7eju8?access_token=${mapboxgl.accessToken}`
-      );
-      if (!styleRes.ok) throw new Error(`Style fetch failed: ${styleRes.status}`);
-      const freshStyle   = await styleRes.json();
-      const econLayerDef = freshStyle.layers.find(l => l.id === ECON_LAYER_ID);
-      if (!econLayerDef) throw new Error(`${ECON_LAYER_ID} not found in published style`);
-      const econSourceId = econLayerDef.source;
-
-      const econFeatures = map.querySourceFeatures(econSourceId, { sourceLayer: ECON_SOURCE_LAYER });
-
-      // Deduplicate by name (tiles may return the same feature multiple times)
-      const allData = {};
-      econFeatures.forEach(f => {
-        const p    = f.properties;
-        const name = String(p.name || p.comm_name || '').toUpperCase().trim();
-        if (!name || allData[name]) return;
-        allData[name] = p;
-      });
-
-      // Field definitions: [csv_column_name, invert]
-      // invert=true means lower raw value → better score
-      const FIELDS = {
-        spatialEdu:      ['Spatial Access to Primary and Secondary Education', false],
-        proxPrimary:     ['Proximity to Primary Education',                    false],
-        proxSecondary:   ['Proximity to Secondary Education',                  false],
-        parkArea:        ['Share of Park Area (%)',                            false],
-        proxParks:       ['Proximity to Neighbourhood Parks',                  false],
-        treeCanopy:      ['Tree Canopy (%)',                                   false],
-        landTemp:        ['Land Surface Temperature',                          true],
-        transitScore:    ['Transit Score',                                     false],
-        transitPct:      ['Commute to Work by Transit (%)',                    false],
-        commuteTime:     ['Commute to Work Time (minutes)',                    true],
-        walkScore:       ['Walk Score',                                        false],
-        personCrime:     ['Person Crime Rate',                                 true],
-        propertyCrime:   ['Property Crime Rate',                               true],
-        socialDisorder:  ['Social Disorder Rate',                              true],
-        physicalDisorder:['Physical Disorder Rate',                            true],
-        belonging:       ['Sense of Belonging to Local Community (%)',         false],
-        amenitiesDomain: ['Accessibility and Amenities Domain Score',          false],
-        proxGrocery:     ['Proximity to Grocery Store',                        false],
-        proxHealthcare:  ['Proximity to Healthcare',                           false],
-        proxChildcare:   ['Proximity to Childcare',                            false],
-        proxPharmacy:    ['Proximity to Pharmacies',                           false],
-        renterPct:       ['Renter Households (%)',                             false],
-      };
-
-      // Min/max across all neighbourhoods for each field
-      const stats = {};
-      Object.entries(FIELDS).forEach(([key, [col]]) => {
-        const vals = Object.values(allData)
-          .map(p => parseFloat(p[col]))
-          .filter(v => !isNaN(v) && isFinite(v));
-        if (!vals.length) { stats[key] = { min: 0, range: 1 }; return; }
-        const mn = Math.min(...vals), mx = Math.max(...vals);
-        stats[key] = { min: mn, range: mx - mn || 1 };
-      });
-
-      // Log any field that produced zero valid values (likely a column name mismatch)
-      const missingFields = Object.entries(stats).filter(([, s]) => s.range === 1 && s.min === 0);
-      if (missingFields.length) {
-        // Sample actual keys from first feature to help diagnose
-        const sampleKeys = Object.keys(Object.values(allData)[0] || {});
-        console.warn('Economic index fields with no data (possible name mismatch):', missingFields.map(([k]) => k));
-        console.info('Actual tileset property keys (sample):', sampleKeys);
+      if (!NEIGHBOURHOOD_DATA[code]) {
+        NEIGHBOURHOOD_DATA[code] = {
+          comm_code:       code,
+          comm_name:       p.comm_name || p.name || code,
+          comm_class:      p.comm_class      || '',
+          comm_structure:  p.comm_structure  || '',
+          score_schools:   numOrNull(p.score_schools),
+          score_green:     numOrNull(p.score_green),
+          score_transit:   numOrNull(p.score_transit),
+          score_commute:   numOrNull(p.score_commute),
+          score_safety:    numOrNull(p.score_safety),
+          score_amenities: numOrNull(p.score_amenities),
+          score_urban:     numOrNull(p.score_urban),
+          score_afford:    null,
+          score_age:       null,
+          tr_benchmark:    null,
+        };
       }
-
-      function normField(props, key) {
-        const [col, invert] = FIELDS[key];
-        const val = parseFloat(props[col]);
-        if (isNaN(val) || !isFinite(val)) return null;
-        const n = (val - stats[key].min) / stats[key].range;
-        return invert ? 1 - n : n;
-      }
-
-      function composite(props, components) {
-        let totalW = 0, sum = 0;
-        components.forEach(([key, w]) => {
-          const n = normField(props, key);
-          if (n === null) return;
-          sum += n * w; totalW += w;
-        });
-        return totalW === 0 ? 5 : Math.round(1 + 9 * (sum / totalW));
-      }
-
-      let scored = 0;
-      Object.entries(allData).forEach(([name, props]) => {
-        NEIGHBOURHOOD_SCORES[name] = [
-          // 0 — Schools
-          composite(props, [['spatialEdu',0.5],['proxPrimary',0.3],['proxSecondary',0.2]]),
-          // 1 — Green Space
-          composite(props, [['parkArea',0.4],['proxParks',0.3],['treeCanopy',0.2],['landTemp',0.1]]),
-          // 2 — Transit
-          composite(props, [['transitScore',0.6],['transitPct',0.4]]),
-          // 3 — Commute
-          composite(props, [['commuteTime',0.7],['walkScore',0.2],['transitPct',0.1]]),
-          // 4 — Safety
-          composite(props, [['personCrime',0.3],['propertyCrime',0.3],['socialDisorder',0.2],['physicalDisorder',0.1],['belonging',0.1]]),
-          // 5 — Amenities
-          composite(props, [['amenitiesDomain',0.3],['proxGrocery',0.2],['proxHealthcare',0.2],['proxChildcare',0.15],['proxPharmacy',0.15]]),
-          // 6 — unused (mountains removed)
-          0,
-          // 7 — Affordability placeholder; overwritten by tr-benchmark below
-          5,
-          // 8 — Urban Vibe
-          composite(props, [['walkScore',0.4],['transitScore',0.25],['renterPct',0.2],['proxGrocery',0.15]]),
-        ];
-        scored++;
-      });
-      console.log(`Scores computed from economic index for ${scored} neighbourhoods`);
-      refreshScores();
-    } catch (err) {
-      console.warn('Economic index scoring failed:', err);
-    } })();
-
-    // ── Step 2: Affordability from tr-benchmark (overwrites index 7) ─────────
-    try {
-      const features = map.querySourceFeatures(sourceId, { sourceLayer });
-      const benchmarks = {};
-      features.forEach(f => {
-        const name = String((f.properties.name || f.properties.comm_name || '')).toUpperCase().trim();
-        const val  = parseFloat(f.properties['tr-benchmark']);
-        if (name && !isNaN(val) && val > 0) benchmarks[name] = val;
-      });
-      const prices = Object.values(benchmarks);
-      if (prices.length > 0) {
-        const minP = Math.min(...prices), maxP = Math.max(...prices);
-        const range = maxP - minP || 1;
-        Object.entries(benchmarks).forEach(([name, price]) => {
-          if (NEIGHBOURHOOD_SCORES[name]) {
-            NEIGHBOURHOOD_SCORES[name][7] = Math.round(1 + 9 * (1 - (price - minP) / range));
-          }
-        });
-        console.log(`Affordability scores updated from tr-benchmark (${prices.length} neighbourhoods)`);
-      }
-    } catch (err) {
-      console.warn('Could not compute affordability from tr-benchmark:', err);
-    }
-
-    buildSearchIndex();
-    refreshScores();
-  });
-
-  // Mouse hover
-  map.on('mousemove', RELOC_LAYER_ID, (e) => {
-    if (isMobile) return;
-    const feat = e.features && e.features[0];
-    if (!feat) return;
-    const name  = String((feat.properties.name || feat.properties.comm_name || '')).toUpperCase();
-    const score = currentScores[name];
-    const pct   = score !== null && score !== undefined ? Math.round(score * 10) : null;
-    const weights = getWeights();
-    const scores  = NEIGHBOURHOOD_SCORES[name];
-
-    map.setFilter(RELOC_OUTLINE_ID, ['==', ['upcase', ['get', 'name']], name]);
-    map.getCanvas().style.cursor = 'pointer';
-
-    let detailRows = '';
-    if (scores) {
-      const cats = [
-        {k:'schools',l:'Schools',i:0},{k:'green',l:'Green',i:1},
-        {k:'transit',l:'Transit',i:2},{k:'commute',l:'Commute',i:3},
-        {k:'safety',l:'Safety',i:4}
-      ];
-      detailRows = cats
-        .filter(c => (weights[c.k] || 0) > 0)
-        .slice(0, 4)
-        .map(c => `<div class="hover-score-row">${c.l}: <span class="hval">${scores[c.i]}/10</span></div>`)
-        .join('');
-    }
-
-    hoverPopup.setLngLat(e.lngLat).setHTML(`
-      <div class="hover-card">
-        <div class="hover-name">${name}</div>
-        ${pct !== null ? `<div class="hover-score">${pct}% match</div>` : ''}
-        ${detailRows ? `<div class="hover-scores">${detailRows}</div>` : ''}
-      </div>
-    `).addTo(map);
-  });
-
-  map.on('mouseleave', RELOC_LAYER_ID, () => {
-    hoverPopup.remove();
-    map.getCanvas().style.cursor = '';
-    map.setFilter(RELOC_OUTLINE_ID, ['==', ['get', 'name'], '']);
-  });
-
-  // Click
-  map.on('click', RELOC_LAYER_ID, (e) => {
-    const feat = e.features && e.features[0];
-    if (!feat) return;
-    const name = String((feat.properties.name || feat.properties.comm_name || '')).toUpperCase();
-    openInfoPanelForName(name, feat.properties);
-  });
-
-  // C-Train station click popup
-  map.on('click', 'ctrain-stations', (e) => {
-    const props = e.features[0].properties;
-    const name  = props.stationnam || 'C-Train Station';
-    const route = props.route ? ` · Route ${props.route}` : '';
-    new mapboxgl.Popup({ closeButton: false, closeOnClick: true, offset: 10 })
-      .setLngLat(e.lngLat)
-      .setHTML(`<strong>${name}</strong><br><span style="font-size:11px;color:#6b7280;">🚇 C-Train${route}</span>`)
-      .addTo(map);
-  });
-  map.on('mouseenter', 'ctrain-stations', () => { map.getCanvas().style.cursor = 'pointer'; });
-  map.on('mouseleave', 'ctrain-stations', () => { map.getCanvas().style.cursor = ''; });
-});
-
-// ============================================================
-// SEARCH
-// ============================================================
-function buildSearchIndex() {
-  const style = map.getStyle();
-  const trLayer = style.layers.find(l => l.id === 'map-tr-current-monthly');
-  if (!trLayer) return;
-  const feats = map.querySourceFeatures(trLayer.source, { sourceLayer: trLayer['source-layer'] });
-  const seen  = new Set();
-  allCommunities = feats.filter(f => {
-    const nm = f.properties?.name || f.properties?.comm_name;
-    if (!nm) return false;
-    const k = String(nm).toLowerCase();
-    if (seen.has(k)) return false;
-    seen.add(k); return true;
-  }).map(f => ({
-    name: f.properties.name || f.properties.comm_name,
-    geometry: f.geometry,
-    properties: f.properties
-  }));
-
-  // Log any tileset communities that don't have score data so we can add them.
-  const unscored = allCommunities
-    .map(c => String(c.name).toUpperCase())
-    .filter(n => !NEIGHBOURHOOD_SCORES[n]);
-  if (unscored.length) console.warn('Communities in tileset with no score data:', unscored);
-}
-
-const searchInput  = document.getElementById('search');
-const searchResults= document.getElementById('search-results');
-
-searchInput.addEventListener('input', (e) => {
-  const q = e.target.value.trim().toLowerCase();
-  if (!q) { searchResults.style.display = 'none'; return; }
-  if (!allCommunities.length) buildSearchIndex();
-  const matches = allCommunities
-    .filter(c => String(c.name).toLowerCase().includes(q))
-    .sort((a,b) => String(a.name).localeCompare(String(b.name)))
-    .slice(0, 30);
-
-  if (!matches.length) { searchResults.style.display = 'none'; return; }
-  searchResults.innerHTML = matches.map(item => `<div>${item.name}</div>`).join('');
-  searchResults.style.display = 'block';
-  searchResults.querySelectorAll('div').forEach((div, i) => {
-    div.addEventListener('click', () => {
-      searchResults.style.display = 'none';
-      searchInput.value = matches[i].name;
-      flyToGeometry(matches[i].geometry);
-      openInfoPanelForName(String(matches[i].name).toUpperCase(), matches[i].properties);
     });
+
+    const n = Object.keys(NEIGHBOURHOOD_DATA).length;
+    statusEl.textContent = `Step 1/5: ${n} neighbourhoods`;
+
+    // Step 2: MLS benchmark prices
+    statusEl.textContent = 'Step 2/5: Loading MLS data\u2026';
+    const style      = map.getStyle();
+    const trLayer    = style.layers.find(l => l.id === 'map-tr-current-monthly');
+    const trSrc      = trLayer ? trLayer.source : null;
+    const trSrcLayer = trLayer ? trLayer['source-layer'] : null;
+
+    if (trSrc && trSrcLayer) {
+      map.querySourceFeatures(trSrc, { sourceLayer: trSrcLayer }).forEach(f => {
+        const p    = f.properties;
+        const code = p.comm_code;
+        if (!code || !NEIGHBOURHOOD_DATA[code]) return;
+        const b = parseFloat(p.tr_benchmark);
+        if (!isNaN(b) && b > 0) NEIGHBOURHOOD_DATA[code].tr_benchmark = b;
+      });
+    }
+
+    // Step 3: P5–P95 affordability normalisation
+    statusEl.textContent = 'Step 3/5: Normalizing affordability\u2026';
+    const benchmarks = Object.values(NEIGHBOURHOOD_DATA)
+      .map(d => d.tr_benchmark)
+      .filter(v => v !== null && isFinite(v))
+      .sort((a, b) => a - b);
+
+    if (benchmarks.length >= 10) {
+      const p5    = benchmarks[Math.floor(benchmarks.length * 0.05)];
+      const p95   = benchmarks[Math.floor(benchmarks.length * 0.95)];
+      const range = p95 - p5 || 1;
+      Object.values(NEIGHBOURHOOD_DATA).forEach(d => {
+        if (d.tr_benchmark === null) { d.score_afford = null; return; }
+        const norm       = Math.max(0, Math.min(1, (d.tr_benchmark - p5) / range));
+        d.score_afford   = Math.round((1 - norm) * 100);
+      });
+    }
+
+    // Step 4: Community age scores
+    statusEl.textContent = 'Step 4/5: Age scores\u2026';
+    Object.values(NEIGHBOURHOOD_DATA).forEach(d => {
+      const raw   = AGE_MAP[d.comm_structure];
+      d.age_score_raw = raw || null;
+      d.score_age     = raw != null ? (raw - 1) / 9 * 100 : null;
+    });
+
+    // Step 5: Schools data
+    statusEl.textContent = 'Step 5/5: Loading schools\u2026';
+    try {
+      const res  = await fetch(SCHOOLS_URL);
+      const json = await res.json();
+      Object.entries(json).forEach(([key, val]) => {
+        schoolsData[key.toUpperCase()] = val;
+      });
+    } catch (e) {
+      console.warn('Schools unavailable:', e);
+    }
+
+    // Paint map
+    paintMap();
+    statusEl.textContent = `\u2713 ${Object.keys(NEIGHBOURHOOD_DATA).length} neighbourhoods ready`;
+    setTimeout(() => statusEl.classList.add('done'), 2500);
   });
 });
 
-document.addEventListener('click', (e) => {
-  if (!e.target.closest('.search-box')) searchResults.style.display = 'none';
+// ── Hover popup ───────────────────────────────────────────────────────────────
+
+map.on('mousemove', RELOC_LAYER_ID, e => {
+  if (!e.features.length) return;
+  map.getCanvas().style.cursor = 'pointer';
+  const p     = e.features[0].properties;
+  const code  = p.comm_code;
+  const d     = NEIGHBOURHOOD_DATA[code];
+  const score = currentScores[code];
+
+  if (!d || score === null || score === undefined) return;
+
+  const weights = getWeights();
+  const catScores = [
+    { key: 'schools',   label: CAT_LABELS.schools,   score: d.score_schools   },
+    { key: 'green',     label: CAT_LABELS.green,     score: d.score_green     },
+    { key: 'transit',   label: CAT_LABELS.transit,   score: d.score_transit   },
+    { key: 'commute',   label: CAT_LABELS.commute,   score: d.score_commute   },
+    { key: 'safety',    label: CAT_LABELS.safety,    score: d.score_safety    },
+    { key: 'amenities', label: CAT_LABELS.amenities, score: d.score_amenities },
+    { key: 'urban',     label: CAT_LABELS.urban,     score: d.score_urban     },
+    { key: 'afford',    label: CAT_LABELS.afford,    score: d.score_afford    },
+  ].filter(c => (weights[c.key] || 0) > 0 && c.score !== null && isFinite(c.score))
+   .sort((a, b) => (weights[b.key] || 0) - (weights[a.key] || 0))
+   .slice(0, 3);
+
+  const catsHtml = catScores.map(c =>
+    `<div class="popup-cat"><span>${c.label}</span><strong>${Math.round(c.score)}</strong></div>`
+  ).join('');
+
+  if (!hoverPopup) {
+    hoverPopup = new mapboxgl.Popup({
+      closeButton: false,
+      closeOnClick: false,
+      className: 'hover-popup',
+    });
+  }
+  hoverPopup.setLngLat(e.lngLat).setHTML(`
+    <div class="popup-name">${d.comm_name || code}</div>
+    <div class="popup-score">${score}<span>/100 match</span></div>
+    <div class="popup-cats">${catsHtml}</div>
+  `).addTo(map);
 });
 
+map.on('mouseleave', RELOC_LAYER_ID, () => {
+  map.getCanvas().style.cursor = '';
+  if (hoverPopup) { hoverPopup.remove(); hoverPopup = null; }
+});
+
+map.on('click', RELOC_LAYER_ID, e => {
+  if (!e.features.length) return;
+  const code = e.features[0].properties.comm_code;
+  if (code && NEIGHBOURHOOD_DATA[code]) openInfoPanel(code);
+});
 </script>
 </body>
 </html>
