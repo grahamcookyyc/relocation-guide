@@ -1274,12 +1274,28 @@ function applyOverlayToggle(checkId) {
 
 map.on('load', () => {
 
-  // Resolve the source layer name from the style layer Mapbox already knows about
-  const ceiStyleLayer = map.getStyle().layers.find(l => l.id === CEI_STYLE_LAYER_ID);
+  // Log all layers to find the correct CEI layer ID
+  const allLayers = map.getStyle().layers;
+  console.log('All style layers:', allLayers.map(l => `${l.id} | source: ${l.source || '-'} | source-layer: ${l['source-layer'] || '-'}`));
+
+  // Try exact match first, then fuzzy match on any layer using the composite source with a source-layer
+  let ceiStyleLayer = allLayers.find(l => l.id === CEI_STYLE_LAYER_ID);
   if (!ceiStyleLayer) {
-    console.error(`Style layer "${CEI_STYLE_LAYER_ID}" not found. Check Studio.`);
-    document.getElementById('data-status').textContent = 'Error: CEI layer not in style.';
-    return;
+    // Fuzzy: any composite layer whose source-layer or id contains 'economic' or 'community'
+    ceiStyleLayer = allLayers.find(l =>
+      l.source === 'composite' &&
+      l['source-layer'] &&
+      (l.id.toLowerCase().includes('economic') || l.id.toLowerCase().includes('community') ||
+       (l['source-layer'] || '').toLowerCase().includes('economic') ||
+       (l['source-layer'] || '').toLowerCase().includes('community'))
+    );
+    if (ceiStyleLayer) {
+      console.log('Fuzzy-matched CEI layer:', ceiStyleLayer.id, '→ source-layer:', ceiStyleLayer['source-layer']);
+    } else {
+      console.error('Could not find CEI style layer. Available composite layers:', allLayers.filter(l => l.source === 'composite').map(l => l.id));
+      document.getElementById('data-status').textContent = 'Error: CEI layer not found — check console.';
+      return;
+    }
   }
   CEI_SOURCE_LAYER = ceiStyleLayer['source-layer'];
   console.log('CEI source layer resolved:', CEI_SOURCE_LAYER);
