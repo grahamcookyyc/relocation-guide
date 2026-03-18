@@ -24,47 +24,59 @@
       --shadow:      0 4px 24px rgba(0,0,0,0.10);
     }
 
-    html, body { height: 100%; font-family: 'Manrope', sans-serif; color: var(--text); background: #f3f4f6; }
+    html, body { height: 100%; font-family: 'Manrope', sans-serif; color: var(--text); background: #f3f4f6; overflow: hidden; }
 
     /* ── Layout ── */
     #app { display: flex; flex-direction: column; height: 100vh; }
 
     #header {
-      background: var(--brand);
-      color: #fff;
+      background: #fff;
+      color: var(--text);
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 0 20px;
-      height: 54px;
+      padding: 0 16px;
+      height: 60px;
       flex-shrink: 0;
+      border-bottom: 1px solid var(--panel-border);
       z-index: 10;
     }
-    #header img { height: 34px; }
-    #header h1 { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
-    #header .tagline { font-size: 12px; color: rgba(255,255,255,0.65); margin-left: 4px; }
+    #header a { display: flex; align-items: center; }
+    #header img { height: 38px; }
+    #header h1 { font-size: 17px; font-weight: 800; margin: 0; }
+    #header p  { font-size: 11px; color: var(--text-muted); margin: 2px 0 0; }
+    #header .tagline { display: none; }
 
-    #main { display: flex; flex: 1; overflow: hidden; }
+    #main { flex: 1; position: relative; overflow: hidden; }
 
-    /* ── Left panel ── */
+    /* ── Map fills full main area ── */
+    #map-wrap { position: absolute; inset: 0; }
+    #map { width: 100%; height: 100%; }
+
+    /* ── Left panel — floating over map ── */
     #sidebar {
-      width: 320px;
-      min-width: 300px;
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      width: 270px;
+      max-height: calc(100% - 20px);
       background: var(--panel-bg);
-      border-right: 1px solid var(--panel-border);
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      flex-shrink: 0;
+      z-index: 10;
     }
 
     #sidebar-inner {
       flex: 1;
       overflow-y: auto;
-      padding: 16px;
+      padding: 12px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 12px;
     }
 
     /* ── Persona bar ── */
@@ -233,26 +245,32 @@
     .popup-cat { display: flex; justify-content: space-between; gap: 8px; }
     .popup-cat strong { color: var(--text); }
 
-    /* ── Info panel ── */
+    /* ── Info panel — floating over map ── */
     #info-panel {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      bottom: 10px;
       width: 340px;
-      min-width: 300px;
+      max-width: min(340px, 42vw);
       background: var(--panel-bg);
-      border-left: 1px solid var(--panel-border);
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      flex-shrink: 0;
+      z-index: 11;
     }
     #info-panel.hidden { display: none; }
 
     #info-panel-inner {
       flex: 1;
       overflow-y: auto;
-      padding: 16px;
+      padding: 12px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 12px;
     }
 
     .info-header-row {
@@ -357,46 +375,48 @@
 
     /* ── Footer ── */
     #footer {
-      background: var(--brand);
-      color: rgba(255,255,255,0.85);
+      background: #fff;
+      border-top: 1px solid var(--panel-border);
+      color: var(--text-muted);
       flex-shrink: 0;
     }
     #footer-bar {
       display: flex;
       align-items: center;
       gap: 14px;
-      padding: 6px 20px;
-      font-size: 12px;
+      padding: 0 16px;
+      height: 34px;
+      font-size: 10.5px;
     }
     #footer-toggle {
       background: none;
       border: none;
-      color: rgba(255,255,255,0.7);
+      color: var(--text-muted);
       cursor: pointer;
-      font-size: 13px;
+      font-size: 11px;
       padding: 2px 4px;
       margin-left: auto;
     }
-    #footer-toggle:hover { color: #fff; }
+    #footer-toggle:hover { color: var(--brand); }
     #footer-expanded {
-      padding: 10px 20px 12px;
-      border-top: 1px solid rgba(255,255,255,0.15);
+      padding: 10px 16px 12px;
+      border-top: 1px solid var(--panel-border);
       display: none;
     }
     #footer-expanded.open { display: block; }
     .footer-links {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px 18px;
+      gap: 6px 16px;
       font-size: 12px;
       margin-bottom: 8px;
     }
-    .footer-links a { color: rgba(255,255,255,0.8); text-decoration: none; }
-    .footer-links a:hover { color: #fff; text-decoration: underline; }
+    .footer-links a { color: var(--text-muted); text-decoration: none; }
+    .footer-links a:hover { color: var(--brand); text-decoration: underline; }
     .footer-socials { display: flex; gap: 10px; align-items: center; }
-    .footer-socials a { opacity: 0.75; transition: opacity 0.15s; }
+    .footer-socials a { opacity: 0.6; transition: opacity 0.15s; }
     .footer-socials a:hover { opacity: 1; }
-    .footer-socials img { width: 20px; height: 20px; filter: brightness(10); }
+    .footer-socials img { width: 18px; height: 18px; filter: none; }
 
     /* ── Onboarding overlay ── */
     #onboarding {
@@ -505,11 +525,13 @@
 
   <!-- Header -->
   <header id="header">
-    <img src="assets/gc - Logo - GC Circle.png" alt="Graham Cook Realty" />
+    <a href="https://www.grahamcookyyc.com" aria-label="Graham Cook Real Estate">
+      <img src="assets/gc - Logo - GC Circle.png" alt="Graham Cook Real Estate" />
+    </a>
     <div>
       <h1>Calgary Neighbourhood Finder</h1>
+      <p>Adjust priorities &rarr; map updates &rarr; click any neighbourhood</p>
     </div>
-    <span class="tagline">Powered by Graham Cook Realty</span>
   </header>
 
   <!-- Main -->
@@ -729,8 +751,7 @@
   <!-- Footer -->
   <footer id="footer">
     <div id="footer-bar">
-      <img src="assets/gc - Logo - GC Circle.png" alt="" style="height:22px;opacity:0.85;" />
-      <span style="font-size:11px;">&copy; 2025 Graham Cook Realty. All rights reserved.</span>
+      <span>&copy; 2025 Graham Cook Realty. All rights reserved.</span>
       <button id="footer-toggle" title="Expand footer">&#9650; More</button>
     </div>
     <div id="footer-expanded">
